@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07121f" />
   <title>Koduvaade</title>
   <style>
-    :root { --bg:#07121f; --card:#0d1c2c; --card2:#10263a; --text:#f5f8fb; --muted:#a7b6c5; --line:rgba(190,214,232,.14); --green:#5be38f; --cyan:#66d9ff; --orange:#ffc261; --red:#ff7790; --purple:#c084fc; }
+    :root { --bg:#07121f; --card:#0d1c2c; --card2:#10263a; --text:#f5f8fb; --muted:#a7b6c5; --line:rgba(190,214,232,.14); --green:#5be38f; --cyan:#66d9ff; --orange:#ffc261; --red:#ff7790; --yellow:#f5c518; }
     * { box-sizing:border-box; }
     body { margin:0; min-width:960px; min-height:540px; color:var(--text); font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:radial-gradient(900px 520px at 72% -10%, #173c58 0%, transparent 68%), var(--bg); overflow:hidden; }
     button { font:inherit; color:inherit; cursor:pointer; }
@@ -17,7 +17,7 @@
     .now { text-align:right; display:flex; align-items:baseline; gap:16px; }
     #clock { font-size:clamp(32px,3.8vw,64px); letter-spacing:-.075em; font-weight:750; line-height:.85; }
     #date { color:var(--muted); font-size:clamp(13px,1.3vw,20px); font-weight:600; }
-    main { display:grid; grid-template-columns:1.45fr 1fr; grid-template-rows:1fr 1fr; gap:1.8vh 1.4vw; min-height:0; }
+    main { display:grid; grid-template-columns:1.5fr 1fr; grid-template-rows:1fr 1fr; gap:1.8vh 1.4vw; min-height:0; }
     .card { border:1px solid var(--line); border-radius:24px; background:linear-gradient(135deg, rgba(16,38,58,.94), rgba(10,25,39,.94)); box-shadow:0 18px 55px rgba(0,0,0,.18); overflow:hidden; }
     .label { color:var(--muted); font-weight:750; font-size:clamp(11px,1vw,15px); text-transform:uppercase; letter-spacing:.09em; }
     
@@ -51,29 +51,27 @@
     .forecast-icon { display:block; font-size:clamp(15px,1.3vw,20px); margin:1px 0; }
     .forecast-temp { color:#e4edf4; font-size:clamp(11px,.9vw,14px); font-weight:750; }
 
-    /* ALL PAREMAL: RAADIO & HOROSKOOP */
-    .bottom-right-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:1.2vw; }
+    /* RAADIO KAART (LAI & PUHAS) */
+    .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
+    .radio-top { display:flex; justify-content:space-between; align-items:center; }
+    .radio-stations { display:flex; gap:8px; }
+    .station-btn { padding:5px 12px; border-radius:999px; font-weight:750; font-size:clamp(11px,1vw,14px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
+    .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
+    .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
     
-    .radio { padding:2vh 2vw; display:flex; flex-direction:column; justify-content:space-between; }
-    .radio-head { display:flex; justify-content:space-between; align-items:center; }
-    .radio-name { font-size:clamp(20px,2.2vw,34px); letter-spacing:-.07em; font-weight:770; margin:4px 0 2px; }
-    #radio-status { color:var(--muted); font-size:clamp(11px,.9vw,14px); font-weight:600; }
-    .play { width:clamp(48px,4.8vw,68px); height:clamp(48px,4.8vw,68px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 6px 20px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(18px,1.9vw,28px); transition:transform .16s,background .16s; align-self:flex-end; }
+    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+    .radio-name { font-size:clamp(24px,2.6vw,40px); letter-spacing:-.06em; font-weight:780; margin:0 0 4px; color:#fff; }
+    #radio-status { color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:600; }
+    
+    .play { width:clamp(56px,5.8vw,80px); height:clamp(56px,5.8vw,80px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(22px,2.2vw,32px); transition:transform .16s,background .16s; }
     .play:focus, .play:hover { outline:3px solid #fff; outline-offset:4px; transform:scale(1.07); }
-
-    /* HOROSKOOBI KAART */
-    .horoscope { padding:2vh 2vw; display:flex; flex-direction:column; justify-content:space-between; background:linear-gradient(135deg, rgba(26,22,48,.92), rgba(12,20,35,.94)); }
-    .horoscope-buttons { display:flex; gap:6px; margin-top:8px; }
-    .horo-btn { flex:1; padding:8px 4px; border:1px solid rgba(192,132,252,.35); background:rgba(192,132,252,.12); border-radius:10px; color:#f3e8ff; font-weight:750; font-size:clamp(11px,1vw,14px); text-align:center; text-decoration:none; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:4px; }
-    .horo-btn:hover, .horo-btn:focus { background:rgba(192,132,252,.3); border-color:var(--purple); outline:2px solid #fff; transform:scale(1.03); }
-    .horo-info { font-size:clamp(11px,.9vw,13px); color:#cbd5e1; line-height:1.4; margin-top:6px; }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
     .spotify { background:transparent; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:7px 14px; color:#d5e0ea; font-weight:700; }
     .spotify:focus, .spotify:hover { outline:2px solid #fff; outline-offset:3px; background:rgba(255,255,255,.08); }
     .error { color:var(--orange)!important; }
     
-    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:480px} .bottom-right-grid{grid-template-columns:1fr;} }
+    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:480px} }
   </style>
 </head>
 <body>
@@ -102,44 +100,31 @@
         <div id="forecast" class="forecast" aria-label="Kolme päeva ilmaennustus"></div>
       </section>
 
-      <!-- ALL PAREMAL: RAADIO & HOROSKOOP -->
-      <div class="bottom-right-grid">
-        <!-- SKY PLUS RAADIO -->
-        <section class="card radio">
+      <!-- RAADIO PLAYER (SKY PLUS & SLAM! WKNDMX) -->
+      <section class="card radio">
+        <div class="radio-top">
+          <div class="label">Raadio & Striimid</div>
+          <div class="radio-stations">
+            <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
+            <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://stream.slam.nl/web10_mp3">🔥 SLAM! WKNDMX</button>
+          </div>
+        </div>
+        
+        <div class="radio-main">
           <div>
-            <div class="label">Raadio</div>
-            <div class="radio-name">SKY PLUS</div>
+            <div id="current-station-name" class="radio-name">SKY PLUS</div>
             <div id="radio-status">Valmis mängima</div>
           </div>
-          <button id="play-button" class="play" aria-label="Mängi Sky Plusi">▶</button>
-          <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
-        </section>
+          <button id="play-button" class="play" aria-label="Mängi raadiot">▶</button>
+        </div>
 
-        <!-- HOROSKOOP -->
-        <section class="card horoscope">
-          <div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="label" style="color:var(--purple);">⭐ Kroonika Horoskoop</span>
-              <span style="font-size:10px; color:var(--muted);">Delfi</span>
-            </div>
-            <div class="horoscope-buttons">
-              <button class="horo-btn" onclick="window.open('https://kroonika.delfi.ee/teema/horoskoop', '_blank')">♈ Jäär ↗</button>
-              <button class="horo-btn" onclick="window.open('https://kroonika.delfi.ee/teema/horoskoop', '_blank')">♐ Ambur ↗</button>
-            </div>
-          </div>
-          <div class="horo-info">
-            Vajuta märgile, et avada otse värske Kroonika päeva- ja nähoroskoop.
-          </div>
-        </section>
-      </div>
+        <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
+      </section>
 
     </main>
     <footer>
       <span id="updated">Uuendatakse automaatselt</span>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <button class="spotify" onclick="window.open('https://kroonika.delfi.ee/teema/horoskoop', '_blank')" style="border-color:rgba(192,132,252,0.3); color:#e9d5ff;">Kroonika ↗</button>
-        <button class="spotify" onclick="window.open('https://open.spotify.com/', '_blank')">Spotify ↗</button>
-      </div>
+      <button class="spotify" onclick="window.open('https://open.spotify.com/', '_blank')">Spotify ↗</button>
     </footer>
   </div>
 
@@ -304,14 +289,59 @@
       } catch(e){ $('weather-temp').textContent = '--°'; }
     }
 
-    // --- RAADIO ---
-    const radio = $('radio'), play = $('play-button'); 
+    // --- RAADIO (SKY PLUS & SLAM! WKNDMX) ---
+    const radio = $('radio'), play = $('play-button');
+    let currentStationName = "SKY PLUS";
+
+    function setStation(btn, name, url) {
+      document.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      currentStationName = name;
+      $('current-station-name').textContent = name;
+      
+      const wasPlaying = !radio.paused;
+      radio.src = url;
+      radio.load();
+      
+      if (wasPlaying) {
+        radio.play().catch(() => $('radio-status').textContent = 'Käivitustõrge');
+      } else {
+        $('radio-status').textContent = 'Valmis mängima';
+      }
+    }
+
+    $('btn-station-sky').addEventListener('click', function() {
+      setStation(this, this.dataset.name, this.dataset.url);
+    });
+
+    $('btn-station-slam').addEventListener('click', function() {
+      setStation(this, this.dataset.name, this.dataset.url);
+    });
+
     play.addEventListener('click', async () => {
-      try { if(radio.paused){ await radio.play(); } else { radio.pause(); } } 
-      catch(e){ $('radio-status').textContent = 'Raadiot ei õnnestunud käivitada'; }
-    }); 
-    radio.addEventListener('play', () => { play.textContent = 'Ⅱ'; play.setAttribute('aria-label', 'Peata Sky Plus'); $('radio-status').textContent = 'Otse-eetris'; }); 
-    radio.addEventListener('pause', () => { play.textContent = '▶'; play.setAttribute('aria-label', 'Mängi Sky Plusi'); $('radio-status').textContent = 'Pausil'; });
+      try { 
+        if (radio.paused) { 
+          await radio.play(); 
+        } else { 
+          radio.pause(); 
+        } 
+      } catch(e) { 
+        $('radio-status').textContent = 'Käivitustõrge'; 
+      }
+    });
+
+    radio.addEventListener('play', () => { 
+      play.textContent = 'Ⅱ'; 
+      play.setAttribute('aria-label', `Peata ${currentStationName}`); 
+      $('radio-status').textContent = 'Otse-eetris'; 
+    });
+
+    radio.addEventListener('pause', () => { 
+      play.textContent = '▶'; 
+      play.setAttribute('aria-label', `Mängi ${currentStationName}`); 
+      $('radio-status').textContent = 'Pausil'; 
+    });
 
     // --- KÄIVITUS ---
     updateClock(); 

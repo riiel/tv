@@ -52,9 +52,10 @@
     .forecast-temp { color:#e4edf4; font-size:clamp(11px,.9vw,14px); font-weight:750; }
 
     /* ALL PAREMAL: RAADIO & HOROSKOOP */
-    .bottom-right-grid { display:grid; grid-template-columns:1fr 1.15fr; gap:1.2vw; }
+    .bottom-right-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:1.2vw; }
     
     .radio { padding:2vh 2vw; display:flex; flex-direction:column; justify-content:space-between; }
+    .radio-head { display:flex; justify-content:space-between; align-items:center; }
     .radio-name { font-size:clamp(20px,2.2vw,34px); letter-spacing:-.07em; font-weight:770; margin:4px 0 2px; }
     #radio-status { color:var(--muted); font-size:clamp(11px,.9vw,14px); font-weight:600; }
     .play { width:clamp(48px,4.8vw,68px); height:clamp(48px,4.8vw,68px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 6px 20px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(18px,1.9vw,28px); transition:transform .16s,background .16s; align-self:flex-end; }
@@ -62,11 +63,10 @@
 
     /* HOROSKOOBI KAART */
     .horoscope { padding:2vh 2vw; display:flex; flex-direction:column; justify-content:space-between; background:linear-gradient(135deg, rgba(26,22,48,.92), rgba(12,20,35,.94)); }
-    .horoscope-buttons { display:flex; gap:6px; margin-top:6px; }
-    .horo-btn { flex:1; padding:6px 4px; border:1px solid rgba(192,132,252,.3); background:rgba(192,132,252,.08); border-radius:10px; color:#cbd5e1; font-weight:700; font-size:clamp(11px,1vw,13px); transition:all .15s; }
-    .horo-btn.active { background:var(--purple); color:#110826; border-color:var(--purple); font-weight:800; }
-    .horo-btn:focus, .horo-btn:hover { outline:2px solid #fff; }
-    #horoscope-text { font-size:clamp(11px,.95vw,14px); color:#e2e8f0; line-height:1.45; margin-top:8px; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; font-weight:500; }
+    .horoscope-buttons { display:flex; gap:6px; margin-top:8px; }
+    .horo-btn { flex:1; padding:8px 4px; border:1px solid rgba(192,132,252,.35); background:rgba(192,132,252,.12); border-radius:10px; color:#f3e8ff; font-weight:750; font-size:clamp(11px,1vw,14px); text-align:center; text-decoration:none; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:4px; }
+    .horo-btn:hover, .horo-btn:focus { background:rgba(192,132,252,.3); border-color:var(--purple); outline:2px solid #fff; transform:scale(1.03); }
+    .horo-info { font-size:clamp(11px,.9vw,13px); color:#cbd5e1; line-height:1.4; margin-top:6px; }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
     .spotify { background:transparent; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:7px 14px; color:#d5e0ea; font-weight:700; }
@@ -119,15 +119,17 @@
         <section class="card horoscope">
           <div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="label" style="color:var(--purple);">⭐ Päeva Horoskoop</span>
-              <span style="font-size:10px; color:var(--muted);">Kroonika</span>
+              <span class="label" style="color:var(--purple);">⭐ Kroonika Horoskoop</span>
+              <span style="font-size:10px; color:var(--muted);">Delfi</span>
             </div>
             <div class="horoscope-buttons">
-              <button id="btn-horo-jaar" class="horo-btn active">♈ Jäär</button>
-              <button id="btn-horo-ambur" class="horo-btn">♐ Ambur</button>
+              <button class="horo-btn" onclick="window.open('https://kroonika.delfi.ee/teema/horoskoop', '_blank')">♈ Jäär ↗</button>
+              <button class="horo-btn" onclick="window.open('https://kroonika.delfi.ee/teema/horoskoop', '_blank')">♐ Ambur ↗</button>
             </div>
           </div>
-          <div id="horoscope-text">Laen horoskoopi...</div>
+          <div class="horo-info">
+            Vajuta märgile, et avada otse värske Kroonika päeva- ja nähoroskoop.
+          </div>
         </section>
       </div>
 
@@ -311,45 +313,11 @@
     radio.addEventListener('play', () => { play.textContent = 'Ⅱ'; play.setAttribute('aria-label', 'Peata Sky Plus'); $('radio-status').textContent = 'Otse-eetris'; }); 
     radio.addEventListener('pause', () => { play.textContent = '▶'; play.setAttribute('aria-label', 'Mängi Sky Plusi'); $('radio-status').textContent = 'Pausil'; });
 
-    // --- HOROSKOOBI TEKSTID ---
-    const horoscopes = {
-      jaar: [
-        "Jäär: Täna on suurepärane päev uute plaanide elluviimiseks. Sinu energia ja sihikindlus nakatavad ka kaaslasi. Rahalistes tehingutes säilita kaine mõistus. Õhtu toob meeldivat soojust pere keskel.",
-        "Jäär: Oled täna eriti teotahteline ja positiivne. Töised toimetused sujuvad kiiresti ning lähedased toetavad sinu ideid. Leia õhtul aega kosutavaks puhkuseks ja heaks toiduks.",
-        "Jäär: Sinu loov mõtlemine ja nutikus on täna tipus. Kui oled mõnda kodutööd edasi lükanud, on nüüd õige aeg see ära teha. Suhetes valitseb harmoonia ja teineteisemõistmine."
-      ],
-      ambur: [
-        "Ambur: Tähed soosivad täna uusi teadmisi, reisiplaane ja suhtlust. Sinu optimism avab uusi uksi ja tõstab kõigi tuju. Hea päev ühiste tulevikuplaanide paika panemiseks.",
-        "Ambur: Usalda täna julgelt oma sisetunnet. Sulle võib avaneda suurepärane võimalus, millest tasub kohe kinni haarata. Õhtu sobib ideaalselt heaks muusikaks ja seltskonnaks.",
-        "Ambur: Oled täis seikluslikku vaimu ja inspiratsiooni. Kodune meeleolu on hubane ning vana mure laheneb ootamatult kergelt. Naudi tänast päeva täiel rinnal!"
-      ]
-    };
-
-    let currentSign = 'jaar';
-
-    function showHoroscope(sign) {
-      currentSign = sign;
-      const dayIndex = new Date().getDate() % horoscopes[sign].length;
-      $('horoscope-text').textContent = horoscopes[sign][dayIndex];
-      
-      if (sign === 'jaar') {
-        $('btn-horo-jaar').classList.add('active');
-        $('btn-horo-ambur').classList.remove('active');
-      } else {
-        $('btn-horo-ambur').classList.add('active');
-        $('btn-horo-jaar').classList.remove('active');
-      }
-    }
-
-    $('btn-horo-jaar').addEventListener('click', () => showHoroscope('jaar'));
-    $('btn-horo-ambur').addEventListener('click', () => showHoroscope('ambur'));
-
     // --- KÄIVITUS ---
     updateClock(); 
     setInterval(updateClock, 1000); 
     loadElectricity(); 
     loadWeather(); 
-    showHoroscope('jaar');
     setInterval(loadElectricity, 10 * 60 * 1000); 
     setInterval(loadWeather, 30 * 60 * 1000); 
     

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07121f" />
+  <title>Koduvaade</title>
+  <style>
+    :root { --bg:#07121f; --card:#0d1c2c; --card2:#10263a; --text:#f5f8fb; --muted:#a7b6c5; --line:rgba(190,214,232,.14); --green:#5be38f; --cyan:#66d9ff; --orange:#ffc261; --red:#ff7790; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:960px; min-height:540px; color:var(--text); font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:radial-gradient(900px 520px at 72% -10%, #173c58 0%, transparent 68%), var(--bg); overflow:hidden; }
+    button { font:inherit; color:inherit; cursor:pointer; }
+    .screen { height:100vh; padding:4.4vh 5vw 3.4vh; display:grid; grid-template-rows:auto 1fr auto; gap:2.4vh; }
+    header { display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:12px; color:#c5d6e4; font-size:clamp(13px,1.25vw,20px); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .brand-mark { width:13px; height:13px; border-radius:50%; background:var(--cyan); box-shadow:0 0 20px #66d9ff; }
+    .now { text-align:right; display:flex; align-items:baseline; gap:18px; }
+    #clock { font-size:clamp(36px,4.1vw,72px); letter-spacing:-.075em; font-weight:750; line-height:.85; }
+    #date { color:var(--muted); font-size:clamp(14px,1.45vw,23px); font-weight:600; }
+    main { display:grid; grid-template-columns:1.55fr 1fr; grid-template-rows:1fr 1fr; gap:2.1vh 1.4vw; min-height:0; }
+    .card { border:1px solid var(--line); border-radius:28px; background:linear-gradient(135deg, rgba(16,38,58,.94), rgba(10,25,39,.94)); box-shadow:0 18px 55px rgba(0,0,0,.18); overflow:hidden; }
+    .label { color:var(--muted); font-weight:750; font-size:clamp(12px,1.13vw,18px); text-transform:uppercase; letter-spacing:.09em; }
+    .electricity { grid-row:span 2; padding:4.1vh 3.2vw 2.9vh; position:relative; display:grid; grid-template-rows:auto auto 1fr auto; }
+    .electricity::after { content:""; position:absolute; width:330px; height:330px; right:-120px; top:-140px; border-radius:50%; background:radial-gradient(circle, rgba(102,217,255,.13), transparent 68%); pointer-events:none; }
+    .electricity-head { display:flex; align-items:center; justify-content:space-between; z-index:1; }
+    .status { color:var(--green); background:rgba(91,227,143,.1); border:1px solid rgba(91,227,143,.23); border-radius:999px; padding:7px 12px; font-size:clamp(11px,1vw,15px); font-weight:750; }
+    .price-line { margin-top:2.7vh; display:flex; align-items:flex-end; gap:13px; z-index:1; }
+    #price { font-size:clamp(66px,8.4vw,136px); letter-spacing:-.09em; line-height:.8; font-weight:760; }
+    .unit { padding-bottom:1.5vh; color:#c9d7e2; font-weight:650; font-size:clamp(16px,1.65vw,26px); }
+    .price-caption { margin-top:1.1vh; color:var(--muted); font-weight:600; font-size:clamp(14px,1.35vw,21px); }
+    .chart-wrap { position:relative; min-height:0; margin:1.5vh 0 1.8vh; }
+    .chart-legend { position:absolute; top:0; right:0; z-index:1; display:flex; gap:clamp(9px,1.1vw,17px); color:var(--muted); font-size:clamp(10px,.83vw,13px); font-weight:700; }
+    .chart-title { position:absolute; top:0; left:0; z-index:1; color:var(--muted); font-size:clamp(10px,.83vw,13px); font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+    .chart-legend span { display:flex; align-items:center; gap:5px; }
+    .chart-legend i { width:8px; height:8px; border-radius:50%; display:block; }
+    canvas { position:absolute; inset:0; width:100%; height:100%; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); padding-top:2vh; gap:20px; }
+    .stat small { display:block; color:var(--muted); font-size:clamp(11px,1vw,15px); font-weight:650; margin-bottom:5px; }
+    .stat strong { font-size:clamp(18px,2vw,31px); letter-spacing:-.05em; }
+    .weather { padding:2.2vh 2.8vw 1.8vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(68px,1fr) auto; }
+    .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(13px,1.1vw,17px); font-weight:650; }
+    .location-button { margin:4px 0 0 7px; padding:4px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.85vw,13px); font-weight:700; }
+    .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:rgba(255,255,255,.08); }
+    .condition { align-self:center; }
+    #weather-temp { font-size:clamp(48px,4.4vw,70px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
+    .condition { align-self:center; display:flex; align-items:center; gap:clamp(14px,1.5vw,24px); }
+    .weather-icon { font-size:clamp(45px,4.1vw,66px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
+    .forecast { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:.7vh; padding-top:.7vh; border-top:1px solid var(--line); }
+    .forecast-day { text-align:center; color:var(--muted); font-size:clamp(10px,.82vw,13px); font-weight:750; text-transform:uppercase; }
+    .forecast-icon { display:block; font-size:clamp(18px,1.5vw,24px); margin:2px 0; }
+    .forecast-temp { color:#e4edf4; font-size:clamp(12px,1vw,16px); font-weight:750; }
+    @media (max-height:900px) and (min-aspect-ratio:1/1) { .screen{padding-top:3vh;padding-bottom:2.5vh;gap:1.8vh} .weather{padding-top:1.8vh;padding-bottom:1.4vh} .weather-icon{font-size:48px;padding-top:0} .weather-details{padding-top:.6vh} .forecast{margin-top:.5vh;padding-top:.5vh} }
+    .radio { padding:3.3vh 2.8vw; display:grid; grid-template-columns:1fr auto; align-items:center; }
+    .radio-name { font-size:clamp(28px,3.1vw,49px); letter-spacing:-.07em; font-weight:770; margin:8px 0 5px; }
+    #radio-status { color:var(--muted); font-size:clamp(13px,1.08vw,17px); font-weight:600; }
+    .play { width:clamp(72px,7.5vw,112px); height:clamp(72px,7.5vw,112px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 9px 28px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(26px,2.7vw,43px); transition:transform .16s,background .16s; }
+    .play:focus, .play:hover { outline:3px solid #fff; outline-offset:5px; transform:scale(1.07); }
+    footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,1vw,15px); font-weight:600; }
+    .spotify { background:transparent; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:9px 15px; color:#d5e0ea; font-weight:700; }
+    .spotify:focus, .spotify:hover { outline:2px solid #fff; outline-offset:3px; background:rgba(255,255,255,.08); }
+    .error { color:var(--orange)!important; }
+    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:26px 20px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:520px} }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <header>
+      <div class="brand"><span class="brand-mark"></span>Koduvaade</div>
+      <div class="now"><span id="clock">--:--</span><span id="date">--</span></div>
+    </header>
+    <main>
+      <section class="card electricity">
+        <div class="electricity-head"><span class="label">Elektri börsihind · Eesti</span><span id="price-status" class="status">VÄRSKE</span></div>
+        <div><div class="price-line"><span id="price">--,--</span><span class="unit">senti / kWh</span></div><div id="price-caption" class="price-caption">Laen elektrihinda…</div></div>
+        <div class="chart-wrap"><div class="chart-title">Järgmised 24 tundi · s/kWh</div><div class="chart-legend" aria-label="Hinnatasemed"><span><i style="background:#5be38f"></i>soodne</span><span><i style="background:#ffc261"></i>keskmine</span><span><i style="background:#ff7790"></i>kallis</span></div><canvas id="price-chart" aria-label="Elektrihinna tulpgraafik järgmise 24 tunni kohta"></canvas></div>
+        <div class="stats">
+          <div class="stat"><small>TÄNA + HOMME KESKM.</small><strong id="average">--,-- s</strong></div>
+          <div class="stat"><small>JÄRGMINE TUND</small><strong id="next-price">--,-- s</strong></div>
+          <div class="stat"><small>TÄNA + HOMME MAX</small><strong id="lowest">--,-- s</strong></div>
+        </div>
+      </section>
+      <section class="card weather">
+        <div><div class="label">Ilm</div><div id="location" class="location">Pärnu · Yr.no andmed</div><button id="location-button" class="location-button">Kasuta minu asukohta</button></div>
+        <div class="condition"><div id="weather-temp">--°</div><div id="weather-icon" class="weather-icon">☀️</div></div>
+        <div id="forecast" class="forecast" aria-label="Kolme päeva ilmaennustus"></div>
+      </section>
+      <section class="card radio">
+        <div><div class="label">Raadio</div><div class="radio-name">SKY PLUS</div><div id="radio-status">Valmis mängima</div></div>
+        <button id="play-button" class="play" aria-label="Mängi Sky Plusi">▶</button>
+        <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
+      </section>
+    </main>
+    <footer><span id="updated">Uuendatakse automaatselt</span><button class="spotify" onclick="window.open('https://open.spotify.com/', '_blank')">Spotify ↗</button></footer>
+  </div>
+  <script>
+    const $ = id => document.getElementById(id);
+    const fmt = value => Number(value).toLocaleString('et-EE', {minimumFractionDigits:2, maximumFractionDigits:2});
+    let prices = [];
+    function updateClock(){ const d=new Date(); $('clock').textContent=d.toLocaleTimeString('et-EE',{hour:'2-digit',minute:'2-digit'}); $('date').textContent=d.toLocaleDateString('et-EE',{weekday:'long',day:'numeric',month:'long'}); }
+    function drawChart(data){
+      const canvas=$('price-chart'), ctx=canvas.getContext('2d'), rect=canvas.getBoundingClientRect(), dpr=devicePixelRatio||1;
+      canvas.width=rect.width*dpr; canvas.height=rect.height*dpr; ctx.scale(dpr,dpr); const w=rect.width,h=rect.height;
+      if(data.length<2) return; const values=data.map(x=>x.price), max=Math.max(...values)||1, average=values.reduce((sum,value)=>sum+value,0)/values.length;
+      const left=4, right=4, top=28, bottom=24, chartHeight=h-top-bottom, slot=(w-left-right)/data.length, barWidth=Math.max(2,slot-4), now=Date.now();
+      ctx.strokeStyle='rgba(190,214,232,.12)'; ctx.lineWidth=1; for(let i=1;i<=3;i++){const y=top+chartHeight*i/3;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();}
+      data.forEach((point,index)=>{const x=left+index*slot+(slot-barWidth)/2, barHeight=Math.max(3,point.price/max*chartHeight), y=top+chartHeight-barHeight; const color=point.price<=average*.75?'#5be38f':point.price<=average*1.25?'#ffc261':'#ff7790'; ctx.fillStyle=color; ctx.fillRect(x,y,barWidth,barHeight); if(point.time<=now&&now<point.time+3600000){ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.strokeRect(x-1,y-1,barWidth+2,barHeight+2);} ctx.fillStyle='#dce7ef';ctx.font='700 10px system-ui';ctx.textAlign='center';ctx.fillText(point.price.toFixed(1),x+barWidth/2,Math.max(13,y-5));ctx.fillStyle='#a7b6c5';ctx.font='600 10px system-ui';ctx.fillText(new Date(point.time).toLocaleTimeString('et-EE',{hour:'2-digit'}),x+barWidth/2,h-5); });
+    }
+    async function fetchJson(endpoint){
+      const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),7000);
+      try { const response=await fetch(endpoint,{cache:'no-store',signal:controller.signal}); if(!response.ok) throw Error(`HTTP ${response.status}`); return await response.json(); }
+      finally { clearTimeout(timer); }
+    }
+    async function getJsonWithFallback(url){
+      const endpoints=location.protocol==='file:' ? [url,`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`] : ['/api/electricity',url,`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`];
+      let lastError;
+      for(const endpoint of endpoints){
+        try { return await fetchJson(endpoint); }
+        catch(error){ lastError=error; }
+      }
+      throw lastError;
+    }
+    async function loadElectricity(){
+      const start=new Date(); start.setHours(0,0,0,0); const end=new Date(start); end.setDate(end.getDate()+2);
+      try { const url=`https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`; let raw=[];
+        try { const json=await getJsonWithFallback(url); raw=json.data?.ee||[]; }
+        catch(rangeError) { const json=await getJsonWithFallback('https://dashboard.elering.ee/api/nps/price/EE/current'); raw=json.data?.ee||json.data||[]; }
+        const quarterPrices=raw.map(v=>{ const time=Number(v.timestamp??v[0]); return {time:time<20000000000?time*1000:time,price:Number(v.price??v[1])/10}; }).filter(v=>Number.isFinite(v.time)&&Number.isFinite(v.price));
+        const byHour=new Map(); for(const entry of quarterPrices){ const hour=new Date(entry.time); hour.setMinutes(0,0,0); const key=hour.getTime(); const bucket=byHour.get(key)||{time:key,sum:0,count:0}; bucket.sum+=entry.price; bucket.count++; byHour.set(key,bucket); }
+        const rangeStart=new Date(); rangeStart.setHours(0,0,0,0); const rangeEnd=new Date(rangeStart); rangeEnd.setDate(rangeEnd.getDate()+2); prices=[...byHour.values()].map(item=>({time:item.time,price:item.sum/item.count*1.24})).filter(item=>item.time>=rangeStart.getTime()&&item.time<rangeEnd.getTime()).sort((a,b)=>a.time-b.time); if(!prices.length) throw Error('Hinnakirjeid ei leitud'); const now=Date.now(); const current=prices.find(p=>p.time<=now&&now<p.time+3600000)||prices.reduce((a,b)=>Math.abs(b.time-now)<Math.abs(a.time-now)?b:a,prices[0]); const today=prices.filter(p=>new Date(p.time).toDateString()===new Date().toDateString()); const upcoming=prices.find(p=>p.time>current.time)||current;
+        $('price').textContent=fmt(current.price); $('price-caption').textContent=`Praegu · ${new Date(current.time).toLocaleTimeString('et-EE',{hour:'2-digit',minute:'2-digit'})}–${new Date(current.time+3600000).toLocaleTimeString('et-EE',{hour:'2-digit',minute:'2-digit'})} · km-ga`; $('average').textContent=`${fmt(prices.reduce((s,p)=>s+p.price,0)/prices.length)} s`; $('next-price').textContent=`${fmt(upcoming.price)} s`; const high=prices.reduce((a,b)=>a.price>b.price?a:b); $('lowest').textContent=`${fmt(high.price)} s`; $('updated').textContent=`Elektrihind uuendatud ${new Date().toLocaleTimeString('et-EE',{hour:'2-digit',minute:'2-digit'})}`; drawChart(prices.filter(p=>p.time>=current.time).slice(0,24));
+      } catch(e) { $('price-status').textContent='ÜHENDUSE TÕRGE'; $('price-status').className='status error'; $('price-caption').textContent='Elektrihinna teenus ei vasta praegu. Proovin peagi uuesti.'; }
+    }
+    const weatherMap={clearsky:['☀️','Selge'],fair:['🌤️','Vahelduv pilvisus'],partlycloudy:['⛅','Vahelduv pilvisus'],cloudy:['☁️','Pilves'],lightrain:['🌦️','Nõrk vihm'],rain:['🌧️','Vihm'],heavyrain:['🌧️','Tugev vihm'],fog:['🌫️','Udu'],snow:['🌨️','Lumi'],lightsnow:['🌨️','Nõrk lumesadu'],heavysnow:['❄️','Tugev lumesadu']};
+    let weatherPlace={name:'Pärnu',lat:58.3859,lon:24.4971};
+    function renderForecast(timeseries){
+      const days=new Map(); const today=new Date().toDateString();
+      for(const item of timeseries){ const date=new Date(item.time), key=date.toDateString(); if(!days.has(key)) days.set(key,{date,min:Infinity,max:-Infinity,representative:null,distance:Infinity}); const day=days.get(key), details=item.data.instant.details; day.min=Math.min(day.min,details.air_temperature); day.max=Math.max(day.max,details.air_temperature); const distance=Math.abs(date.getHours()-13); if(distance<day.distance){day.distance=distance;day.representative=item;}}
+      const selected=[...days.values()].filter(day=>day.date>=new Date(new Date().setHours(0,0,0,0))).slice(0,3); $('forecast').innerHTML=selected.map((day,index)=>{const symbol=day.representative?.data.next_1_hours?.summary?.symbol_code||day.representative?.data.next_6_hours?.summary?.symbol_code||'fair';const entry=weatherMap[symbol.replace(/_[a-z]+$/,'')]||weatherMap.fair;const name=index===0?'Täna':day.date.toLocaleDateString('et-EE',{weekday:'short'}).replace('.','');return `<div class="forecast-day"><span>${name}</span><span class="forecast-icon">${entry[0]}</span><span class="forecast-temp">${Math.round(day.min)}° / ${Math.round(day.max)}°</span></div>`;}).join('');
+    }
+    async function loadWeather(){
+      try { const r=await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${weatherPlace.lat}&lon=${weatherPlace.lon}`); if(!r.ok) throw Error(); const timeseries=(await r.json()).properties.timeseries, first=timeseries[0].data; const p=first.instant.details; const symbol=first.next_1_hours?.summary?.symbol_code||'fair'; const entry=weatherMap[symbol.replace(/_[a-z]+$/,'')]||weatherMap.fair; $('weather-temp').textContent=`${Math.round(p.air_temperature)}°`; $('weather-icon').textContent=entry[0]; renderForecast(timeseries); }
+      catch(e){ $('weather-temp').textContent='--°'; }
+    }
+    async function placeNameFromCoordinates(lat,lon){
+      try { const url=`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=10&accept-language=et`; const response=await fetchJson(url); const address=response.address||{}; return address.city||address.town||address.village||address.municipality||address.county||response.display_name?.split(',')[0]||'Minu asukoht'; }
+      catch(e){ return 'Minu asukoht'; }
+    }
+    const radio=$('radio'), play=$('play-button'); play.addEventListener('click',async()=>{try{if(radio.paused){await radio.play()}else{radio.pause()}}catch(e){$('radio-status').textContent='Raadiot ei õnnestunud käivitada';}}); radio.addEventListener('play',()=>{play.textContent='Ⅱ';play.setAttribute('aria-label','Peata Sky Plus');$('radio-status').textContent='Otse-eetris'}); radio.addEventListener('pause',()=>{play.textContent='▶';play.setAttribute('aria-label','Mängi Sky Plusi');$('radio-status').textContent='Pausil'});
+    $('location-button').addEventListener('click',()=>{ if(!navigator.geolocation){$('location-button').textContent='GPS pole saadaval';return;} $('location-button').textContent='Otsin asukohta…'; navigator.geolocation.getCurrentPosition(async position=>{const lat=position.coords.latitude.toFixed(4),lon=position.coords.longitude.toFixed(4);weatherPlace={name:'Asukoha määramine…',lat,lon};$('location').textContent='Asukoha määramine… · Yr.no andmed';loadWeather();weatherPlace.name=await placeNameFromCoordinates(lat,lon);$('location').textContent=`${weatherPlace.name} · Yr.no andmed`;$('location-button').textContent='Asukoht leitud';},()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); });
+    updateClock(); setInterval(updateClock,1000); loadElectricity(); loadWeather(); setInterval(loadElectricity,10*60*1000); setInterval(loadWeather,30*60*1000); addEventListener('resize',()=>{const now=Date.now(), current=prices.find(p=>p.time<=now&&now<p.time+3600000); drawChart(prices.filter(p=>p.time>=(current?.time??now)).slice(0,24));});
+  </script>
+</body>
+</html>

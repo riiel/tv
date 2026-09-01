@@ -10,24 +10,24 @@
     * { box-sizing:border-box; }
     body { margin:0; min-width:960px; min-height:540px; color:var(--text); font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:radial-gradient(900px 520px at 72% -10%, #173c58 0%, transparent 68%), var(--bg); overflow:hidden; }
     button { font:inherit; color:inherit; cursor:pointer; }
-    .screen { height:100vh; padding:3.5vh 4vw 2.5vh; display:grid; grid-template-rows:auto 1fr auto; gap:2vh; }
+    .screen { height:100vh; padding:3.2vh 4vw 2.2vh; display:grid; grid-template-rows:auto 1fr auto; gap:1.8vh; }
     header { display:flex; align-items:center; justify-content:space-between; }
     .brand { display:flex; align-items:center; gap:12px; color:#c5d6e4; font-size:clamp(13px,1.2vw,18px); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
     .brand-mark { width:12px; height:12px; border-radius:50%; background:var(--cyan); box-shadow:0 0 16px #66d9ff; }
     .now { text-align:right; display:flex; align-items:baseline; gap:16px; }
     #clock { font-size:clamp(32px,3.8vw,64px); letter-spacing:-.075em; font-weight:750; line-height:.85; }
     #date { color:var(--muted); font-size:clamp(13px,1.3vw,20px); font-weight:600; }
-    main { display:grid; grid-template-columns:1.5fr 1fr; grid-template-rows:1fr 1fr; gap:1.8vh 1.4vw; min-height:0; }
+    main { display:grid; grid-template-columns:1.45fr 1fr; grid-template-rows:1.15fr 0.85fr; gap:1.6vh 1.4vw; min-height:0; }
     .card { border:1px solid var(--line); border-radius:24px; background:linear-gradient(135deg, rgba(16,38,58,.94), rgba(10,25,39,.94)); box-shadow:0 18px 55px rgba(0,0,0,.18); overflow:hidden; }
     .label { color:var(--muted); font-weight:750; font-size:clamp(11px,1vw,15px); text-transform:uppercase; letter-spacing:.09em; }
     
     /* ELEKTRI KAART */
-    .electricity { grid-row:span 2; padding:3.5vh 2.8vw 2.5vh; position:relative; display:grid; grid-template-rows:auto auto 1fr auto; }
+    .electricity { grid-row:span 2; padding:3.2vh 2.6vw 2.2vh; position:relative; display:grid; grid-template-rows:auto auto 1fr auto; }
     .electricity::after { content:""; position:absolute; width:300px; height:300px; right:-100px; top:-120px; border-radius:50%; background:radial-gradient(circle, rgba(102,217,255,.12), transparent 68%); pointer-events:none; }
     .electricity-head { display:flex; align-items:center; justify-content:space-between; z-index:1; }
     .status { color:var(--green); background:rgba(91,227,143,.1); border:1px solid rgba(91,227,143,.23); border-radius:999px; padding:5px 10px; font-size:clamp(10px,.85vw,13px); font-weight:750; }
-    .price-line { margin-top:2vh; display:flex; align-items:flex-end; gap:10px; z-index:1; }
-    #price { font-size:clamp(56px,7.2vw,115px); letter-spacing:-.09em; line-height:.8; font-weight:760; }
+    .price-line { margin-top:1.8vh; display:flex; align-items:flex-end; gap:10px; z-index:1; }
+    #price { font-size:clamp(54px,6.8vw,110px); letter-spacing:-.09em; line-height:.8; font-weight:760; }
     .unit { padding-bottom:1.2vh; color:#c9d7e2; font-weight:650; font-size:clamp(14px,1.4vw,22px); }
     .price-caption { margin-top:0.8vh; color:var(--muted); font-weight:600; font-size:clamp(12px,1.15vw,17px); }
     .chart-wrap { position:relative; min-height:0; margin:1.2vh 0 1.4vh; }
@@ -40,36 +40,36 @@
     .stat small { display:block; color:var(--muted); font-size:clamp(10px,.85vw,13px); font-weight:650; margin-bottom:3px; }
     .stat strong { font-size:clamp(16px,1.7vw,26px); letter-spacing:-.05em; }
 
-    /* ILMA KAART */
-    .weather { padding:2vh 2.4vw 1.5vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(55px,1fr) auto; }
+    /* ILMA KAART (5 PÄEVA) */
+    .weather { padding:2vh 2.2vw 1.6vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(48px,1fr) auto; }
     .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
     .location-button { margin:0 0 0 7px; padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
     .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:rgba(255,255,255,.08); }
     .condition { align-self:center; display:flex; align-items:center; gap:clamp(12px,1.3vw,20px); }
-    #weather-temp { font-size:clamp(40px,3.8vw,58px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
-    .weather-icon { font-size:clamp(38px,3.5vw,54px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
-    .forecast { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
-    .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.75vw,12px); font-weight:750; text-transform:uppercase; }
-    .forecast-icon { display:block; font-size:clamp(15px,1.3vw,20px); margin:1px 0; }
-    .forecast-temp { color:#e4edf4; font-size:clamp(11px,.9vw,14px); font-weight:750; }
+    #weather-temp { font-size:clamp(38px,3.6vw,54px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
+    .weather-icon { font-size:clamp(36px,3.3vw,50px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
+    .forecast { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
+    .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.72vw,11px); font-weight:750; text-transform:uppercase; }
+    .forecast-icon { display:block; font-size:clamp(14px,1.2vw,18px); margin:1px 0; }
+    .forecast-temp { color:#e4edf4; font-size:clamp(10px,.82vw,13px); font-weight:750; }
 
     /* RAADIO KAART */
-    .radio { padding:2.2vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
+    .radio { padding:2vh 2.2vw; display:flex; flex-direction:column; justify-content:space-between; }
     .radio-top { display:flex; justify-content:space-between; align-items:center; }
     .radio-stations { display:flex; gap:6px; flex-wrap:wrap; }
-    .station-btn { padding:5px 10px; border-radius:999px; font-weight:750; font-size:clamp(10px,.9vw,13px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
+    .station-btn { padding:4px 9px; border-radius:999px; font-weight:750; font-size:clamp(10px,.85vw,12px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
     .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
     .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
     
-    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
-    .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0 0 2px; color:#fff; }
+    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
+    .radio-name { font-size:clamp(20px,2.2vw,32px); letter-spacing:-.06em; font-weight:780; margin:0 0 2px; color:#fff; }
     
-    .now-playing-box { display:flex; align-items:center; gap:8px; margin-top:3px; max-width:clamp(220px,25vw,420px); }
+    .now-playing-box { display:flex; align-items:center; gap:6px; margin-top:2px; max-width:clamp(220px,25vw,420px); }
     .np-icon { color:var(--cyan); font-size:12px; flex-shrink:0; }
-    #radio-track { color:#e2e8f0; font-size:clamp(13px,1.1vw,17px); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    #radio-status { color:var(--muted); font-size:clamp(11px,.85vw,13px); font-weight:500; }
+    #radio-track { color:#e2e8f0; font-size:clamp(12px,1vw,15px); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #radio-status { color:var(--muted); font-size:clamp(11px,.8vw,12px); font-weight:500; }
     
-    .play { width:clamp(56px,5.8vw,80px); height:clamp(56px,5.8vw,80px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(22px,2.2vw,32px); transition:transform .16s,background .16s; flex-shrink:0; }
+    .play { width:clamp(50px,5vw,70px); height:clamp(50px,5vw,70px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(18px,1.8vw,26px); transition:transform .16s,background .16s; flex-shrink:0; }
     .play:focus, .play:hover { outline:3px solid #fff; outline-offset:4px; transform:scale(1.07); }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
@@ -99,7 +99,7 @@
         </div>
       </section>
 
-      <!-- ILM KOOS ASUKOHA NUPUGA -->
+      <!-- ILM KOOS 5 PÄEVA PROGNOOSIGA -->
       <section class="card weather">
         <div>
           <div class="label">Ilm</div>
@@ -107,10 +107,10 @@
           <button id="location-button" class="location-button">Kasuta minu asukohta</button>
         </div>
         <div class="condition"><div id="weather-temp">--°</div><div id="weather-icon" class="weather-icon">☀️</div></div>
-        <div id="forecast" class="forecast" aria-label="Kolme päeva ilmaennustus"></div>
+        <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER KOOS HETKEL MÄNGIVA LOOGA -->
+      <!-- RAADIO PLAYER (NOW PLAYING TRACK INFO) -->
       <section class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
@@ -126,7 +126,7 @@
             <div id="current-station-name" class="radio-name">SKY PLUS</div>
             <div class="now-playing-box">
               <span class="np-icon">🎵</span>
-              <div id="radio-track">Laen loo infot...</div>
+              <div id="radio-track">Otse-eeter</div>
             </div>
             <div id="radio-status">Valmis mängima</div>
           </div>
@@ -200,7 +200,7 @@
       for(const endpoint of endpoints){
         try { 
           const data = await fetchJson(endpoint); 
-          if(data && (data.data || data.success || data.Title || data.Artist || data.track)) return data;
+          if(data) return data;
         } catch(error){ lastError = error; }
       }
       throw lastError;
@@ -266,7 +266,7 @@
       }
     }
 
-    // --- ILM & ASUKOHA TUVASTUS ---
+    // --- ILM & 5 PÄEVA PROGNOOS ---
     const weatherMap = {clearsky:['☀️','Selge'], fair:['🌤️','Vahelduv pilvisus'], partlycloudy:['⛅','Vahelduv pilvisus'], cloudy:['☁️','Pilves'], lightrain:['🌦️','Nõrk vihm'], rain:['🌧️','Vihm'], heavyrain:['🌧️','Tugev vihm'], fog:['🌫️','Udu'], snow:['🌨️','Lumi'], lightsnow:['🌨️','Nõrk lumesadu'], heavysnow:['❄️','Tugev lumesadu']};
     let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
 
@@ -281,11 +281,13 @@
         const distance = Math.abs(date.getHours() - 13); 
         if(distance < day.distance){ day.distance = distance; day.representative = item; }
       }
-      const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 3); 
+      
+      // Valime täpselt 5 päeva (Täna + 4 järgnevat)
+      const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 5); 
       $('forecast').innerHTML = selected.map((day, index) => {
         const symbol = day.representative?.data.next_1_hours?.summary?.symbol_code || day.representative?.data.next_6_hours?.summary?.symbol_code || 'fair';
         const entry = weatherMap[symbol.replace(/_[a-z]+$/, '')] || weatherMap.fair;
-        const name = index === 0 ? 'Täna' : day.date.toLocaleDateString('et-EE', {weekday:'short'}).replace('.', '');
+        const name = index === 0 ? 'Täna' : (index === 1 ? 'Homme' : day.date.toLocaleDateString('et-EE', {weekday:'short'}).replace('.', ''));
         return `<div class="forecast-day"><span>${name}</span><span class="forecast-icon">${entry[0]}</span><span class="forecast-temp">${Math.round(day.min)}° / ${Math.round(day.max)}°</span></div>`;
       }).join('');
     }
@@ -328,7 +330,7 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO & LAULU INFO PÄRIMINE (OTSE SKY MEDIA & TRITON STRIIMIDEST) ---
+    // --- RAADIO & LAULU INFO PÄRIMINE (NOW PLAYING) ---
     const radio = $('radio'), play = $('play-button');
     let currentStationKey = "skyplus";
     let currentStationName = "SKY PLUS";
@@ -336,47 +338,58 @@
     async function fetchNowPlaying() {
       try {
         if (currentStationKey === 'skyplus') {
-          // Sky Plus reaalajas JSON striimist
-          const res = await fetch(`https://cache.bitflip.ee/meta/SKYPLUS.json?t=${Date.now()}`);
-          if (res.ok) {
-            const data = await res.json();
-            const artist = data.artist || data.Artist || '';
-            const title = data.title || data.Title || data.song || '';
-            const show = data.show || data.Show || '';
-            
-            if (artist && title) {
-              $('radio-track').textContent = `${artist} – ${title}`;
-              if (show) $('radio-status').textContent = `Saade: ${show}`;
-            } else if (title) {
-              $('radio-track').textContent = title;
-            }
+          // Mitmetasandiline päring Sky Plus metaandmetele
+          const urls = [
+            `https://cache.bitflip.ee/meta/SKYPLUS.json?_=${Date.now()}`,
+            `https://api.allorigins.win/raw?url=${encodeURIComponent('https://cache.bitflip.ee/meta/SKYPLUS.json')}`
+          ];
+          for (const u of urls) {
+            try {
+              const res = await fetch(u);
+              if (res.ok) {
+                const data = await res.json();
+                const artist = data.artist || data.Artist || '';
+                const title = data.title || data.Title || data.song || '';
+                const show = data.show || data.Show || '';
+                if (artist && title) {
+                  $('radio-track').textContent = `${artist} – ${title}`;
+                  if (show) $('radio-status').textContent = `Saade: ${show}`;
+                  return;
+                } else if (title) {
+                  $('radio-track').textContent = title;
+                  return;
+                }
+              }
+            } catch(e) {}
           }
         } else if (currentStationKey === 'slam') {
-          const url = 'https://np.tritondigital.com/public/nowplaying?mountName=WEB11_AAC&numberToFetch=1&eventType=track';
-          const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-          const res = await fetch(proxy);
-          const text = await res.text();
-          const matchTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
-          const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
-          if (matchTitle && matchArtist) {
-            $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
-            $('radio-status').textContent = 'SLAM! WKNDMX';
+          const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://np.tritondigital.com/public/nowplaying?mountName=WEB11_AAC&numberToFetch=1&eventType=track')}`;
+          const res = await fetch(proxyUrl);
+          if (res.ok) {
+            const text = await res.text();
+            const matchTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            if (matchTitle && matchArtist && matchTitle[1]) {
+              $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
+              $('radio-status').textContent = 'SLAM! WKNDMX';
+              return;
+            }
           }
         } else if (currentStationKey === 'qdance') {
-          const url = 'https://np.tritondigital.com/public/nowplaying?mountName=Q_DANCE&numberToFetch=1&eventType=track';
-          const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-          const res = await fetch(proxy);
-          const text = await res.text();
-          const matchTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
-          const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
-          if (matchTitle && matchArtist) {
-            $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
-            $('radio-status').textContent = 'Q-Dance Radio';
+          const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://np.tritondigital.com/public/nowplaying?mountName=Q_DANCE&numberToFetch=1&eventType=track')}`;
+          const res = await fetch(proxyUrl);
+          if (res.ok) {
+            const text = await res.text();
+            const matchTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            if (matchTitle && matchArtist && matchTitle[1]) {
+              $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
+              $('radio-status').textContent = 'Q-Dance Radio';
+              return;
+            }
           }
         }
-      } catch (err) {
-        // viga ignoreeritakse taustal
-      }
+      } catch (err) {}
     }
 
     function setStation(btn, name, url, key) {
@@ -386,7 +399,7 @@
       currentStationName = name;
       currentStationKey = key;
       $('current-station-name').textContent = name;
-      $('radio-track').textContent = 'Laen loo infot...';
+      $('radio-track').textContent = 'Otse-eeter';
       fetchNowPlaying();
       
       const wasPlaying = !radio.paused;
@@ -446,7 +459,7 @@
     fetchNowPlaying();
     setInterval(loadElectricity, 10 * 60 * 1000); 
     setInterval(loadWeather, 30 * 60 * 1000); 
-    setInterval(fetchNowPlaying, 7 * 1000); // Loo info värskendus iga 7 sekundi järel
+    setInterval(fetchNowPlaying, 8 * 1000);
     
     addEventListener('resize', () => {
       const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000); 

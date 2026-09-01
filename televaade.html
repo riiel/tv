@@ -65,11 +65,11 @@
     .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0 0 2px; color:#fff; }
     
     .now-playing-box { display:flex; align-items:center; gap:8px; margin-top:3px; max-width:clamp(220px,25vw,420px); }
-    .np-icon { color:var(--cyan); font-size:11px; flex-shrink:0; }
-    #radio-track { color:#e2e8f0; font-size:clamp(12px,1.05vw,16px); font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .np-icon { color:var(--cyan); font-size:12px; flex-shrink:0; }
+    #radio-track { color:#e2e8f0; font-size:clamp(13px,1.1vw,17px); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     #radio-status { color:var(--muted); font-size:clamp(11px,.85vw,13px); font-weight:500; }
     
-    .play { width:clamp(54px,5.4vw,76px); height:clamp(54px,5.4vw,76px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(20px,2vw,30px); transition:transform .16s,background .16s; flex-shrink:0; }
+    .play { width:clamp(56px,5.8vw,80px); height:clamp(56px,5.8vw,80px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(22px,2.2vw,32px); transition:transform .16s,background .16s; flex-shrink:0; }
     .play:focus, .play:hover { outline:3px solid #fff; outline-offset:4px; transform:scale(1.07); }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
@@ -200,7 +200,7 @@
       for(const endpoint of endpoints){
         try { 
           const data = await fetchJson(endpoint); 
-          if(data && (data.data || data.success)) return data;
+          if(data && (data.data || data.success || data.Title || data.Artist || data.track)) return data;
         } catch(error){ lastError = error; }
       }
       throw lastError;
@@ -328,7 +328,7 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO & REAALAJAS LOO INFO (NOW PLAYING) ---
+    // --- RAADIO & LAULU INFO PÄRIMINE (OTSE SKY MEDIA & TRITON STRIIMIDEST) ---
     const radio = $('radio'), play = $('play-button');
     let currentStationKey = "skyplus";
     let currentStationName = "SKY PLUS";
@@ -336,16 +336,20 @@
     async function fetchNowPlaying() {
       try {
         if (currentStationKey === 'skyplus') {
-          const url = 'https://skymedia.ee/wp-json/sm/v1/meta/skyplus';
-          const data = await getJsonWithFallback(url);
-          const track = data?.current_track || data?.track || data?.title;
-          const artist = data?.current_artist || data?.artist;
-          if (track && artist) {
-            $('radio-track').textContent = `${artist} – ${track}`;
-          } else if (track) {
-            $('radio-track').textContent = track;
-          } else {
-            $('radio-track').textContent = 'Sky Plus Otse-eeter';
+          // Sky Plus reaalajas JSON striimist
+          const res = await fetch(`https://cache.bitflip.ee/meta/SKYPLUS.json?t=${Date.now()}`);
+          if (res.ok) {
+            const data = await res.json();
+            const artist = data.artist || data.Artist || '';
+            const title = data.title || data.Title || data.song || '';
+            const show = data.show || data.Show || '';
+            
+            if (artist && title) {
+              $('radio-track').textContent = `${artist} – ${title}`;
+              if (show) $('radio-status').textContent = `Saade: ${show}`;
+            } else if (title) {
+              $('radio-track').textContent = title;
+            }
           }
         } else if (currentStationKey === 'slam') {
           const url = 'https://np.tritondigital.com/public/nowplaying?mountName=WEB11_AAC&numberToFetch=1&eventType=track';
@@ -356,8 +360,7 @@
           const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
           if (matchTitle && matchArtist) {
             $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
-          } else {
-            $('radio-track').textContent = 'SLAM! WKNDMX Non-Stop';
+            $('radio-status').textContent = 'SLAM! WKNDMX';
           }
         } else if (currentStationKey === 'qdance') {
           const url = 'https://np.tritondigital.com/public/nowplaying?mountName=Q_DANCE&numberToFetch=1&eventType=track';
@@ -368,14 +371,11 @@
           const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
           if (matchTitle && matchArtist) {
             $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
-          } else {
-            $('radio-track').textContent = 'Q-Dance Radio Live';
+            $('radio-status').textContent = 'Q-Dance Radio';
           }
         }
       } catch (err) {
-        if ($('radio-track').textContent === 'Laen loo infot...') {
-          $('radio-track').textContent = `${currentStationName} Live`;
-        }
+        // viga ignoreeritakse taustal
       }
     }
 
@@ -427,7 +427,9 @@
     radio.addEventListener('play', () => { 
       play.textContent = 'Ⅱ'; 
       play.setAttribute('aria-label', `Peata ${currentStationName}`); 
-      $('radio-status').textContent = 'Otse-eetris'; 
+      if ($('radio-status').textContent === 'Valmis mängima' || $('radio-status').textContent === 'Pausil') {
+        $('radio-status').textContent = 'Otse-eetris';
+      }
     });
 
     radio.addEventListener('pause', () => { 
@@ -444,7 +446,7 @@
     fetchNowPlaying();
     setInterval(loadElectricity, 10 * 60 * 1000); 
     setInterval(loadWeather, 30 * 60 * 1000); 
-    setInterval(fetchNowPlaying, 10 * 1000); // Loo info uuendus iga 10 sek järel
+    setInterval(fetchNowPlaying, 7 * 1000); // Loo info värskendus iga 7 sekundi järel
     
     addEventListener('resize', () => {
       const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000); 

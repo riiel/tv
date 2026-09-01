@@ -121,7 +121,7 @@
           <div>
             <div class="flex items-center justify-between">
               <span class="label" style="color:var(--purple);">⭐ Päeva Horoskoop</span>
-              <span id="horo-speaker-badge" style="font-size:10px; color:var(--muted);">Robot kõnesüntees</span>
+              <span id="horo-speaker-badge" style="font-size:10px; color:var(--muted);">Eestikeelne hääl</span>
             </div>
             <div class="horoscope-buttons">
               <button id="btn-horo-jaar" class="horo-btn" title="Kuula Jäära horoskoopi">♈ Jäär (Loe)</button>
@@ -312,7 +312,7 @@
     radio.addEventListener('play', () => { play.textContent = 'Ⅱ'; play.setAttribute('aria-label', 'Peata Sky Plus'); $('radio-status').textContent = 'Otse-eetris'; }); 
     radio.addEventListener('pause', () => { play.textContent = '▶'; play.setAttribute('aria-label', 'Mängi Sky Plusi'); $('radio-status').textContent = 'Pausil'; });
 
-    // --- HOROSKOOP & ROBOTI KÕNESÜNTEES (Web Speech API) ---
+    // --- HOROSKOOP (NATURAALNE EESTI KEEL) ---
     const horoscopes = {
       jaar: [
         "Jäär. Täna on suurepärane päev uute plaanide elluviimiseks. Sinu energia ja enesekindlus nakatavad ka teisi. Rahalistes asjades säilita kaine mõistus ja väldi tormakaid oste. Õhtu toob meeldiva ja rahuliku hetke pere seltsis.",
@@ -326,26 +326,18 @@
       ]
     };
 
-    let synth = window.speechSynthesis;
-    let speakingSign = null;
+    const audioHoro = new Audio();
 
     function speakHoroscope(signName, signKey) {
-      if (!synth) {
-        alert("Sinu seadmes puudub kõnesünteesi tugi.");
-        return;
-      }
-
-      // Kui juba loeb seda märki, paneme pausi / peatame
-      if (synth.speaking && speakingSign === signKey) {
-        synth.cancel();
+      // Kui parajasti loeb, siis peatame
+      if (!audioHoro.paused) {
+        audioHoro.pause();
+        audioHoro.currentTime = 0;
         resetHoroButtons();
         $('horoscope-text').textContent = "Ettelugemine peatatud.";
         return;
       }
 
-      synth.cancel(); // peatame eelmise heli
-
-      // Päeva indeksi valik kuupäeva järgi
       const dayIndex = new Date().getDate() % horoscopes[signKey].length;
       const text = horoscopes[signKey][dayIndex];
 
@@ -355,29 +347,22 @@
       const btn = signKey === 'jaar' ? $('btn-horo-jaar') : $('btn-horo-ambur');
       btn.classList.add('speaking');
       btn.textContent = `🔊 ${signName} (Peata)`;
-      speakingSign = signKey;
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'et-EE'; // eesti keele aktsent/hääl
-      utterance.rate = 0.95;    // selge ja rahulik tempo
-      utterance.pitch = 1.0;
+      // Eesti keele selge helivoog
+      const encodedText = encodeURIComponent(text);
+      audioHoro.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=et&client=tw-ob&q=${encodedText}`;
+      
+      audioHoro.play().catch(() => {
+        // Tagavara brauseri kõnesünteesile, kui võrguheli blokeeritakse
+        if (window.speechSynthesis) {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'et-EE';
+          u.onend = resetHoroButtons;
+          window.speechSynthesis.speak(u);
+        }
+      });
 
-      // Hääle valik (kui brauseris on eesti keel saadaval)
-      const voices = synth.getVoices();
-      const etVoice = voices.find(v => v.lang.includes('et') || v.lang.includes('EE'));
-      if (etVoice) utterance.voice = etVoice;
-
-      utterance.onend = () => {
-        resetHoroButtons();
-        speakingSign = null;
-      };
-
-      utterance.onerror = () => {
-        resetHoroButtons();
-        speakingSign = null;
-      };
-
-      synth.speak(utterance);
+      audioHoro.onended = resetHoroButtons;
     }
 
     function resetHoroButtons() {

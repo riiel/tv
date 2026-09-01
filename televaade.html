@@ -43,6 +43,8 @@
     /* ILMA KAART */
     .weather { padding:2vh 2.4vw 1.5vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(55px,1fr) auto; }
     .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
+    .location-button { margin:0 0 0 7px; padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
+    .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:rgba(255,255,255,.08); }
     .condition { align-self:center; display:flex; align-items:center; gap:clamp(12px,1.3vw,20px); }
     #weather-temp { font-size:clamp(40px,3.8vw,58px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
     .weather-icon { font-size:clamp(38px,3.5vw,54px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
@@ -93,9 +95,13 @@
         </div>
       </section>
 
-      <!-- ILM -->
+      <!-- ILM KOOS ASUKOHA NUPUGA -->
       <section class="card weather">
-        <div><div class="label">Ilm</div><div id="location" class="location">Pärnu · Yr.no andmed</div></div>
+        <div>
+          <div class="label">Ilm</div>
+          <div id="location" class="location">Pärnu · Yr.no andmed</div>
+          <button id="location-button" class="location-button">Kasuta minu asukohta</button>
+        </div>
         <div class="condition"><div id="weather-temp">--°</div><div id="weather-icon" class="weather-icon">☀️</div></div>
         <div id="forecast" class="forecast" aria-label="Kolme päeva ilmaennustus"></div>
       </section>
@@ -107,7 +113,7 @@
           <div class="radio-stations">
             <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
             <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 WKNDMX</button>
-            <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://22393.live.streamtheworld.com/Q_DANCE.mp3">⚡ Q-Dance</button>
+            <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">⚡ Q-Dance</button>
           </div>
         </div>
         
@@ -252,7 +258,7 @@
       }
     }
 
-    // --- ILM ---
+    // --- ILM & ASUKOHA TUVASTUS ---
     const weatherMap = {clearsky:['☀️','Selge'], fair:['🌤️','Vahelduv pilvisus'], partlycloudy:['⛅','Vahelduv pilvisus'], cloudy:['☁️','Pilves'], lightrain:['🌦️','Nõrk vihm'], rain:['🌧️','Vihm'], heavyrain:['🌧️','Tugev vihm'], fog:['🌫️','Udu'], snow:['🌨️','Lumi'], lightsnow:['🌨️','Nõrk lumesadu'], heavysnow:['❄️','Tugev lumesadu']};
     let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
 
@@ -286,9 +292,33 @@
         const entry = weatherMap[symbol.replace(/_[a-z]+$/, '')] || weatherMap.fair; 
         $('weather-temp').textContent = `${Math.round(p.air_temperature)}°`; 
         $('weather-icon').textContent = entry[0]; 
+        $('location').textContent = `${weatherPlace.name} · Yr.no andmed`;
         renderForecast(timeseries); 
       } catch(e){ $('weather-temp').textContent = '--°'; }
     }
+
+    async function placeNameFromCoordinates(lat,lon){
+      try { 
+        const url=`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=10&accept-language=et`; 
+        const response=await fetchJson(url); 
+        const address=response.address||{}; 
+        return address.city||address.town||address.village||address.municipality||address.county||response.display_name?.split(',')[0]||'Minu asukoht'; 
+      } catch(e){ return 'Minu asukoht'; }
+    }
+
+    $('location-button').addEventListener('click',()=>{ 
+      if(!navigator.geolocation){$('location-button').textContent='GPS pole saadaval';return;} 
+      $('location-button').textContent='Otsin asukohta…'; 
+      navigator.geolocation.getCurrentPosition(async position=>{
+        const lat=position.coords.latitude.toFixed(4),lon=position.coords.longitude.toFixed(4);
+        weatherPlace={name:'Asukoha määramine…',lat,lon};
+        $('location').textContent='Asukoha määramine… · Yr.no andmed';
+        loadWeather();
+        weatherPlace.name=await placeNameFromCoordinates(lat,lon);
+        $('location').textContent=`${weatherPlace.name} · Yr.no andmed`;
+        $('location-button').textContent='Asukoht leitud';
+      },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
+    });
 
     // --- RAADIO (SKY PLUS, SLAM! WKNDMX & Q-DANCE) ---
     const radio = $('radio'), play = $('play-button');

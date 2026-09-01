@@ -54,18 +54,22 @@
     .forecast-temp { color:#e4edf4; font-size:clamp(11px,.9vw,14px); font-weight:750; }
 
     /* RAADIO KAART */
-    .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
+    .radio { padding:2.2vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
     .radio-top { display:flex; justify-content:space-between; align-items:center; }
     .radio-stations { display:flex; gap:6px; flex-wrap:wrap; }
     .station-btn { padding:5px 10px; border-radius:999px; font-weight:750; font-size:clamp(10px,.9vw,13px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
     .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
     .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
     
-    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
-    .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0 0 4px; color:#fff; }
-    #radio-status { color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:600; }
+    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+    .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0 0 2px; color:#fff; }
     
-    .play { width:clamp(56px,5.8vw,80px); height:clamp(56px,5.8vw,80px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(22px,2.2vw,32px); transition:transform .16s,background .16s; }
+    .now-playing-box { display:flex; align-items:center; gap:8px; margin-top:3px; max-width:clamp(220px,25vw,420px); }
+    .np-icon { color:var(--cyan); font-size:11px; flex-shrink:0; }
+    #radio-track { color:#e2e8f0; font-size:clamp(12px,1.05vw,16px); font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #radio-status { color:var(--muted); font-size:clamp(11px,.85vw,13px); font-weight:500; }
+    
+    .play { width:clamp(54px,5.4vw,76px); height:clamp(54px,5.4vw,76px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(20px,2vw,30px); transition:transform .16s,background .16s; flex-shrink:0; }
     .play:focus, .play:hover { outline:3px solid #fff; outline-offset:4px; transform:scale(1.07); }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
@@ -106,20 +110,24 @@
         <div id="forecast" class="forecast" aria-label="Kolme päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER (SKY PLUS, SLAM! WKNDMX & Q-DANCE) -->
+      <!-- RAADIO PLAYER KOOS HETKEL MÄNGIVA LOOGA -->
       <section class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
           <div class="radio-stations">
-            <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
-            <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 WKNDMX</button>
-            <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">⚡ Q-Dance</button>
+            <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS" data-station="skyplus">📻 Sky Plus</button>
+            <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac" data-station="slam">🔥 WKNDMX</button>
+            <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5" data-station="qdance">⚡ Q-Dance</button>
           </div>
         </div>
         
         <div class="radio-main">
-          <div>
+          <div style="min-width:0;">
             <div id="current-station-name" class="radio-name">SKY PLUS</div>
+            <div class="now-playing-box">
+              <span class="np-icon">🎵</span>
+              <div id="radio-track">Laen loo infot...</div>
+            </div>
             <div id="radio-status">Valmis mängima</div>
           </div>
           <button id="play-button" class="play" aria-label="Mängi raadiot">▶</button>
@@ -320,16 +328,66 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO (SKY PLUS, SLAM! WKNDMX & Q-DANCE) ---
+    // --- RAADIO & REAALAJAS LOO INFO (NOW PLAYING) ---
     const radio = $('radio'), play = $('play-button');
+    let currentStationKey = "skyplus";
     let currentStationName = "SKY PLUS";
 
-    function setStation(btn, name, url) {
+    async function fetchNowPlaying() {
+      try {
+        if (currentStationKey === 'skyplus') {
+          const url = 'https://skymedia.ee/wp-json/sm/v1/meta/skyplus';
+          const data = await getJsonWithFallback(url);
+          const track = data?.current_track || data?.track || data?.title;
+          const artist = data?.current_artist || data?.artist;
+          if (track && artist) {
+            $('radio-track').textContent = `${artist} – ${track}`;
+          } else if (track) {
+            $('radio-track').textContent = track;
+          } else {
+            $('radio-track').textContent = 'Sky Plus Otse-eeter';
+          }
+        } else if (currentStationKey === 'slam') {
+          const url = 'https://np.tritondigital.com/public/nowplaying?mountName=WEB11_AAC&numberToFetch=1&eventType=track';
+          const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+          const res = await fetch(proxy);
+          const text = await res.text();
+          const matchTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
+          const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
+          if (matchTitle && matchArtist) {
+            $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
+          } else {
+            $('radio-track').textContent = 'SLAM! WKNDMX Non-Stop';
+          }
+        } else if (currentStationKey === 'qdance') {
+          const url = 'https://np.tritondigital.com/public/nowplaying?mountName=Q_DANCE&numberToFetch=1&eventType=track';
+          const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+          const res = await fetch(proxy);
+          const text = await res.text();
+          const matchTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
+          const matchArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
+          if (matchTitle && matchArtist) {
+            $('radio-track').textContent = `${matchArtist[1]} – ${matchTitle[1]}`;
+          } else {
+            $('radio-track').textContent = 'Q-Dance Radio Live';
+          }
+        }
+      } catch (err) {
+        if ($('radio-track').textContent === 'Laen loo infot...') {
+          $('radio-track').textContent = `${currentStationName} Live`;
+        }
+      }
+    }
+
+    function setStation(btn, name, url, key) {
       document.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       
       currentStationName = name;
+      currentStationKey = key;
       $('current-station-name').textContent = name;
+      $('radio-track').textContent = 'Laen loo infot...';
+      fetchNowPlaying();
       
       const wasPlaying = !radio.paused;
       radio.src = url;
@@ -343,15 +401,15 @@
     }
 
     $('btn-station-sky').addEventListener('click', function() {
-      setStation(this, this.dataset.name, this.dataset.url);
+      setStation(this, this.dataset.name, this.dataset.url, this.dataset.station);
     });
 
     $('btn-station-slam').addEventListener('click', function() {
-      setStation(this, this.dataset.name, this.dataset.url);
+      setStation(this, this.dataset.name, this.dataset.url, this.dataset.station);
     });
 
     $('btn-station-qdance').addEventListener('click', function() {
-      setStation(this, this.dataset.name, this.dataset.url);
+      setStation(this, this.dataset.name, this.dataset.url, this.dataset.station);
     });
 
     play.addEventListener('click', async () => {
@@ -383,8 +441,10 @@
     setInterval(updateClock, 1000); 
     loadElectricity(); 
     loadWeather(); 
+    fetchNowPlaying();
     setInterval(loadElectricity, 10 * 60 * 1000); 
     setInterval(loadWeather, 30 * 60 * 1000); 
+    setInterval(fetchNowPlaying, 10 * 1000); // Loo info uuendus iga 10 sek järel
     
     addEventListener('resize', () => {
       const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000); 

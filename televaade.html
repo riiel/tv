@@ -54,13 +54,13 @@
     /* RAADIO KAART */
     .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
     .radio-top { display:flex; justify-content:space-between; align-items:center; }
-    .radio-stations { display:flex; gap:8px; }
-    .station-btn { padding:5px 12px; border-radius:999px; font-weight:750; font-size:clamp(11px,1vw,14px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
+    .radio-stations { display:flex; gap:6px; flex-wrap:wrap; }
+    .station-btn { padding:5px 10px; border-radius:999px; font-weight:750; font-size:clamp(10px,.9vw,13px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
     .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
     .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
     
     .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
-    .radio-name { font-size:clamp(24px,2.6vw,40px); letter-spacing:-.06em; font-weight:780; margin:0 0 4px; color:#fff; }
+    .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0 0 4px; color:#fff; }
     #radio-status { color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:600; }
     
     .play { width:clamp(56px,5.8vw,80px); height:clamp(56px,5.8vw,80px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(22px,2.2vw,32px); transition:transform .16s,background .16s; }
@@ -100,13 +100,14 @@
         <div id="forecast" class="forecast" aria-label="Kolme päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER (SKY PLUS & SLAM! WKNDMX) -->
+      <!-- RAADIO PLAYER (SKY PLUS, SLAM! WKNDMX & Q-DANCE) -->
       <section class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
           <div class="radio-stations">
             <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
-            <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 SLAM! WKNDMX</button>
+            <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 WKNDMX</button>
+            <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://22393.live.streamtheworld.com/Q_DANCE.mp3">⚡ Q-Dance</button>
           </div>
         </div>
         
@@ -289,7 +290,7 @@
       } catch(e){ $('weather-temp').textContent = '--°'; }
     }
 
-    // --- RAADIO (SKY PLUS & SLAM! WKNDMX) ---
+    // --- RAADIO (SKY PLUS, SLAM! WKNDMX & Q-DANCE) ---
     const radio = $('radio'), play = $('play-button');
     let currentStationName = "SKY PLUS";
 
@@ -316,6 +317,10 @@
     });
 
     $('btn-station-slam').addEventListener('click', function() {
+      setStation(this, this.dataset.name, this.dataset.url);
+    });
+
+    $('btn-station-qdance').addEventListener('click', function() {
       setStation(this, this.dataset.name, this.dataset.url);
     });
 

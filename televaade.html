@@ -201,62 +201,57 @@
       });
     }
 
-    // --- REAALNE ELEKTRIHIND ELERINGIST JA NORD POOLIST ---
+    // --- REAALNE ELEKTRIHIND TÄNA + HOMME (ÜLE SÜDAÖÖ) ---
     async function loadElectricity(){
       try {
-        const d = new Date();
+        const now = new Date();
         const pad = n => String(n).padStart(2, '0');
-        // Elering nõuab sekundilise täpsusega aega: YYYY-MM-DDTHH:mm:ssZ
-        const startStr = `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}T00:00:00Z`;
-        const endD = new Date(d.getTime() + 48 * 3600 * 1000);
-        const endStr = `${endD.getUTCFullYear()}-${pad(endD.getUTCMonth()+1)}-${pad(endD.getUTCDate())}T23:59:59Z`;
+        
+        // Alustame tänase päeva algusest (UTC järgi)
+        const startD = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0));
+        // Lõpetame homse päeva lõpuga (23:59:59 UTC), et homsed hinnad kindlasti kaasa tuleks
+        const endD = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2, 23, 59, 59));
 
-        const eleringUrl = `https://dashboard.elering.ee/api/nps/price?start=${startStr}&end=${endStr}`;
+        const startIso = `${startD.getUTCFullYear()}-${pad(startD.getUTCMonth()+1)}-${pad(startD.getUTCDate())}T00:00:00Z`;
+        const endIso = `${endD.getUTCFullYear()}-${pad(endD.getUTCMonth()+1)}-${pad(endD.getUTCDate())}T23:59:59Z`;
+
+        const eleringUrl = `https://dashboard.elering.ee/api/nps/price?start=${startIso}&end=${endIso}`;
         
         let rawList = null;
 
-        // 1. Proovime otse Eleringi (töötab Fully Kiosk WebView-s)
-        try {
-          const res = await fetch(eleringUrl, { cache: 'no-store' });
-          if (res.ok) {
-            const json = await res.json();
-            if (json?.data?.ee && json.data.ee.length > 5) {
-              rawList = json.data.ee;
-            }
-          }
-        } catch(e) {}
+        // Proovime päringuid: Elering otse (Fully Kiosk), vahemäluta proxy (Chrome)
+        const endpoints = [
+          `${eleringUrl}&_nocache=${Date.now()}`,
+          `https://corsproxy.io/?url=${encodeURIComponent(eleringUrl)}`,
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(eleringUrl)}`
+        ];
 
-        // 2. Kui otse ei saa (Chrome CORS), kasutame Cloudflare'i JSON-puhvrit
-        if (!rawList) {
-          const proxies = [
-            `https://corsproxy.io/?url=${encodeURIComponent(eleringUrl)}`,
-            `https://api.allorigins.win/raw?url=${encodeURIComponent(eleringUrl)}`
-          ];
-          for (const p of proxies) {
-            try {
-              const res = await fetch(p, { cache: 'no-store' });
-              if (res.ok) {
-                const text = await res.text();
-                const json = JSON.parse(text);
-                const items = json?.data?.ee || json?.data;
-                if (items && items.length > 5) {
-                  rawList = items;
-                  break;
-                }
+        for (const ep of endpoints) {
+          try {
+            const ctrl = new AbortController();
+            const tid = setTimeout(() => ctrl.abort(), 3000);
+            const res = await fetch(ep, { signal: ctrl.signal, cache: 'no-store' });
+            clearTimeout(tid);
+            if (res.ok) {
+              const text = await res.text();
+              const json = JSON.parse(text);
+              const items = json?.data?.ee || json?.data;
+              if (items && items.length > 10) {
+                rawList = items;
+                break;
               }
-            } catch(e) {}
-          }
+            }
+          } catch(e) {}
         }
 
         if (!rawList || !rawList.length) throw new Error('Hinnaandmeid ei leitud');
 
-        // Töötleme 15-min / 1-h kirjed
         const quarterPrices = rawList.map(v => {
           const t = Number(v.timestamp || v[0]);
           const p = Number(v.price || v[1] || 0);
           return {
             time: t < 20000000000 ? t * 1000 : t,
-            price: (p / 10) * 1.24 // EUR/MWh -> s/kWh + km 24%
+            price: (p / 10) * 1.24 // EUR/MWh -> s/kWh + 24% km
           };
         }).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price) && v.time > 0);
 
@@ -275,10 +270,10 @@
           .map(i => ({ time: i.time, price: i.sum / i.count }))
           .sort((a, b) => a.time - b.time);
 
-        if (!prices.length) throw new Error('Tunnihindade arvutus ebaõnnestus');
+        if (!prices.length) throw new Error('Hinnakirjeid ei saanud arvutada');
 
-        const now = Date.now();
-        const current = prices.find(p => p.time <= now && now < p.time + 3600000) || prices[0];
+        const curTime = Date.now();
+        const current = prices.find(p => p.time <= curTime && curTime < p.time + 3600000) || prices[0];
         const upcoming = prices.find(p => p.time > current.time) || current;
 
         $('price').textContent = fmt(current.price);
@@ -291,6 +286,7 @@
         $('price-status').textContent = 'VÄRSKE';
         $('price-status').className = 'status';
 
+        // Joonistame graafikule täpselt järgmised 24 tundi alates praegusest tunnist (üle südaöö homsesse)
         drawChart(prices.filter(p => p.time >= current.time).slice(0, 24));
       } catch(e) {
         $('price-status').textContent = 'ÜHENDUSE TÕRGE';

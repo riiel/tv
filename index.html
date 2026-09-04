@@ -55,20 +55,18 @@
 
     /* RAADIO KAART */
     .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
+    
+    /* 1. ÜLEMINE RIDA: SILDID JA NUPUD */
     .radio-top { display:flex; justify-content:space-between; align-items:center; }
     .radio-stations { display:flex; gap:6px; flex-wrap:wrap; }
     .station-btn { padding:5px 10px; border-radius:999px; font-weight:750; font-size:clamp(10px,.9vw,13px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
     .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
     .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
-    
-    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:20px; }
-    .radio-info { display:flex; flex-direction:column; gap:4px; min-width:0; }
-    .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0; color:#fff; }
-    #radio-status { color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:600; }
-    
-    /* SUUR HELILAINE VISUALISEERIJA */
-    .visualizer-container { flex:1; display:flex; align-items:center; justify-content:center; padding:0 12px; }
-    .visualizer { display:flex; align-items:flex-end; gap:5px; height:34px; }
+
+    /* 2. KESKMINE RIDA: EKVALAISER ÜLAL RAADIO JA NUPU VAHEL */
+    .radio-middle { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:1vh; }
+    .visualizer-wrapper { flex:1; display:flex; align-items:center; justify-content:flex-start; padding-left:4px; }
+    .visualizer { display:flex; align-items:flex-end; gap:5px; height:32px; }
     .visualizer .bar { width:5px; height:4px; background:linear-gradient(to top, #38bdf8, #66d9ff); border-radius:4px; transition:height .2s ease; opacity:.25; }
     .playing .visualizer .bar { opacity:1; animation:wave 1.2s ease-in-out infinite alternate; box-shadow:0 0 10px rgba(102,217,255,.5); }
     
@@ -87,12 +85,17 @@
 
     @keyframes wave {
       0% { height: 4px; }
-      40% { height: 28px; }
-      80% { height: 12px; }
-      100% { height: 32px; }
+      40% { height: 26px; }
+      80% { height: 10px; }
+      100% { height: 30px; }
     }
 
-    /* MOODNE PLAY / PAUSE NUPP */
+    /* 3. ALUMINE RIDA: JAAMA NIMI JA PLAY/STOPP NUPP */
+    .radio-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:0.5vh; }
+    .radio-info { display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0; color:#fff; line-height:1.1; }
+    #radio-status { color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:600; }
+
     .play { 
       width:clamp(58px,5.8vw,80px); 
       height:clamp(58px,5.8vw,80px); 
@@ -112,7 +115,7 @@
       transform:scale(1.06); 
       box-shadow:0 0 30px rgba(102,217,255,.6); 
     }
-    .play svg { width:42%; height:42%; fill:currentColor; transition:transform .15s ease; }
+    .play svg { width:42%; height:42%; fill:currentColor; }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
     .spotify { background:transparent; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:7px 14px; color:#d5e0ea; font-weight:700; }
@@ -152,7 +155,7 @@
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER SUURE LIIKUVA HELIRIBAGA -->
+      <!-- RAADIO PLAYER -->
       <section id="radio-card" class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
@@ -162,26 +165,28 @@
             <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">⚡ Q-Dance</button>
           </div>
         </div>
-        
-        <div class="radio-main">
-          <div class="radio-info">
-            <h2 id="current-station-name" class="radio-name">SKY PLUS</h2>
-            <span id="radio-status">Valmis mängima</span>
-          </div>
 
-          <!-- SUUR VISUALISEERIJA -->
-          <div class="visualizer-container">
+        <!-- HELIRIDA ÜLEVAL POOL -->
+        <div class="radio-middle">
+          <div class="visualizer-wrapper">
             <div class="visualizer" aria-hidden="true">
               <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
               <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
               <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
             </div>
           </div>
+        </div>
+        
+        <!-- ALUMINE RIDA: NIMI JA NUPP -->
+        <div class="radio-bottom">
+          <div class="radio-info">
+            <h2 id="current-station-name" class="radio-name">SKY PLUS</h2>
+            <span id="radio-status">Valmis mängima</span>
+          </div>
 
-          <!-- MOODNE SVG PAUSE / PLAY NUPP -->
           <button id="play-button" class="play" aria-label="Mängi raadiot">
             <svg id="play-icon" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
+              <path d="M8 5.14v14l11-7-11-7z"/>
             </svg>
           </button>
         </div>
@@ -310,7 +315,7 @@
       }
     }
 
-    // --- YR.NO ILM (5 PÄEVA PROGNOOS) ---
+    // --- YR.NO ILM (5 PÄEVA) ---
     const weatherMap = {clearsky:['☀️','Selge'], fair:['🌤️','Vahelduv pilvisus'], partlycloudy:['⛅','Vahelduv pilvisus'], cloudy:['☁️','Pilves'], lightrain:['🌦️','Nõrk vihm'], rain:['🌧️','Vihm'], heavyrain:['🌧️','Tugev vihm'], fog:['🌫️','Udu'], snow:['🌨️','Lumi'], lightsnow:['🌨️','Nõrk lumesadu'], heavysnow:['❄️','Tugev lumesadu']};
     let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
 
@@ -373,7 +378,7 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO (SVG IKOONID & VISUALIZER) ---
+    // --- RAADIO LOOGIKA ---
     const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
     let currentStationName = "SKY PLUS";
 

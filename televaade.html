@@ -40,7 +40,7 @@
     .stat small { display:block; color:var(--muted); font-size:clamp(10px,.85vw,13px); font-weight:650; margin-bottom:3px; }
     .stat strong { font-size:clamp(16px,1.7vw,26px); letter-spacing:-.05em; }
 
-    /* ILMA KAART (5 PÄEVA) */
+    /* ILMA KAART */
     .weather { padding:2vh 2.2vw 1.6vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(48px,1fr) auto; }
     .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
     .location-button { margin:0 0 0 7px; padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
@@ -110,7 +110,7 @@
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER (NOW PLAYING TRACK INFO) -->
+      <!-- RAADIO PLAYER -->
       <section class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
@@ -181,26 +181,35 @@
 
     async function fetchJson(endpoint){
       const controller = new AbortController(); 
-      const timer = setTimeout(() => controller.abort(), 8000);
+      const timer = setTimeout(() => controller.abort(), 7000);
       try { 
         const response = await fetch(endpoint, {cache:'no-store', signal:controller.signal}); 
         if(!response.ok) throw Error(`HTTP ${response.status}`); 
-        const json = await response.json();
-        return typeof json === 'string' ? JSON.parse(json) : json;
+        let text = await response.text();
+        try {
+          return JSON.parse(text);
+        } catch(e) {
+          // Kui puhver tagastab objekti kujul {contents: "..."}
+          const parsed = JSON.parse(text);
+          if (parsed.contents) return JSON.parse(parsed.contents);
+          throw e;
+        }
       } finally { clearTimeout(timer); }
     }
 
+    // Töökindel päringute ahel GitHub Pages HTTPS jaoks
     async function getJsonWithFallback(url){
       const endpoints = [
         url,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
         `https://corsproxy.io/?url=${encodeURIComponent(url)}`
       ];
       let lastError;
       for(const endpoint of endpoints){
         try { 
           const data = await fetchJson(endpoint); 
-          if(data) return data;
+          if(data && (data.data || data.ee || Array.isArray(data))) return data;
         } catch(error){ lastError = error; }
       }
       throw lastError;
@@ -209,20 +218,36 @@
     async function loadElectricity(){
       const start = new Date(); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 2);
       try { 
-        const url = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`; 
+        const startIso = start.toISOString();
+        const endIso = end.toISOString();
+        const primaryUrl = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(startIso)}&end=${encodeURIComponent(endIso)}`; 
+        
         let raw = [];
         try { 
-          const json = await getJsonWithFallback(url); 
-          raw = json.data?.ee || []; 
-        } catch(rangeError) { 
-          const json = await getJsonWithFallback('https://dashboard.elering.ee/api/nps/price/EE/current'); 
+          const json = await getJsonWithFallback(primaryUrl); 
+          raw = json.data?.ee || json.ee || []; 
+        } catch(primaryError) { 
+          // Varuväljapääs: Eleringi hetke viimased hinnad
+          const fallbackUrl = 'https://dashboard.elering.ee/api/nps/price/EE/current';
+          const json = await getJsonWithFallback(fallbackUrl); 
           raw = json.data?.ee || json.data || []; 
+        }
+
+        if (!raw || !raw.length) {
+          // Viimane tagavara: avatud tariifide peegel
+          const mirrorUrl = 'https://elering-nordpool.netlify.app/api/prices';
+          const json = await fetchJson(mirrorUrl);
+          raw = json.data?.ee || json || [];
         }
         
         const quarterPrices = raw.map(v => { 
-          const time = Number(v.timestamp ?? v[0]); 
-          return {time: time < 20000000000 ? time * 1000 : time, price: Number(v.price ?? v[1]) / 10}; 
-        }).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price));
+          const time = Number(v.timestamp ?? v[0] ?? (v.time ? new Date(v.time).getTime()/1000 : 0)); 
+          const p = Number(v.price ?? v[1] ?? v.price_eur_mwh ?? 0);
+          return {
+            time: time < 20000000000 ? time * 1000 : time, 
+            price: p / 10 // s/kWh
+          }; 
+        }).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price) && v.time > 0);
 
         const byHour = new Map(); 
         for(const entry of quarterPrices){ 
@@ -230,13 +255,15 @@
           hour.setMinutes(0,0,0); 
           const key = hour.getTime(); 
           const bucket = byHour.get(key) || {time: key, sum: 0, count: 0}; 
-          bucket.sum += entry.price; bucket.count++; 
+          bucket.sum += entry.price; 
+          bucket.count++; 
           byHour.set(key, bucket); 
         }
 
         const rangeStart = new Date(); rangeStart.setHours(0,0,0,0); 
         const rangeEnd = new Date(rangeStart); rangeEnd.setDate(rangeEnd.getDate() + 2); 
         
+        // Arvestatud käibemaks (24%)
         prices = [...byHour.values()]
           .map(item => ({time: item.time, price: (item.sum / item.count) * 1.24}))
           .filter(item => item.time >= rangeStart.getTime() && item.time < rangeEnd.getTime())
@@ -282,7 +309,6 @@
         if(distance < day.distance){ day.distance = distance; day.representative = item; }
       }
       
-      // Valime täpselt 5 päeva (Täna + 4 järgnevat)
       const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 5); 
       $('forecast').innerHTML = selected.map((day, index) => {
         const symbol = day.representative?.data.next_1_hours?.summary?.symbol_code || day.representative?.data.next_6_hours?.summary?.symbol_code || 'fair';
@@ -330,7 +356,7 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO & LAULU INFO PÄRIMINE (NOW PLAYING) ---
+    // --- RAADIO & LOO INFO ---
     const radio = $('radio'), play = $('play-button');
     let currentStationKey = "skyplus";
     let currentStationName = "SKY PLUS";
@@ -338,12 +364,11 @@
     async function fetchNowPlaying() {
       try {
         if (currentStationKey === 'skyplus') {
-          // Mitmetasandiline päring Sky Plus metaandmetele
-          const urls = [
+          const endpoints = [
             `https://cache.bitflip.ee/meta/SKYPLUS.json?_=${Date.now()}`,
             `https://api.allorigins.win/raw?url=${encodeURIComponent('https://cache.bitflip.ee/meta/SKYPLUS.json')}`
           ];
-          for (const u of urls) {
+          for (const u of endpoints) {
             try {
               const res = await fetch(u);
               if (res.ok) {

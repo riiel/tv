@@ -95,7 +95,7 @@
         </div>
       </section>
 
-      <!-- ILM (ALGNE YR.NO KOOS ASUKOHA NUPUGA) -->
+      <!-- ILM (YR.NO KOOS ASUKOHA NUPUGA) -->
       <section class="card weather">
         <div>
           <div class="label">Ilm</div>
@@ -147,7 +147,7 @@
       $('date').textContent = d.toLocaleDateString('et-EE', {weekday:'long', day:'numeric', month:'long'}); 
     }
 
-    // --- CANVAS GRAAFIK (ALGNE TÄPNE LOGIIKA) ---
+    // --- CANVAS GRAAFIK ---
     function drawChart(data){
       const canvas = $('price-chart');
       if(!canvas) return;
@@ -182,21 +182,26 @@
       } finally { clearTimeout(timer); }
     }
 
-    // --- ALGNE ELEKTRIHINNA LOOGIKA ---
+    // --- ELEKTRIHIND (VERCEL /API/ELERING TOEL) ---
     async function loadElectricity(){
       const start = new Date(); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 2);
       try { 
-        const url = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`; 
+        const params = `start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
         
+        // Esmalt Verceli serverless proxy, tagavaraks otsepäring Eleringi
+        const endpoints = [
+          `/api/elering?${params}`,
+          `https://dashboard.elering.ee/api/nps/price?${params}`
+        ];
+
         let json = null;
-        try {
-          // Otsepäring (töötab localhostis ja Fully Kioskis koheselt)
-          json = await fetchJson(url);
-        } catch(e) {
-          // Varupuhver ainult siis, kui otse ei lubata (nt tavalises Chrome'is)
-          json = await fetchJson(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+        for (const ep of endpoints) {
+          try {
+            json = await fetchJson(ep);
+            if (json?.data?.ee?.length) break;
+          } catch(e) {}
         }
-        
+
         const raw = json?.data?.ee || [];
         
         const quarterPrices = raw.map(v => { 
@@ -226,7 +231,7 @@
         
         const now = Date.now(); 
         const current = prices.find(p => p.time <= now && now < p.time + 3600000) || prices[0]; 
-        const upcoming = prices.find(p => p.time > current.time) || current;
+        const upcoming = prices.find(p => p.time > current.time) || current; 
         
         $('price').textContent = fmt(current.price); 
         $('price-caption').textContent = `Praegu · ${new Date(current.time).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})}–${new Date(current.time+3600000).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})} · km-ga`; 
@@ -246,7 +251,7 @@
       }
     }
 
-    // --- ALGNE TÄPNE YR.NO ILM ---
+    // --- YR.NO ILM ---
     const weatherMap = {clearsky:['☀️','Selge'], fair:['🌤️','Vahelduv pilvisus'], partlycloudy:['⛅','Vahelduv pilvisus'], cloudy:['☁️','Pilves'], lightrain:['🌦️','Nõrk vihm'], rain:['🌧️','Vihm'], heavyrain:['🌧️','Tugev vihm'], fog:['🌫️','Udu'], snow:['🌨️','Lumi'], lightsnow:['🌨️','Nõrk lumesadu'], heavysnow:['❄️','Tugev lumesadu']};
     let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
 
@@ -308,7 +313,7 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO (SKY PLUS, SLAM! WKNDMX & Q-DANCE) ---
+    // --- RAADIO ---
     const radio = $('radio'), play = $('play-button');
     let currentStationName = "SKY PLUS";
 
@@ -330,17 +335,9 @@
       }
     }
 
-    $('btn-station-sky').addEventListener('click', function() {
-      setStation(this, this.dataset.name, this.dataset.url);
-    });
-
-    $('btn-station-slam').addEventListener('click', function() {
-      setStation(this, this.dataset.name, this.dataset.url);
-    });
-
-    $('btn-station-qdance').addEventListener('click', function() {
-      setStation(this, this.dataset.name, this.dataset.url);
-    });
+    $('btn-station-sky').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-slam').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
 
     play.addEventListener('click', async () => {
       try { 

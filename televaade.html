@@ -184,7 +184,7 @@
       const ctx = canvas.getContext('2d'), rect = canvas.getBoundingClientRect(), dpr = devicePixelRatio || 1;
       canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr); 
       const w = rect.width, h = rect.height;
-      if(data.length < 2) return; 
+      if(!data || data.length < 2) return; 
       const values = data.map(x => x.price), max = Math.max(...values) || 1, average = values.reduce((sum, value) => sum + value, 0) / values.length;
       const left = 4, right = 4, top = 26, bottom = 22, chartHeight = h - top - bottom, slot = (w - left - right) / data.length, barWidth = Math.max(2, slot - 4), now = Date.now();
       
@@ -201,55 +201,66 @@
       });
     }
 
-    // --- ELEKTRIHIND: TÖÖKINDEL MULTI-ALLIKAS ---
+    // --- ELEKTRIHIND: TÖÖKINDEL TÄISMAHUS 48H HINNAVOOG ---
     async function loadElectricity(){
       try {
-        const d = new Date();
-        const start = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0));
-        const end = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() + 2, 0, 0, 0));
+        const nowD = new Date();
+        // Eleringi nõutav UTC ilma millisekunditeta YYYY-MM-DDTHH:mm:ssZ
+        const pad = n => String(n).padStart(2, '0');
+        const toIsoSec = d => `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:00Z`;
 
-        const startIso = start.toISOString();
-        const endIso = end.toISOString();
-        const eleringApi = `https://dashboard.elering.ee/api/nps/price?start=${startIso}&end=${endIso}`;
+        const start = new Date(Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth(), nowD.getUTCDate(), 0, 0, 0));
+        const end = new Date(start.getTime() + 48 * 3600 * 1000);
 
-        // Päringute loend: Eleringi otsetee, varupeeglid ja CORS puhvrid
-        const endpoints = [
-          eleringApi,
-          `https://api.allorigins.win/raw?url=${encodeURIComponent(eleringApi)}`,
-          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(eleringApi)}`,
-          'https://dashboard.elering.ee/api/nps/price/EE/current',
-          `https://api.allorigins.win/raw?url=${encodeURIComponent('https://dashboard.elering.ee/api/nps/price/EE/current')}`
+        const eleringQuery = `https://dashboard.elering.ee/api/nps/price?start=${toIsoSec(start)}&end=${toIsoSec(end)}`;
+        
+        // Järjekord: 1. Avatud NPS API (CORS-vaba), 2. Allorigins proxy Eleringile, 3. Elering otse
+        const sources = [
+          'https://nps.turg.ee/api/prices/EE',
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(eleringQuery)}`,
+          eleringQuery
         ];
 
         let raw = null;
-        for (const url of endpoints) {
+        let sourceMode = 'elering';
+
+        for (const url of sources) {
           try {
             const ctrl = new AbortController();
-            const tid = setTimeout(() => ctrl.abort(), 2500);
+            const tid = setTimeout(() => ctrl.abort(), 3500);
             const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
             clearTimeout(tid);
             if (res.ok) {
-              const text = await res.text();
-              const json = JSON.parse(text);
-              const data = json.data?.ee || json.data || (Array.isArray(json) ? json : null);
-              if (data && data.length) {
-                raw = data;
+              const json = await res.json();
+              if (Array.isArray(json) && json.length > 5) {
+                raw = json;
+                sourceMode = 'turg';
+                break;
+              } else if (json?.data?.ee && json.data.ee.length > 5) {
+                raw = json.data.ee;
+                sourceMode = 'elering';
                 break;
               }
             }
           } catch(e) {}
         }
 
-        if (!raw || !raw.length) throw new Error('Ükski hinnaserver ei vastanud');
+        if (!raw || raw.length < 2) throw new Error('Hinnakirjeid ei laekunud');
 
-        const quarterPrices = raw.map(v => {
-          const t = Number(v.timestamp || v[0]);
-          const p = Number(v.price || v[1] || 0);
-          return {
-            time: t < 20000000000 ? t * 1000 : t,
-            price: (p / 10) * 1.24 // s/kWh + 24% km
-          };
-        }).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price) && v.time > 0);
+        let quarterPrices = [];
+        if (sourceMode === 'turg') {
+          // nps.turg.ee formaat: [{timestamp: 169..., price: 54.2}, ...]
+          quarterPrices = raw.map(v => ({
+            time: v.timestamp < 20000000000 ? v.timestamp * 1000 : v.timestamp,
+            price: (Number(v.price) / 10) * 1.24 // EUR/MWh -> s/kWh + 24% km
+          })).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price));
+        } else {
+          // Elering formaat: [{timestamp: ..., price: ...}]
+          quarterPrices = raw.map(v => ({
+            time: v.timestamp < 20000000000 ? v.timestamp * 1000 : v.timestamp,
+            price: (Number(v.price) / 10) * 1.24
+          })).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price));
+        }
 
         const byHour = new Map();
         for (const entry of quarterPrices) {

@@ -41,17 +41,25 @@
     .stat strong { font-size:clamp(16px,1.7vw,26px); letter-spacing:-.05em; }
 
     /* ILMA KAART */
-    .weather { padding:2vh 2.2vw 1.6vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(48px,1fr) auto; }
-    .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
-    .location-button { margin:0 0 0 7px; padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
+    .weather { padding:2.2vh 2.4vw 1.6vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto 1fr auto; }
+    .weather-top { display:flex; justify-content:space-between; align-items:flex-start; }
+    .location { display:inline; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
+    .location-button { margin-left:8px; padding:3px 9px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
     .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:rgba(255,255,255,.08); }
-    .condition { align-self:center; display:flex; align-items:center; gap:clamp(12px,1.3vw,20px); }
-    #weather-temp { font-size:clamp(38px,3.6vw,54px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
-    .weather-icon { font-size:clamp(36px,3.3vw,50px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
-    .forecast { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
-    .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.72vw,11px); font-weight:750; text-transform:uppercase; }
-    .forecast-icon { display:block; font-size:clamp(14px,1.2vw,18px); margin:1px 0; }
-    .forecast-temp { color:#e4edf4; font-size:clamp(10px,.82vw,13px); font-weight:750; }
+    
+    .condition { align-self:center; display:flex; align-items:center; justify-content:space-between; margin:6px 0; }
+    .temp-group { display:flex; align-items:baseline; gap:12px; }
+    #weather-temp { font-size:clamp(44px,4.5vw,68px); letter-spacing:-.09em; line-height:.85; font-weight:760; }
+    .weather-desc-box { display:flex; flex-direction:column; gap:2px; }
+    #weather-desc { font-weight:700; font-size:clamp(13px,1.15vw,17px); color:#e2e8f0; }
+    #weather-feels { color:var(--muted); font-size:clamp(11px,.9vw,13px); font-weight:600; }
+    .weather-icon { font-size:clamp(40px,3.8vw,56px); filter:drop-shadow(0 6px 18px rgba(102,217,255,.18)); }
+    
+    .forecast { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:.6vh; padding-top:.8vh; border-top:1px solid var(--line); }
+    .forecast-day { text-align:center; display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .forecast-title { color:var(--muted); font-size:clamp(10px,.75vw,12px); font-weight:750; text-transform:uppercase; }
+    .forecast-icon { font-size:clamp(16px,1.4vw,22px); margin:1px 0; }
+    .forecast-temp { color:#e4edf4; font-size:clamp(11px,.88vw,14px); font-weight:750; }
 
     /* RAADIO KAART */
     .radio { padding:2vh 2.2vw; display:flex; flex-direction:column; justify-content:space-between; }
@@ -99,15 +107,29 @@
         </div>
       </section>
 
-      <!-- ILM KOOS 5 PÄEVA PROGNOOSIGA -->
+      <!-- TÄPNE ILM (PÕHJAMAADE MUDEL) -->
       <section class="card weather">
-        <div>
-          <div class="label">Ilm</div>
-          <div id="location" class="location">Pärnu</div>
-          <button id="location-button" class="location-button">Kasuta minu asukohta</button>
+        <div class="weather-top">
+          <div>
+            <div class="label">Ilm</div>
+            <div id="location" class="location">Pärnu</div>
+            <button id="location-button" class="location-button">Määra asukoht</button>
+          </div>
+          <div id="weather-model-tag" style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">ICON-EU</div>
         </div>
-        <div class="condition"><div id="weather-temp">--°</div><div id="weather-icon" class="weather-icon">☀️</div></div>
-        <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
+        
+        <div class="condition">
+          <div class="temp-group">
+            <div id="weather-temp">--°</div>
+            <div class="weather-desc-box">
+              <span id="weather-desc">Laen ilma…</span>
+              <span id="weather-feels">Tajutav: --° · Tuul: -- m/s</span>
+            </div>
+          </div>
+          <div id="weather-icon" class="weather-icon">🌤️</div>
+        </div>
+
+        <div id="forecast" class="forecast" aria-label="Viie päeva täpne ilmaennustus"></div>
       </section>
 
       <!-- RAADIO PLAYER -->
@@ -179,7 +201,7 @@
       });
     }
 
-    // --- KIIRE ELEKTRIHIND CHROME'I JA FULLY KIOSKI JAOKS ---
+    // --- ELEKTRIHIND ---
     async function fetchWithTimeout(url, ms = 3000) {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), ms);
@@ -202,8 +224,6 @@
         end.setDate(end.getDate() + 2);
 
         const eleringUrl = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
-        
-        // Järjekord: otsepäring (Fully Kiosk), kiire Cloudflare lüüs (Chrome), Codetabs varulüüs
         const candidateEndpoints = [
           eleringUrl,
           `https://corsproxy.io/?url=${encodeURIComponent(eleringUrl)}`,
@@ -265,29 +285,55 @@
       }
     }
 
-    // --- ILM (TÖÖKINDEL OPEN-METEO ILMATEENUS 5 PÄEVAKS) ---
+    // --- TÄPNE EESTI JA PÕHJAMAADE ILM (DWD ICON-EU / METEOTRACK) ---
     let weatherPlace = { name: 'Pärnu', lat: 58.3859, lon: 24.4971 };
 
-    function getWeatherIcon(code) {
-      if ([0].includes(code)) return '☀️';
-      if ([1, 2].includes(code)) return '🌤️';
-      if ([3].includes(code)) return '☁️';
-      if ([45, 48].includes(code)) return '🌫️';
-      if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return '🌧️';
-      if ([71, 73, 75, 77, 85, 86].includes(code)) return '🌨️';
-      if ([95, 96, 99].includes(code)) return '⛈️';
-      return '🌤️';
-    }
+    const weatherWmoMap = {
+      0: ['☀️', 'Selge taevas'],
+      1: ['🌤️', 'Enamasti selge'],
+      2: ['⛅', 'Vahelduv pilvisus'],
+      3: ['☁️', 'Pilves'],
+      45: ['🌫️', 'Udu'],
+      48: ['🌫️', 'Härmatav udu'],
+      51: ['🌦️', 'Nõrk uduvihm'],
+      53: ['🌦️', 'Mõõdukas vihm'],
+      55: ['🌧️', 'Tihe uduvihm'],
+      61: ['🌧️', 'Nõrk vihmasadu'],
+      63: ['🌧️', 'Mõõdukas vihmasadu'],
+      65: ['🌧️', 'Tugev vihm'],
+      71: ['🌨️', 'Kerge lumesadu'],
+      73: ['🌨️', 'Mõõdukas lumesadu'],
+      75: ['❄️', 'Tugev lumesadu'],
+      77: ['❄️', 'Lumekruubid'],
+      80: ['🌦️', 'Kerge hoogvihm'],
+      81: ['🌧️', 'Hoogvihm'],
+      82: ['⛈️', 'Tugev vihmahoog'],
+      85: ['🌨️', 'Lumelörts'],
+      86: ['❄️', 'Tugev lumesadu'],
+      95: ['⛈️', 'Äike'],
+      96: ['⛈️', 'Äike ja rahe']
+    };
 
     async function loadWeather(){
       try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${weatherPlace.lat}&longitude=${weatherPlace.lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`;
-        const res = await fetch(url);
-        if (!res.ok) throw Error();
+        // Kasutame DWD ICON-EU kõrgresolutsiooniga mudelit (kõige täpsem Baltikumi ja Skandinaavia jaoks)
+        const url = `https://api.open-meteo.com/v1/dwd-icon?latitude=${weatherPlace.lat}&longitude=${weatherPlace.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`;
+        let res = await fetch(url);
+        
+        // Tagavaramudel (kui ICON-EU ajutiselt uuendab)
+        if (!res.ok) {
+          res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${weatherPlace.lat}&longitude=${weatherPlace.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`);
+        }
+        
         const data = await res.json();
+        const cur = data.current;
+        const code = cur.weather_code;
+        const wInfo = weatherWmoMap[code] || ['🌤️', 'Vahelduv pilvisus'];
 
-        $('weather-temp').textContent = `${Math.round(data.current.temperature_2m)}°`;
-        $('weather-icon').textContent = getWeatherIcon(data.current.weather_code);
+        $('weather-temp').textContent = `${Math.round(cur.temperature_2m)}°`;
+        $('weather-desc').textContent = wInfo[1];
+        $('weather-feels').textContent = `Tajutav: ${Math.round(cur.apparent_temperature)}° · Tuul: ${(cur.wind_speed_10m / 3.6).toFixed(1)} m/s`;
+        $('weather-icon').textContent = wInfo[0];
         $('location').textContent = weatherPlace.name;
 
         const daily = data.daily;
@@ -295,17 +341,20 @@
         for (let i = 0; i < daily.time.length; i++) {
           const d = new Date(daily.time[i]);
           const name = i === 0 ? 'Täna' : (i === 1 ? 'Homme' : d.toLocaleDateString('et-EE', { weekday: 'short' }).replace('.', ''));
+          const dayCode = daily.weather_code[i];
+          const icon = (weatherWmoMap[dayCode] || ['🌤️'])[0];
+          
           days.push(`
             <div class="forecast-day">
-              <span>${name}</span>
-              <span class="forecast-icon">${getWeatherIcon(daily.weather_code[i])}</span>
+              <span class="forecast-title">${name}</span>
+              <span class="forecast-icon">${icon}</span>
               <span class="forecast-temp">${Math.round(daily.temperature_2m_min[i])}° / ${Math.round(daily.temperature_2m_max[i])}°</span>
             </div>
           `);
         }
         $('forecast').innerHTML = days.join('');
       } catch(e) {
-        $('weather-temp').textContent = '--°';
+        $('weather-desc').textContent = 'Ilmateenus pole saadaval';
       }
     }
 
@@ -321,7 +370,7 @@
 
     $('location-button').addEventListener('click', () => {
       if (!navigator.geolocation) {
-        $('location-button').textContent = 'GPS pole saadaval';
+        $('location-button').textContent = 'GPS puudub';
         return;
       }
       $('location-button').textContent = 'Määran…';
@@ -332,7 +381,7 @@
         weatherPlace.lon = lon;
         weatherPlace.name = await placeNameFromCoordinates(lat, lon);
         loadWeather();
-        $('location-button').textContent = 'Asukoht leitud';
+        $('location-button').textContent = 'Valmis';
       }, () => {
         $('location-button').textContent = 'Luba puudub';
       }, { timeout: 10000 });
@@ -353,28 +402,6 @@
             const title = data.title || data.Title || data.song || '';
             if (artist && title) {
               $('radio-track').textContent = `${artist} – ${title}`;
-              return;
-            }
-          }
-        } else if (currentStationKey === 'slam') {
-          const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://np.tritondigital.com/public/nowplaying?mountName=WEB11_AAC&numberToFetch=1&eventType=track')}`);
-          if (res.ok) {
-            const text = await res.text();
-            const mTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
-            const mArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
-            if (mTitle && mArtist) {
-              $('radio-track').textContent = `${mArtist[1]} – ${mTitle[1]}`;
-              return;
-            }
-          }
-        } else if (currentStationKey === 'qdance') {
-          const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://np.tritondigital.com/public/nowplaying?mountName=Q_DANCE&numberToFetch=1&eventType=track')}`);
-          if (res.ok) {
-            const text = await res.text();
-            const mTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
-            const mArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
-            if (mTitle && mArtist) {
-              $('radio-track').textContent = `${mArtist[1]} – ${mTitle[1]}`;
               return;
             }
           }
@@ -434,7 +461,7 @@
     loadWeather();
     fetchNowPlaying();
     setInterval(loadElectricity, 5 * 60 * 1000);
-    setInterval(loadWeather, 30 * 60 * 1000);
+    setInterval(loadWeather, 15 * 60 * 1000);
     setInterval(fetchNowPlaying, 8 * 1000);
 
     addEventListener('resize', () => {

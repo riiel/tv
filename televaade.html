@@ -115,7 +115,7 @@
             <div id="location" class="location">Pärnu</div>
             <button id="location-button" class="location-button">Määra asukoht</button>
           </div>
-          <div id="weather-model-tag" style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">ICON-EU</div>
+          <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">ICON-EU</div>
         </div>
         
         <div class="condition">
@@ -201,54 +201,55 @@
       });
     }
 
-    // --- ELEKTRIHIND TÖÖTAB NII CHROMES KUI KA FULLY KIOSKIS ---
+    // --- ELEKTRIHIND: TÖÖKINDEL MULTI-ALLIKAS ---
     async function loadElectricity(){
       try {
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 2);
+        const d = new Date();
+        const start = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0));
+        const end = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() + 2, 0, 0, 0));
 
-        const targetUrl = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
-        
-        const sources = [
-          `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-          targetUrl
+        const startIso = start.toISOString();
+        const endIso = end.toISOString();
+        const eleringApi = `https://dashboard.elering.ee/api/nps/price?start=${startIso}&end=${endIso}`;
+
+        // Päringute loend: Eleringi otsetee, varupeeglid ja CORS puhvrid
+        const endpoints = [
+          eleringApi,
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(eleringApi)}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(eleringApi)}`,
+          'https://dashboard.elering.ee/api/nps/price/EE/current',
+          `https://api.allorigins.win/raw?url=${encodeURIComponent('https://dashboard.elering.ee/api/nps/price/EE/current')}`
         ];
 
         let raw = null;
-        for (const url of sources) {
+        for (const url of endpoints) {
           try {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 3500);
-            const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-            clearTimeout(timer);
-            
+            const ctrl = new AbortController();
+            const tid = setTimeout(() => ctrl.abort(), 2500);
+            const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
+            clearTimeout(tid);
             if (res.ok) {
               const text = await res.text();
               const json = JSON.parse(text);
-              if (json?.data?.ee?.length) {
-                raw = json.data.ee;
+              const data = json.data?.ee || json.data || (Array.isArray(json) ? json : null);
+              if (data && data.length) {
+                raw = data;
                 break;
               }
             }
-          } catch(err) {}
+          } catch(e) {}
         }
 
-        if (!raw || !raw.length) {
-          const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://dashboard.elering.ee/api/nps/price/EE/current')}`;
-          const res = await fetch(fallbackUrl);
-          const json = await res.json();
-          raw = json?.data?.ee || json?.data;
-        }
+        if (!raw || !raw.length) throw new Error('Ükski hinnaserver ei vastanud');
 
-        if (!raw || !raw.length) throw new Error('Elektri andmeid ei leitud');
-
-        const quarterPrices = raw.map(v => ({
-          time: v.timestamp < 20000000000 ? v.timestamp * 1000 : v.timestamp,
-          price: (v.price / 10) * 1.24 // s/kWh + 24% km
-        })).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price));
+        const quarterPrices = raw.map(v => {
+          const t = Number(v.timestamp || v[0]);
+          const p = Number(v.price || v[1] || 0);
+          return {
+            time: t < 20000000000 ? t * 1000 : t,
+            price: (p / 10) * 1.24 // s/kWh + 24% km
+          };
+        }).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price) && v.time > 0);
 
         const byHour = new Map();
         for (const entry of quarterPrices) {
@@ -287,7 +288,7 @@
       }
     }
 
-    // --- TÄPNE EESTI JA PÕHJAMAADE ILM (DWD ICON-EU) ---
+    // --- TÄPNE ILM (DWD ICON-EU) ---
     let weatherPlace = { name: 'Pärnu', lat: 58.3859, lon: 24.4971 };
 
     const weatherWmoMap = {
@@ -320,7 +321,6 @@
       try {
         const url = `https://api.open-meteo.com/v1/dwd-icon?latitude=${weatherPlace.lat}&longitude=${weatherPlace.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`;
         let res = await fetch(url);
-        
         if (!res.ok) {
           res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${weatherPlace.lat}&longitude=${weatherPlace.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`);
         }

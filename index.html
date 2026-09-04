@@ -40,18 +40,18 @@
     .stat small { display:block; color:var(--muted); font-size:clamp(10px,.85vw,13px); font-weight:650; margin-bottom:3px; }
     .stat strong { font-size:clamp(16px,1.7vw,26px); letter-spacing:-.05em; }
 
-    /* ILMA KAART */
-    .weather { padding:2vh 2.4vw 1.5vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(55px,1fr) auto; }
+    /* ILMA KAART (5 PÄEVA VAATEGA) */
+    .weather { padding:2vh 2.4vw 1.5vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(50px,1fr) auto; }
     .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
     .location-button { margin:0 0 0 7px; padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
     .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:rgba(255,255,255,.08); }
     .condition { align-self:center; display:flex; align-items:center; gap:clamp(12px,1.3vw,20px); }
-    #weather-temp { font-size:clamp(40px,3.8vw,58px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
-    .weather-icon { font-size:clamp(38px,3.5vw,54px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
-    .forecast { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
-    .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.75vw,12px); font-weight:750; text-transform:uppercase; }
-    .forecast-icon { display:block; font-size:clamp(15px,1.3vw,20px); margin:1px 0; }
-    .forecast-temp { color:#e4edf4; font-size:clamp(11px,.9vw,14px); font-weight:750; }
+    #weather-temp { font-size:clamp(38px,3.6vw,54px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
+    .weather-icon { font-size:clamp(36px,3.3vw,50px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
+    .forecast { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
+    .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.72vw,11px); font-weight:750; text-transform:uppercase; }
+    .forecast-icon { display:block; font-size:clamp(14px,1.2vw,18px); margin:1px 0; }
+    .forecast-temp { color:#e4edf4; font-size:clamp(10px,.82vw,13px); font-weight:750; }
 
     /* RAADIO KAART */
     .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
@@ -95,7 +95,7 @@
         </div>
       </section>
 
-      <!-- ILM (YR.NO KOOS ASUKOHA NUPUGA) -->
+      <!-- ILM (5 PÄEVA YR.NO) -->
       <section class="card weather">
         <div>
           <div class="label">Ilm</div>
@@ -103,10 +103,10 @@
           <button id="location-button" class="location-button">Kasuta minu asukohta</button>
         </div>
         <div class="condition"><div id="weather-temp">--°</div><div id="weather-icon" class="weather-icon">☀️</div></div>
-        <div id="forecast" class="forecast" aria-label="Kolme päeva ilmaennustus"></div>
+        <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO (SKY PLUS, SLAM! WKNDMX, Q-DANCE) -->
+      <!-- RAADIO -->
       <section class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
@@ -182,13 +182,11 @@
       } finally { clearTimeout(timer); }
     }
 
-    // --- ELEKTRIHIND (VERCEL /API/ELERING TOEL) ---
+    // --- ELEKTRIHIND ---
     async function loadElectricity(){
       const start = new Date(); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 2);
       try { 
         const params = `start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
-        
-        // Esmalt Verceli serverless proxy, tagavaraks otsepäring Eleringi
         const endpoints = [
           `/api/elering?${params}`,
           `https://dashboard.elering.ee/api/nps/price?${params}`
@@ -251,7 +249,7 @@
       }
     }
 
-    // --- YR.NO ILM ---
+    // --- YR.NO ILM (5 PÄEVA PROGNOOS) ---
     const weatherMap = {clearsky:['☀️','Selge'], fair:['🌤️','Vahelduv pilvisus'], partlycloudy:['⛅','Vahelduv pilvisus'], cloudy:['☁️','Pilves'], lightrain:['🌦️','Nõrk vihm'], rain:['🌧️','Vihm'], heavyrain:['🌧️','Tugev vihm'], fog:['🌫️','Udu'], snow:['🌨️','Lumi'], lightsnow:['🌨️','Nõrk lumesadu'], heavysnow:['❄️','Tugev lumesadu']};
     let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
 
@@ -266,11 +264,13 @@
         const distance = Math.abs(date.getHours() - 13); 
         if(distance < day.distance){ day.distance = distance; day.representative = item; }
       }
-      const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 3); 
+      
+      // Valime 5 päeva (Täna, Homme ja järgmised 3 päeva)
+      const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 5); 
       $('forecast').innerHTML = selected.map((day, index) => {
         const symbol = day.representative?.data.next_1_hours?.summary?.symbol_code || day.representative?.data.next_6_hours?.summary?.symbol_code || 'fair';
         const entry = weatherMap[symbol.replace(/_[a-z]+$/, '')] || weatherMap.fair;
-        const name = index === 0 ? 'Täna' : day.date.toLocaleDateString('et-EE', {weekday:'short'}).replace('.', '');
+        const name = index === 0 ? 'Täna' : (index === 1 ? 'Homme' : day.date.toLocaleDateString('et-EE', {weekday:'short'}).replace('.', ''));
         return `<div class="forecast-day"><span>${name}</span><span class="forecast-icon">${entry[0]}</span><span class="forecast-temp">${Math.round(day.min)}° / ${Math.round(day.max)}°</span></div>`;
       }).join('');
     }

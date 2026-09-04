@@ -179,44 +179,53 @@
       });
     }
 
-    // --- KIIRE ELEKTRIHIND ILMA AEGLASTE VAHELÜÜSIDETA ---
-    async function loadElectricity(){
+    // --- KIIRE ELEKTRIHIND CHROME'I JA FULLY KIOSKI JAOKS ---
+    async function fetchWithTimeout(url, ms = 3000) {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 3500); // max 3.5 sekundit ootamist
-      
+      const id = setTimeout(() => controller.abort(), ms);
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        if (!response.ok) throw new Error();
+        return await response.json();
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
+      }
+    }
+
+    async function loadElectricity(){
       try {
         const start = new Date();
-        start.setHours(0,0,0,0);
+        start.setHours(0, 0, 0, 0);
         const end = new Date(start);
         end.setDate(end.getDate() + 2);
 
-        // Kasutame otsepäringuid, millel Elering lubab CORS-i ilma vahendajateta
-        const url1 = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
-        const url2 = 'https://dashboard.elering.ee/api/nps/price/EE/current';
+        const eleringUrl = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
+        
+        // Järjekord: otsepäring (Fully Kiosk), kiire Cloudflare lüüs (Chrome), Codetabs varulüüs
+        const candidateEndpoints = [
+          eleringUrl,
+          `https://corsproxy.io/?url=${encodeURIComponent(eleringUrl)}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(eleringUrl)}`
+        ];
 
         let raw = null;
-        try {
-          const r = await fetch(url1, { signal: controller.signal });
-          if (r.ok) {
-            const j = await r.json();
-            raw = j?.data?.ee;
-          }
-        } catch(e) {}
-
-        if (!raw || !raw.length) {
-          const r2 = await fetch(url2, { signal: controller.signal });
-          if (r2.ok) {
-            const j2 = await r2.json();
-            raw = j2?.data?.ee || j2?.data;
-          }
+        for (const endpoint of candidateEndpoints) {
+          try {
+            const json = await fetchWithTimeout(endpoint, 2500);
+            if (json && json.data && json.data.ee && json.data.ee.length) {
+              raw = json.data.ee;
+              break;
+            }
+          } catch(e) {}
         }
 
-        clearTimeout(timer);
-        if (!raw || !raw.length) throw Error('Andmeid ei saabunud');
+        if (!raw || !raw.length) throw new Error('Andmeid ei saabunud');
 
         const quarterPrices = raw.map(v => ({
           time: v.timestamp < 20000000000 ? v.timestamp * 1000 : v.timestamp,
-          price: (v.price / 10) * 1.24 // 24% km
+          price: (v.price / 10) * 1.24 // s/kWh + 24% km
         })).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price));
 
         const byHour = new Map();
@@ -250,7 +259,6 @@
 
         drawChart(prices.filter(p => p.time >= current.time).slice(0, 24));
       } catch(e) {
-        clearTimeout(timer);
         $('price-status').textContent = 'ÜHENDUSE TÕRGE';
         $('price-status').className = 'status error';
         $('price-caption').textContent = 'Elektrihinna server ei vastanud. Proovin automaatselt uuesti.';
@@ -348,6 +356,28 @@
               return;
             }
           }
+        } else if (currentStationKey === 'slam') {
+          const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://np.tritondigital.com/public/nowplaying?mountName=WEB11_AAC&numberToFetch=1&eventType=track')}`);
+          if (res.ok) {
+            const text = await res.text();
+            const mTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            const mArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            if (mTitle && mArtist) {
+              $('radio-track').textContent = `${mArtist[1]} – ${mTitle[1]}`;
+              return;
+            }
+          }
+        } else if (currentStationKey === 'qdance') {
+          const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://np.tritondigital.com/public/nowplaying?mountName=Q_DANCE&numberToFetch=1&eventType=track')}`);
+          if (res.ok) {
+            const text = await res.text();
+            const mTitle = text.match(/<property name="cue_title"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            const mArtist = text.match(/<property name="track_artist_name"><!\[CDATA\[(.*?)\]\]><\/property>/);
+            if (mTitle && mArtist) {
+              $('radio-track').textContent = `${mArtist[1]} – ${mTitle[1]}`;
+              return;
+            }
+          }
         }
       } catch (err) {}
     }
@@ -403,7 +433,7 @@
     loadElectricity();
     loadWeather();
     fetchNowPlaying();
-    setInterval(loadElectricity, 5 * 60 * 1000); // Uuendus iga 5 minuti tagant
+    setInterval(loadElectricity, 5 * 60 * 1000);
     setInterval(loadWeather, 30 * 60 * 1000);
     setInterval(fetchNowPlaying, 8 * 1000);
 

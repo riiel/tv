@@ -107,7 +107,7 @@
         </div>
       </section>
 
-      <!-- TÄPNE ILM (PÕHJAMAADE MUDEL) -->
+      <!-- TÄPNE ILM -->
       <section class="card weather">
         <div class="weather-top">
           <div>
@@ -201,21 +201,7 @@
       });
     }
 
-    // --- ELEKTRIHIND ---
-    async function fetchWithTimeout(url, ms = 3000) {
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), ms);
-      try {
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(id);
-        if (!response.ok) throw new Error();
-        return await response.json();
-      } catch (err) {
-        clearTimeout(id);
-        throw err;
-      }
-    }
-
+    // --- ELEKTRIHIND TÖÖTAB NII CHROMES KUI KA FULLY KIOSKIS ---
     async function loadElectricity(){
       try {
         const start = new Date();
@@ -223,25 +209,41 @@
         const end = new Date(start);
         end.setDate(end.getDate() + 2);
 
-        const eleringUrl = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
-        const candidateEndpoints = [
-          eleringUrl,
-          `https://corsproxy.io/?url=${encodeURIComponent(eleringUrl)}`,
-          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(eleringUrl)}`
+        const targetUrl = `https://dashboard.elering.ee/api/nps/price?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
+        
+        const sources = [
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+          targetUrl
         ];
 
         let raw = null;
-        for (const endpoint of candidateEndpoints) {
+        for (const url of sources) {
           try {
-            const json = await fetchWithTimeout(endpoint, 2500);
-            if (json && json.data && json.data.ee && json.data.ee.length) {
-              raw = json.data.ee;
-              break;
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 3500);
+            const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+            clearTimeout(timer);
+            
+            if (res.ok) {
+              const text = await res.text();
+              const json = JSON.parse(text);
+              if (json?.data?.ee?.length) {
+                raw = json.data.ee;
+                break;
+              }
             }
-          } catch(e) {}
+          } catch(err) {}
         }
 
-        if (!raw || !raw.length) throw new Error('Andmeid ei saabunud');
+        if (!raw || !raw.length) {
+          const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://dashboard.elering.ee/api/nps/price/EE/current')}`;
+          const res = await fetch(fallbackUrl);
+          const json = await res.json();
+          raw = json?.data?.ee || json?.data;
+        }
+
+        if (!raw || !raw.length) throw new Error('Elektri andmeid ei leitud');
 
         const quarterPrices = raw.map(v => ({
           time: v.timestamp < 20000000000 ? v.timestamp * 1000 : v.timestamp,
@@ -285,7 +287,7 @@
       }
     }
 
-    // --- TÄPNE EESTI JA PÕHJAMAADE ILM (DWD ICON-EU / METEOTRACK) ---
+    // --- TÄPNE EESTI JA PÕHJAMAADE ILM (DWD ICON-EU) ---
     let weatherPlace = { name: 'Pärnu', lat: 58.3859, lon: 24.4971 };
 
     const weatherWmoMap = {
@@ -316,11 +318,9 @@
 
     async function loadWeather(){
       try {
-        // Kasutame DWD ICON-EU kõrgresolutsiooniga mudelit (kõige täpsem Baltikumi ja Skandinaavia jaoks)
         const url = `https://api.open-meteo.com/v1/dwd-icon?latitude=${weatherPlace.lat}&longitude=${weatherPlace.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`;
         let res = await fetch(url);
         
-        // Tagavaramudel (kui ICON-EU ajutiselt uuendab)
         if (!res.ok) {
           res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${weatherPlace.lat}&longitude=${weatherPlace.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`);
         }

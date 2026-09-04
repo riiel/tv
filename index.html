@@ -61,32 +61,58 @@
     .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
     .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
     
-    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:16px; }
-    .radio-info { display:flex; flex-direction:column; gap:6px; min-width:0; }
+    .radio-main { display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:20px; }
+    .radio-info { display:flex; flex-direction:column; gap:4px; min-width:0; }
     .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0; color:#fff; }
-    
-    .radio-status-row { display:flex; align-items:center; gap:12px; }
     #radio-status { color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:600; }
     
-    /* LIIKUV HELILAINE VISUALISEERIJA */
-    .visualizer { display:flex; align-items:flex-end; gap:3px; height:18px; }
-    .visualizer .bar { width:4px; height:3px; background:var(--cyan); border-radius:3px; transition:height .2s ease; opacity:.35; }
-    .playing .visualizer .bar { opacity:1; animation:jump 1.1s ease-in-out infinite alternate; box-shadow:0 0 8px rgba(102,217,255,.6); }
-    .playing .visualizer .bar:nth-child(1) { animation-duration:.6s; animation-delay:.1s; }
-    .playing .visualizer .bar:nth-child(2) { animation-duration:.85s; animation-delay:.2s; }
-    .playing .visualizer .bar:nth-child(3) { animation-duration:.55s; animation-delay:.35s; }
-    .playing .visualizer .bar:nth-child(4) { animation-duration:.75s; animation-delay:.15s; }
-    .playing .visualizer .bar:nth-child(5) { animation-duration:.95s; animation-delay:.25s; }
-    .playing .visualizer .bar:nth-child(6) { animation-duration:.65s; animation-delay:.4s; }
+    /* SUUR HELILAINE VISUALISEERIJA */
+    .visualizer-container { flex:1; display:flex; align-items:center; justify-content:center; padding:0 12px; }
+    .visualizer { display:flex; align-items:flex-end; gap:5px; height:34px; }
+    .visualizer .bar { width:5px; height:4px; background:linear-gradient(to top, #38bdf8, #66d9ff); border-radius:4px; transition:height .2s ease; opacity:.25; }
+    .playing .visualizer .bar { opacity:1; animation:wave 1.2s ease-in-out infinite alternate; box-shadow:0 0 10px rgba(102,217,255,.5); }
+    
+    .playing .visualizer .bar:nth-child(1)  { animation-duration:.65s; animation-delay:.1s; }
+    .playing .visualizer .bar:nth-child(2)  { animation-duration:.95s; animation-delay:.25s; }
+    .playing .visualizer .bar:nth-child(3)  { animation-duration:.75s; animation-delay:.15s; }
+    .playing .visualizer .bar:nth-child(4)  { animation-duration:1.15s; animation-delay:.35s; }
+    .playing .visualizer .bar:nth-child(5)  { animation-duration:.6s; animation-delay:.05s; }
+    .playing .visualizer .bar:nth-child(6)  { animation-duration:.85s; animation-delay:.4s; }
+    .playing .visualizer .bar:nth-child(7)  { animation-duration:1.05s; animation-delay:.2s; }
+    .playing .visualizer .bar:nth-child(8)  { animation-duration:.7s; animation-delay:.3s; }
+    .playing .visualizer .bar:nth-child(9)  { animation-duration:.9s; animation-delay:.15s; }
+    .playing .visualizer .bar:nth-child(10) { animation-duration:.6s; animation-delay:.45s; }
+    .playing .visualizer .bar:nth-child(11) { animation-duration:1.1s; animation-delay:.25s; }
+    .playing .visualizer .bar:nth-child(12) { animation-duration:.8s; animation-delay:.1s; }
 
-    @keyframes jump {
-      0% { height: 3px; }
-      50% { height: 16px; }
-      100% { height: 6px; }
+    @keyframes wave {
+      0% { height: 4px; }
+      40% { height: 28px; }
+      80% { height: 12px; }
+      100% { height: 32px; }
     }
 
-    .play { width:clamp(56px,5.8vw,80px); height:clamp(56px,5.8vw,80px); border:0; border-radius:50%; background:var(--cyan); color:#062035; box-shadow:0 8px 24px rgba(102,217,255,.25); display:grid; place-items:center; font-size:clamp(22px,2.2vw,32px); transition:transform .16s,background .16s; flex-shrink:0; }
-    .play:focus, .play:hover { outline:3px solid #fff; outline-offset:4px; transform:scale(1.07); }
+    /* MOODNE PLAY / PAUSE NUPP */
+    .play { 
+      width:clamp(58px,5.8vw,80px); 
+      height:clamp(58px,5.8vw,80px); 
+      border:0; 
+      border-radius:50%; 
+      background:var(--cyan); 
+      color:#062035; 
+      box-shadow:0 8px 24px rgba(102,217,255,.35); 
+      display:grid; 
+      place-items:center; 
+      transition:transform .16s, background .16s, box-shadow .16s; 
+      flex-shrink:0; 
+    }
+    .play:focus, .play:hover { 
+      outline:3px solid #fff; 
+      outline-offset:4px; 
+      transform:scale(1.06); 
+      box-shadow:0 0 30px rgba(102,217,255,.6); 
+    }
+    .play svg { width:42%; height:42%; fill:currentColor; transition:transform .15s ease; }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
     .spotify { background:transparent; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:7px 14px; color:#d5e0ea; font-weight:700; }
@@ -126,7 +152,7 @@
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER KOOS LIIKUVA HELIRIBAGA -->
+      <!-- RAADIO PLAYER SUURE LIIKUVA HELIRIBAGA -->
       <section id="radio-card" class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
@@ -140,19 +166,24 @@
         <div class="radio-main">
           <div class="radio-info">
             <h2 id="current-station-name" class="radio-name">SKY PLUS</h2>
-            <div class="radio-status-row">
-              <span id="radio-status">Valmis mängima</span>
-              <div class="visualizer" aria-hidden="true">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-              </div>
+            <span id="radio-status">Valmis mängima</span>
+          </div>
+
+          <!-- SUUR VISUALISEERIJA -->
+          <div class="visualizer-container">
+            <div class="visualizer" aria-hidden="true">
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
             </div>
           </div>
-          <button id="play-button" class="play" aria-label="Mängi raadiot">▶</button>
+
+          <!-- MOODNE SVG PAUSE / PLAY NUPP -->
+          <button id="play-button" class="play" aria-label="Mängi raadiot">
+            <svg id="play-icon" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
         </div>
 
         <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
@@ -342,9 +373,12 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO ---
-    const radio = $('radio'), play = $('play-button'), radioCard = $('radio-card');
+    // --- RAADIO (SVG IKOONID & VISUALIZER) ---
+    const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
     let currentStationName = "SKY PLUS";
+
+    const svgPlay = '<path d="M8 5.14v14l11-7-11-7z"/>';
+    const svgPause = '<path d="M6 5h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1zm8 0h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1z"/>';
 
     function setStation(btn, name, url) {
       document.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
@@ -381,14 +415,14 @@
     });
 
     radio.addEventListener('play', () => { 
-      play.textContent = 'Ⅱ'; 
+      playIcon.innerHTML = svgPause;
       play.setAttribute('aria-label', `Peata ${currentStationName}`); 
       $('radio-status').textContent = 'Otse-eetris'; 
       radioCard.classList.add('playing');
     });
 
     radio.addEventListener('pause', () => { 
-      play.textContent = '▶'; 
+      playIcon.innerHTML = svgPlay;
       play.setAttribute('aria-label', `Mängi ${currentStationName}`); 
       $('radio-status').textContent = 'Pausil'; 
       radioCard.classList.remove('playing');

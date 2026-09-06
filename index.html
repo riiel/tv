@@ -56,14 +56,12 @@
     /* RAADIO KAART */
     .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
     
-    /* 1. ÜLEMINE RIDA: SILDID JA NUPUD */
     .radio-top { display:flex; justify-content:space-between; align-items:center; }
     .radio-stations { display:flex; gap:6px; flex-wrap:wrap; }
     .station-btn { padding:5px 10px; border-radius:999px; font-weight:750; font-size:clamp(10px,.9vw,13px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
     .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
     .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
 
-    /* 2. KESKMINE RIDA: EKVALAISER ÜLAL RAADIO JA NUPU VAHEL */
     .radio-middle { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:1vh; }
     .visualizer-wrapper { flex:1; display:flex; align-items:center; justify-content:flex-start; padding-left:4px; }
     .visualizer { display:flex; align-items:flex-end; gap:5px; height:32px; }
@@ -90,7 +88,6 @@
       100% { height: 30px; }
     }
 
-    /* 3. ALUMINE RIDA: JAAMA NIMI JA PLAY/STOPP NUPP */
     .radio-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:0.5vh; }
     .radio-info { display:flex; flex-direction:column; gap:4px; min-width:0; }
     .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0; color:#fff; line-height:1.1; }
@@ -144,7 +141,7 @@
         </div>
       </section>
 
-      <!-- ILM (5 PÄEVA YR.NO) -->
+      <!-- ILM -->
       <section class="card weather">
         <div>
           <div class="label">Ilm</div>
@@ -166,7 +163,6 @@
           </div>
         </div>
 
-        <!-- HELIRIDA ÜLEVAL POOL -->
         <div class="radio-middle">
           <div class="visualizer-wrapper">
             <div class="visualizer" aria-hidden="true">
@@ -177,7 +173,6 @@
           </div>
         </div>
         
-        <!-- ALUMINE RIDA: NIMI JA NUPP -->
         <div class="radio-bottom">
           <div class="radio-info">
             <h2 id="current-station-name" class="radio-name">SKY PLUS</h2>
@@ -315,8 +310,46 @@
       }
     }
 
-    // --- YR.NO ILM (5 PÄEVA) ---
-    const weatherMap = {clearsky:['☀️','Selge'], fair:['🌤️','Vahelduv pilvisus'], partlycloudy:['⛅','Vahelduv pilvisus'], cloudy:['☁️','Pilves'], lightrain:['🌦️','Nõrk vihm'], rain:['🌧️','Vihm'], heavyrain:['🌧️','Tugev vihm'], fog:['🌫️','Udu'], snow:['🌨️','Lumi'], lightsnow:['🌨️','Nõrk lumesadu'], heavysnow:['❄️','Tugev lumesadu']};
+    // --- YR.NO ILM (TÄPNE ÖÖ JA PÄEVA ERISTUS) ---
+    function getWeatherIcon(symbol) {
+      if (!symbol) return '🌤️';
+      const isNight = symbol.includes('_night');
+      const base = symbol.replace(/_[a-z]+$/, '');
+
+      switch (base) {
+        case 'clearsky':
+          return isNight ? '🌙' : '☀️';
+        case 'fair':
+          return isNight ? '☁️' : '🌤️';
+        case 'partlycloudy':
+          return isNight ? '☁️' : '⛅';
+        case 'cloudy':
+          return '☁️';
+        case 'rain':
+        case 'lightrain':
+        case 'heavyrain':
+          return '🌧️';
+        case 'rainshowers':
+        case 'lightrainshowers':
+        case 'heavyrainshowers':
+          return isNight ? '🌧️' : '🌦️';
+        case 'snow':
+        case 'lightsnow':
+        case 'heavysnow':
+          return '❄️';
+        case 'snowshowers':
+        case 'lightsnowshowers':
+          return '🌨️';
+        case 'fog':
+          return '🌫️';
+        case 'thunderstorm':
+        case 'rainandthunder':
+          return '⛈️';
+        default:
+          return isNight ? '🌙' : '☀️';
+      }
+    }
+
     let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
 
     function renderForecast(timeseries){
@@ -327,16 +360,17 @@
         const day = days.get(key), details = item.data.instant.details; 
         day.min = Math.min(day.min, details.air_temperature); 
         day.max = Math.max(day.max, details.air_temperature); 
+        // Päevaseks ikooniks võtame kella 13:00 paiku oleva ilma
         const distance = Math.abs(date.getHours() - 13); 
         if(distance < day.distance){ day.distance = distance; day.representative = item; }
       }
       
       const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 5); 
       $('forecast').innerHTML = selected.map((day, index) => {
-        const symbol = day.representative?.data.next_1_hours?.summary?.symbol_code || day.representative?.data.next_6_hours?.summary?.symbol_code || 'fair';
-        const entry = weatherMap[symbol.replace(/_[a-z]+$/, '')] || weatherMap.fair;
+        const symbol = day.representative?.data.next_1_hours?.summary?.symbol_code || day.representative?.data.next_6_hours?.summary?.symbol_code || 'fair_day';
+        const icon = getWeatherIcon(symbol);
         const name = index === 0 ? 'Täna' : (index === 1 ? 'Homme' : day.date.toLocaleDateString('et-EE', {weekday:'short'}).replace('.', ''));
-        return `<div class="forecast-day"><span>${name}</span><span class="forecast-icon">${entry[0]}</span><span class="forecast-temp">${Math.round(day.min)}° / ${Math.round(day.max)}°</span></div>`;
+        return `<div class="forecast-day"><span>${name}</span><span class="forecast-icon">${icon}</span><span class="forecast-temp">${Math.round(day.min)}° / ${Math.round(day.max)}°</span></div>`;
       }).join('');
     }
 
@@ -346,10 +380,10 @@
         if(!r.ok) throw Error(); 
         const timeseries = (await r.json()).properties.timeseries, first = timeseries[0].data; 
         const p = first.instant.details; 
-        const symbol = first.next_1_hours?.summary?.symbol_code || 'fair'; 
-        const entry = weatherMap[symbol.replace(/_[a-z]+$/, '')] || weatherMap.fair; 
+        const symbol = first.next_1_hours?.summary?.symbol_code || first.next_6_hours?.summary?.symbol_code || 'fair_day'; 
+        
         $('weather-temp').textContent = `${Math.round(p.air_temperature)}°`; 
-        $('weather-icon').textContent = entry[0]; 
+        $('weather-icon').textContent = getWeatherIcon(symbol); 
         $('location').textContent = `${weatherPlace.name} · Yr.no andmed`;
         renderForecast(timeseries); 
       } catch(e){ $('weather-temp').textContent = '--°'; }

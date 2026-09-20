@@ -45,9 +45,18 @@
     .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
     .location-button { margin:0 0 0 7px; padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
     .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:rgba(255,255,255,.08); }
-    .condition { align-self:center; display:flex; align-items:center; gap:clamp(12px,1.3vw,20px); }
+    
+    .condition { align-self:center; display:flex; align-items:center; justify-content:space-between; gap:clamp(12px,1.3vw,20px); }
+    .condition-left { display:flex; align-items:center; gap:clamp(10px,1.2vw,18px); }
     #weather-temp { font-size:clamp(38px,3.6vw,54px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
     .weather-icon { font-size:clamp(36px,3.3vw,50px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
+    
+    /* TUULE INFO PLOKK */
+    .wind-box { display:flex; flex-direction:column; align-items:flex-end; text-align:right; gap:2px; padding-right:4px; }
+    .wind-speed { display:flex; align-items:baseline; gap:5px; font-size:clamp(18px,1.8vw,26px); font-weight:750; color:#e4edf4; letter-spacing:-.03em; }
+    .wind-unit { font-size:clamp(11px,.9vw,13px); color:var(--muted); font-weight:600; }
+    .wind-gust { font-size:clamp(11px,.85vw,13px); color:var(--cyan); font-weight:650; }
+
     .forecast { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
     .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.72vw,11px); font-weight:750; text-transform:uppercase; }
     .forecast-icon { display:block; font-size:clamp(14px,1.2vw,18px); margin:1px 0; }
@@ -55,10 +64,9 @@
 
     /* RAADIO KAART */
     .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
-    
     .radio-top { display:flex; justify-content:space-between; align-items:center; }
     .radio-stations { display:flex; gap:6px; flex-wrap:wrap; }
-    .station-btn { padding:5px 10px; border-radius:999px; font-weight:750; font-size:clamp(10px,.9vw,13px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
+    .station-btn { padding:5px 9px; border-radius:999px; font-weight:750; font-size:clamp(10px,.85vw,12px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
     .station-btn.active { background:var(--cyan); color:#062035; border-color:var(--cyan); font-weight:800; box-shadow:0 0 14px rgba(102,217,255,.35); }
     .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
 
@@ -141,18 +149,28 @@
         </div>
       </section>
 
-      <!-- ILM -->
+      <!-- ILM KOOS TUULE KIIRUSEGA -->
       <section class="card weather">
         <div>
           <div class="label">Ilm</div>
           <div id="location" class="location">Pärnu · Yr.no andmed</div>
           <button id="location-button" class="location-button">Kasuta minu asukohta</button>
         </div>
-        <div class="condition"><div id="weather-temp">--°</div><div id="weather-icon" class="weather-icon">☀️</div></div>
+        <div class="condition">
+          <div class="condition-left">
+            <div id="weather-temp">--°</div>
+            <div id="weather-icon" class="weather-icon">☀️</div>
+          </div>
+          <!-- PUNANE RING: TUULE KIIRUS -->
+          <div class="wind-box">
+            <div class="wind-speed"><span id="wind-speed">--</span> <span class="wind-unit">m/s</span></div>
+            <div id="wind-gust" class="wind-gust">puhanguti -- m/s</div>
+          </div>
+        </div>
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER -->
+      <!-- RAADIO PLAYER KOOS DI.FM DNB-GA -->
       <section id="radio-card" class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
@@ -160,6 +178,7 @@
             <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
             <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 WKNDMX</button>
             <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">⚡ Q-Dance</button>
+            <button id="btn-station-difm" class="station-btn" data-name="DI.FM DRUM & BASS" data-url="https://prem2.di.fm:443/drumandbass?_di_token=public">🥁 DI.FM DnB</button>
           </div>
         </div>
 
@@ -204,8 +223,7 @@
     // --- KELL JA KUUPÄEV ---
     function updateClock(){ 
       const d = new Date(); 
-      $('clock').textContent = d.toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'}); 
-      $('date').textContent = d.toLocaleDateString('et-EE', {weekday:'long', day:'numeric', month:'long'}); 
+      $('clock').textContent = d.toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'});$('date').textContent = d.toLocaleDateString('et-EE', {weekday:'long', day:'numeric', month:'long'}); 
     }
 
     // --- CANVAS GRAAFIK ---
@@ -292,8 +310,7 @@
         const current = prices.find(p => p.time <= now && now < p.time + 3600000) || prices[0]; 
         const upcoming = prices.find(p => p.time > current.time) || current; 
         
-        $('price').textContent = fmt(current.price); 
-        $('price-caption').textContent = `Praegu · ${new Date(current.time).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})}–${new Date(current.time+3600000).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})} · km-ga`; 
+        $('price').textContent = fmt(current.price);$('price-caption').textContent = `Praegu · ${new Date(current.time).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})}–${new Date(current.time+3600000).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})} · km-ga`; 
         $('average').textContent = `${fmt(prices.reduce((s, p) => s + p.price, 0) / prices.length)} s`; 
         $('next-price').textContent = `${fmt(upcoming.price)} s`; 
         const high = prices.reduce((a, b) => a.price > b.price ? a : b); 
@@ -305,48 +322,28 @@
         drawChart(prices.filter(p => p.time >= current.time).slice(0, 24));
       } catch(e) { 
         $('price-status').textContent = 'ÜHENDUSE TÕRGE'; 
-        $('price-status').className = 'status error'; 
-        $('price-caption').textContent = 'Elektrihinna teenus ei vasta praegu. Proovin peagi uuesti.'; 
+        $('price-status').className = 'status error';$('price-caption').textContent = 'Elektrihinna teenus ei vasta praegu. Proovin peagi uuesti.'; 
       }
     }
 
-    // --- YR.NO ILM (TÄPNE ÖÖ JA PÄEVA ERISTUS) ---
+    // --- YR.NO ILM JA TUUL ---
     function getWeatherIcon(symbol) {
       if (!symbol) return '🌤️';
       const isNight = symbol.includes('_night');
       const base = symbol.replace(/_[a-z]+$/, '');
 
       switch (base) {
-        case 'clearsky':
-          return isNight ? '🌙' : '☀️';
-        case 'fair':
-          return isNight ? '☁️' : '🌤️';
-        case 'partlycloudy':
-          return isNight ? '☁️' : '⛅';
-        case 'cloudy':
-          return '☁️';
-        case 'rain':
-        case 'lightrain':
-        case 'heavyrain':
-          return '🌧️';
-        case 'rainshowers':
-        case 'lightrainshowers':
-        case 'heavyrainshowers':
-          return isNight ? '🌧️' : '🌦️';
-        case 'snow':
-        case 'lightsnow':
-        case 'heavysnow':
-          return '❄️';
-        case 'snowshowers':
-        case 'lightsnowshowers':
-          return '🌨️';
-        case 'fog':
-          return '🌫️';
-        case 'thunderstorm':
-        case 'rainandthunder':
-          return '⛈️';
-        default:
-          return isNight ? '🌙' : '☀️';
+        case 'clearsky': return isNight ? '🌙' : '☀️';
+        case 'fair': return isNight ? '☁️' : '🌤️';
+        case 'partlycloudy': return isNight ? '☁️' : '⛅';
+        case 'cloudy': return '☁️';
+        case 'rain': case 'lightrain': case 'heavyrain': return '🌧️';
+        case 'rainshowers': case 'lightrainshowers': case 'heavyrainshowers': return isNight ? '🌧️' : '🌦️';
+        case 'snow': case 'lightsnow': case 'heavysnow': return '❄️';
+        case 'snowshowers': case 'lightsnowshowers': return '🌨️';
+        case 'fog': return '🌫️';
+        case 'thunderstorm': case 'rainandthunder': return '⛈️';
+        default: return isNight ? '🌙' : '☀️';
       }
     }
 
@@ -360,7 +357,6 @@
         const day = days.get(key), details = item.data.instant.details; 
         day.min = Math.min(day.min, details.air_temperature); 
         day.max = Math.max(day.max, details.air_temperature); 
-        // Päevaseks ikooniks võtame kella 13:00 paiku oleva ilma
         const distance = Math.abs(date.getHours() - 13); 
         if(distance < day.distance){ day.distance = distance; day.representative = item; }
       }
@@ -383,10 +379,19 @@
         const symbol = first.next_1_hours?.summary?.symbol_code || first.next_6_hours?.summary?.symbol_code || 'fair_day'; 
         
         $('weather-temp').textContent = `${Math.round(p.air_temperature)}°`; 
-        $('weather-icon').textContent = getWeatherIcon(symbol); 
-        $('location').textContent = `${weatherPlace.name} · Yr.no andmed`;
+        $('weather-icon').textContent = getWeatherIcon(symbol);$('location').textContent = `${weatherPlace.name} · Yr.no andmed`;
+        
+        // TUUL JA PUHANGUD
+        const windSpeed = p.wind_speed ? Math.round(p.wind_speed) : 0;
+        const windGust = p.wind_speed_of_gust ? Math.round(p.wind_speed_of_gust) : windSpeed;
+        $('wind-speed').textContent = windSpeed;
+        $('wind-gust').textContent = `puhanguti ${windGust} m/s`;
+
         renderForecast(timeseries); 
-      } catch(e){ $('weather-temp').textContent = '--°'; }
+      } catch(e){ 
+        $('weather-temp').textContent = '--°'; 
+        $('wind-speed').textContent = '--';$('wind-gust').textContent = 'tuul teadmata';
+      }
     }
 
     async function placeNameFromCoordinates(lat,lon){
@@ -399,8 +404,7 @@
     }
 
     $('location-button').addEventListener('click',()=>{ 
-      if(!navigator.geolocation){$('location-button').textContent='GPS pole saadaval';return;} 
-      $('location-button').textContent='Otsin asukohta…'; 
+      if(!navigator.geolocation){$('location-button').textContent='GPS pole saadaval';return;}$('location-button').textContent='Otsin asukohta…'; 
       navigator.geolocation.getCurrentPosition(async position=>{
         const lat=position.coords.latitude.toFixed(4),lon=position.coords.longitude.toFixed(4);
         weatherPlace={name:'Asukoha määramine…',lat,lon};
@@ -412,8 +416,8 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO LOOGIKA ---
-    const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
+    // --- RAADIO LOOGIKA (SKY PLUS, SLAM, Q-DANCE, DI.FM) ---
+    const radio = $('radio'), play =$('play-button'), playIcon = $('play-icon'), radioCard =$('radio-card');
     let currentStationName = "SKY PLUS";
 
     const svgPlay = '<path d="M8 5.14v14l11-7-11-7z"/>';
@@ -437,9 +441,8 @@
       }
     }
 
-    $('btn-station-sky').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
-    $('btn-station-slam').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
-    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-sky').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });$('btn-station-slam').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });$('btn-station-difm').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
 
     play.addEventListener('click', async () => {
       try { 

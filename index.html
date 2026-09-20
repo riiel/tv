@@ -51,11 +51,13 @@
     #weather-temp { font-size:clamp(38px,3.6vw,54px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
     .weather-icon { font-size:clamp(36px,3.3vw,50px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
     
-    /* TUULE INFO PLOKK */
-    .wind-box { display:flex; flex-direction:column; align-items:flex-end; text-align:right; gap:2px; padding-right:4px; }
-    .wind-speed { display:flex; align-items:baseline; gap:5px; font-size:clamp(18px,1.8vw,26px); font-weight:750; color:#e4edf4; letter-spacing:-.03em; }
-    .wind-unit { font-size:clamp(11px,.9vw,13px); color:var(--muted); font-weight:600; }
-    .wind-gust { font-size:clamp(11px,.85vw,13px); color:var(--cyan); font-weight:650; }
+    /* YR.NO DETAILNE RIBA */
+    .yr-bar { display:flex; flex-direction:column; align-items:flex-end; text-align:right; gap:3px; }
+    .yr-row-main { display:flex; align-items:center; gap:12px; font-size:clamp(13px,1.2vw,18px); font-weight:750; color:#e4edf4; }
+    .yr-detail { display:flex; align-items:center; gap:4px; }
+    .yr-detail small { color:var(--muted); font-size:clamp(10px,.8vw,12px); font-weight:600; }
+    .yr-wind-arrow { display:inline-block; font-size:clamp(14px,1.2vw,18px); transform-origin:center; transition:transform .3s; }
+    .yr-feels { color:var(--muted); font-size:clamp(11px,.85vw,13px); font-weight:600; }
 
     .forecast { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
     .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.72vw,11px); font-weight:750; text-transform:uppercase; }
@@ -149,7 +151,7 @@
         </div>
       </section>
 
-      <!-- ILM KOOS TUULE KIIRUSEGA -->
+      <!-- ILM KOOS YR.NO TÄIELIKU ANDMERIBAGA -->
       <section class="card weather">
         <div>
           <div class="label">Ilm</div>
@@ -161,16 +163,24 @@
             <div id="weather-temp">--°</div>
             <div id="weather-icon" class="weather-icon">☀️</div>
           </div>
-          <!-- PUNANE RING: TUULE KIIRUS -->
-          <div class="wind-box">
-            <div class="wind-speed"><span id="wind-speed">--</span> <span class="wind-unit">m/s</span></div>
-            <div id="wind-gust" class="wind-gust">puhanguti -- m/s</div>
+          
+          <!-- YR.NO ANDMED: Taju, Vihm, Tuul & Puhangud -->
+          <div class="yr-bar">
+            <div class="yr-row-main">
+              <div class="yr-detail">💧 <span id="yr-precip">0 mm</span></div>
+              <div class="yr-detail">
+                <span id="yr-wind">--</span>
+                <span id="yr-wind-arrow" class="yr-wind-arrow">↗</span>
+                <small>m/s</small>
+              </div>
+            </div>
+            <div id="yr-feels" class="yr-feels">Tajutav: --°</div>
           </div>
         </div>
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- RAADIO PLAYER KOOS DI.FM DNB-GA -->
+      <!-- RAADIO PLAYER -->
       <section id="radio-card" class="card radio">
         <div class="radio-top">
           <div class="label">Raadio & Striimid</div>
@@ -178,7 +188,7 @@
             <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
             <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 WKNDMX</button>
             <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">⚡ Q-Dance</button>
-            <button id="btn-station-difm" class="station-btn" data-name="DI.FM DRUM & BASS" data-url="https://prem2.di.fm:443/drumandbass?_di_token=public">🥁 DI.FM DnB</button>
+            <button id="btn-station-dnb" class="station-btn" data-name="DNB RADIO" data-url="https://stream.dnbradio.com/dnbradio_main.mp3">🥁 DnB Radio</button>
           </div>
         </div>
 
@@ -326,7 +336,7 @@
       }
     }
 
-    // --- YR.NO ILM JA TUUL ---
+    // --- YR.NO ILM ---
     function getWeatherIcon(symbol) {
       if (!symbol) return '🌤️';
       const isNight = symbol.includes('_night');
@@ -374,23 +384,41 @@
       try { 
         const r = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${weatherPlace.lat}&lon=${weatherPlace.lon}`); 
         if(!r.ok) throw Error(); 
-        const timeseries = (await r.json()).properties.timeseries, first = timeseries[0].data; 
-        const p = first.instant.details; 
-        const symbol = first.next_1_hours?.summary?.symbol_code || first.next_6_hours?.summary?.symbol_code || 'fair_day'; 
+        const json = await r.json();
+        const timeseries = json.properties.timeseries;
+        const currentItem = timeseries[0];
+        const p = currentItem.data.instant.details; 
+        const symbol = currentItem.data.next_1_hours?.summary?.symbol_code || currentItem.data.next_6_hours?.summary?.symbol_code || 'fair_day'; 
         
         $('weather-temp').textContent = `${Math.round(p.air_temperature)}°`; 
         $('weather-icon').textContent = getWeatherIcon(symbol);$('location').textContent = `${weatherPlace.name} · Yr.no andmed`;
-        
-        // TUUL JA PUHANGUD
-        const windSpeed = p.wind_speed ? Math.round(p.wind_speed) : 0;
-        const windGust = p.wind_speed_of_gust ? Math.round(p.wind_speed_of_gust) : windSpeed;
-        $('wind-speed').textContent = windSpeed;
-        $('wind-gust').textContent = `puhanguti ${windGust} m/s`;
+
+        // YR.NO TÄIELIK INFO
+        const precip = currentItem.data.next_1_hours?.details?.precipitation_amount ?? 0;
+        $('yr-precip').textContent = `${precip} mm`;
+
+        const speed = Math.round(p.wind_speed || 0);
+        const gust = p.wind_speed_of_gust ? Math.round(p.wind_speed_of_gust) : speed;
+        $('yr-wind').textContent = `${speed} (${gust})`;
+
+        // Tuule suuna nool
+        if (p.wind_from_direction !== undefined) {
+          $('yr-wind-arrow').style.transform = `rotate(${p.wind_from_direction + 180}deg)`;
+        }
+
+        // Tajutav temperatuur (Wind chill valem)
+        const t = p.air_temperature;
+        const v = (p.wind_speed || 0) * 3.6; // km/h
+        let feelsLike = t;
+        if (t <= 10 && v >= 4.8) {
+          feelsLike = 13.12 + 0.6215 * t - 11.37 * Math.pow(v, 0.16) + 0.3965 * t * Math.pow(v, 0.16);
+        }
+        $('yr-feels').textContent = `Tajutav: ${Math.round(feelsLike)}°`;
 
         renderForecast(timeseries); 
       } catch(e){ 
         $('weather-temp').textContent = '--°'; 
-        $('wind-speed').textContent = '--';$('wind-gust').textContent = 'tuul teadmata';
+        $('yr-wind').textContent = '--';$('yr-feels').textContent = 'Tajutav: --°';
       }
     }
 
@@ -416,7 +444,7 @@
       },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
     });
 
-    // --- RAADIO LOOGIKA (SKY PLUS, SLAM, Q-DANCE, DI.FM) ---
+    // --- RAADIO LOOGIKA ---
     const radio = $('radio'), play =$('play-button'), playIcon = $('play-icon'), radioCard =$('radio-card');
     let currentStationName = "SKY PLUS";
 
@@ -442,7 +470,7 @@
     }
 
     $('btn-station-sky').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });$('btn-station-slam').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
-    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });$('btn-station-difm').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });$('btn-station-dnb').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
 
     play.addEventListener('click', async () => {
       try { 

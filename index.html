@@ -17,7 +17,7 @@
     .now { text-align:right; display:flex; align-items:baseline; gap:16px; }
     #clock { font-size:clamp(32px,3.8vw,64px); letter-spacing:-.075em; font-weight:750; line-height:.85; }
     #date { color:var(--muted); font-size:clamp(13px,1.3vw,20px); font-weight:600; }
-    main { display:grid; grid-template-columns:1.5fr 1fr; grid-template-rows:1fr 1fr; gap:1.8vh 1.4vw; min-height:0; }
+    main { display:grid; grid-template-columns:1.3fr 1fr 1fr; grid-template-rows:1fr 1fr; gap:1.8vh 1.4vw; min-height:0; }
     .card { border:1px solid var(--line); border-radius:24px; background:linear-gradient(135deg, rgba(16,38,58,.94), rgba(10,25,39,.94)); box-shadow:0 18px 55px rgba(0,0,0,.18); overflow:hidden; }
     .label { color:var(--muted); font-weight:750; font-size:clamp(11px,1vw,15px); text-transform:uppercase; letter-spacing:.09em; }
     
@@ -128,8 +128,22 @@
     .spotify { background:transparent; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:7px 14px; color:#d5e0ea; font-weight:700; }
     .spotify:focus, .spotify:hover { outline:2px solid #fff; outline-offset:3px; background:rgba(255,255,255,.08); }
     .error { color:var(--orange)!important; }
+
+    /* MÄNGUKALENDRI KAART */
+    .fixtures { grid-row:span 2; padding:2.4vh 2.2vw; display:flex; flex-direction:column; min-height:0; }
+    .fixtures-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4vh; }
+    .fixtures-list { display:flex; flex-direction:column; gap:8px; overflow-y:auto; min-height:0; }
+    .fixture { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.03); border:1px solid var(--line); }
+    .fixture.today { background:rgba(102,217,255,.1); border-color:rgba(102,217,255,.4); }
+    .fixture-icon { font-size:clamp(16px,1.4vw,22px); }
+    .fixture-main { min-width:0; }
+    .fixture-title { font-size:clamp(12px,1vw,15px); font-weight:700; color:#eef3f8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .fixture-team { font-size:clamp(10px,.8vw,12px); color:var(--muted); font-weight:600; }
+    .fixture-when { text-align:right; font-size:clamp(10px,.85vw,13px); font-weight:750; color:#dce7ef; white-space:nowrap; }
+    .fixture-when small { display:block; color:var(--muted); font-weight:600; font-size:.85em; }
+    .fixtures-empty { color:var(--muted); font-size:clamp(12px,1vw,14px); font-weight:600; padding:1vh 0; }
     
-    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:480px} }
+    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:480px} .fixtures{grid-row:auto; min-height:320px} }
   </style>
 </head>
 <body>
@@ -216,6 +230,17 @@
         </div>
 
         <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
+      </section>
+
+      <!-- MÄNGUKALENDER -->
+      <section class="card fixtures">
+        <div class="fixtures-head">
+          <span class="label">Mängukalender</span>
+          <span id="fixtures-status" class="status">VÄRSKE</span>
+        </div>
+        <div id="fixtures-list" class="fixtures-list">
+          <div class="fixtures-empty">Laen mänge…</div>
+        </div>
       </section>
 
     </main>
@@ -498,13 +523,59 @@
       radioCard.classList.remove('playing');
     });
 
+    // --- MÄNGUKALENDER ---
+    const SPORT_ICON = { jalgpall: '⚽', korvpall: '🏀' };
+
+    function fixtureWhenLabel(dateObj){
+      const now = new Date();
+      const sameDay = dateObj.toDateString() === now.toDateString();
+      const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
+      const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
+      const time = dateObj.toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'});
+      if (sameDay) return {big:'Täna', small:time};
+      if (isTomorrow) return {big:'Homme', small:time};
+      return {big: dateObj.toLocaleDateString('et-EE', {day:'numeric', month:'numeric'}), small: time};
+    }
+
+    async function loadFixtures(){
+      try {
+        const json = await fetchJson('/api/calendar');
+        const events = json.events || [];
+        $('fixtures-status').textContent = 'VÄRSKE';
+        $('fixtures-status').className = 'status';
+
+        if(!events.length){
+          $('fixtures-list').innerHTML = '<div class="fixtures-empty">Lähiajal mänge kirjas ei ole.</div>';
+          return;
+        }
+
+        const now = new Date();
+        $('fixtures-list').innerHTML = events.map(ev => {
+          const d = new Date(ev.date);
+          const when = fixtureWhenLabel(d);
+          const isToday = d.toDateString() === now.toDateString();
+          return `<div class="fixture${isToday ? ' today' : ''}">
+            <span class="fixture-icon">${SPORT_ICON[ev.sport] || '🏟️'}</span>
+            <span class="fixture-main"><span class="fixture-title">${ev.title}</span><span class="fixture-team">${ev.team}</span></span>
+            <span class="fixture-when">${when.big}<small>${when.small}</small></span>
+          </div>`;
+        }).join('');
+      } catch(e) {
+        $('fixtures-status').textContent = 'ÜHENDUSE TÕRGE';
+        $('fixtures-status').className = 'status error';
+        $('fixtures-list').innerHTML = '<div class="fixtures-empty">Mängukalendrit ei õnnestunud laadida.</div>';
+      }
+    }
+
     // --- KÄIVITUS ---
     updateClock(); 
     setInterval(updateClock, 1000); 
     loadElectricity(); 
     loadWeather(); 
+    loadFixtures();
     setInterval(loadElectricity, 10 * 60 * 1000); 
     setInterval(loadWeather, 30 * 60 * 1000); 
+    setInterval(loadFixtures, 60 * 60 * 1000);
     
     addEventListener('resize', () => {
       const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000); 

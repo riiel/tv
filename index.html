@@ -22,7 +22,7 @@
     .label { color:var(--muted); font-weight:750; font-size:clamp(11px,1vw,15px); text-transform:uppercase; letter-spacing:.09em; }
     
     /* ELEKTRI KAART */
-    .electricity { grid-row:span 2; padding:3.5vh 2.8vw 2.5vh; position:relative; display:grid; grid-template-rows:auto auto 1fr auto; }
+    .electricity { grid-column:1; grid-row:1 / span 2; padding:3.5vh 2.8vw 2.5vh; position:relative; display:grid; grid-template-rows:auto auto 1fr auto; }
     .electricity::after { content:""; position:absolute; width:300px; height:300px; right:-100px; top:-120px; border-radius:50%; background:radial-gradient(circle, rgba(102,217,255,.12), transparent 68%); pointer-events:none; }
     .electricity-head { display:flex; align-items:center; justify-content:space-between; z-index:1; }
     .status { color:var(--green); background:rgba(91,227,143,.1); border:1px solid rgba(91,227,143,.23); border-radius:999px; padding:5px 10px; font-size:clamp(10px,.85vw,13px); font-weight:750; }
@@ -41,7 +41,7 @@
     .stat strong { font-size:clamp(16px,1.7vw,26px); letter-spacing:-.05em; }
 
     /* ILMA KAART */
-    .weather { padding:2vh 2.4vw 1.5vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(50px,1fr) auto; }
+    .weather { grid-column:2; grid-row:1; padding:2vh 2.4vw 1.5vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(50px,1fr) auto; }
     .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
     .location-button { margin:0 0 0 7px; padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:transparent; color:#cbd9e5; font-size:clamp(10px,.8vw,12px); font-weight:700; }
     .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:rgba(255,255,255,.08); }
@@ -65,7 +65,7 @@
     .forecast-temp { color:#e4edf4; font-size:clamp(10px,.82vw,13px); font-weight:750; }
 
     /* RAADIO KAART */
-    .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
+    .radio { grid-column:3; grid-row:1; padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
     .radio-top { display:flex; justify-content:space-between; align-items:center; }
     .radio-stations { display:flex; gap:6px; flex-wrap:wrap; }
     .station-btn { padding:5px 9px; border-radius:999px; font-weight:750; font-size:clamp(10px,.85vw,12px); border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
@@ -130,7 +130,7 @@
     .error { color:var(--orange)!important; }
 
     /* MÄNGUKALENDRI KAART */
-    .fixtures { grid-row:span 2; padding:2.4vh 2.2vw; display:flex; flex-direction:column; min-height:0; }
+    .fixtures { grid-column:2 / span 2; grid-row:2; padding:2.4vh 2.2vw; display:flex; flex-direction:column; min-height:0; }
     .fixtures-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4vh; }
     .fixtures-list { display:flex; flex-direction:column; gap:8px; overflow-y:auto; min-height:0; }
     .fixture { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.03); border:1px solid var(--line); }
@@ -143,7 +143,7 @@
     .fixture-when small { display:block; color:var(--muted); font-weight:600; font-size:.85em; }
     .fixtures-empty { color:var(--muted); font-size:clamp(12px,1vw,14px); font-weight:600; padding:1vh 0; }
     
-    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:480px} .fixtures{grid-row:auto; min-height:320px} }
+    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .card{grid-column:1; grid-row:auto;} .electricity{min-height:480px} .fixtures{min-height:320px} }
   </style>
 </head>
 <body>

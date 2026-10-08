@@ -125,8 +125,6 @@
     .play svg { width:42%; height:42%; fill:currentColor; }
 
     footer { display:flex; align-items:center; justify-content:space-between; color:#8fa1b1; font-size:clamp(11px,.9vw,14px); font-weight:600; }
-    .spotify { background:transparent; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:7px 14px; color:#d5e0ea; font-weight:700; }
-    .spotify:focus, .spotify:hover { outline:2px solid #fff; outline-offset:3px; background:rgba(255,255,255,.08); }
     .error { color:var(--orange)!important; }
     
     @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:480px} }
@@ -188,7 +186,8 @@
             <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
             <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 WKNDMX</button>
             <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">⚡ Q-Dance</button>
-            <button id="btn-station-dnb" class="station-btn" data-name="BASSDRIVE DNB" data-url="https://bassdrive.c经济.stream:80/stream/1/;" data-station="bassdrive">🥁 BassDrive</button>
+            <button id="btn-station-hardcore" class="station-btn" data-name="SUNSHINE LIVE HARDCORE" data-url="https://stream.sunshine-live.de/Hardcore/mp3-192/stream.sunshine-live.de/">💀 Hardcore</button>
+            <button id="btn-station-dnb" class="station-btn" data-name="DIFFERENT DRUMZ DNB" data-url="https://differentdrumz.radioca.st/electronic.mp3">🥁 DnB</button>
           </div>
         </div>
 
@@ -221,7 +220,6 @@
     </main>
     <footer>
       <span id="updated">Uuendatakse automaatselt</span>
-      <button class="spotify" onclick="window.open('https://open.spotify.com/', '_blank')">Spotify ↗</button>
     </footer>
   </div>
 
@@ -470,7 +468,9 @@
     }
 
     $('btn-station-sky').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });$('btn-station-slam').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
-    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });$('btn-station-dnb').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-hardcore').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-dnb').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
 
     play.addEventListener('click', async () => {
       try { 

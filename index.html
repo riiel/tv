@@ -154,11 +154,12 @@
     }
 
     .card-head {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      z-index: 1;
+      z-index: 2;
     }
     .label {
       color: #cbd5e1;
@@ -271,15 +272,10 @@
     }
     .elec-stats-inline strong { color: var(--text); font-weight: 750; }
 
-    /* --- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL - TÄIDETUD INFOGRAAFIKAGA) --- */
-    .weather-head-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    /* --- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) --- */
     .location-badge {
-      font-size: clamp(11px, 0.9vw, 14px);
-      font-weight: 700;
+      font-size: clamp(11px, 0.95vw, 15px);
+      font-weight: 800;
       color: var(--cyan);
     }
     .pill-btn {
@@ -323,7 +319,6 @@
       filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.35));
     }
 
-    /* 6 KASTIGA ILMAMÕÕDIKUTE RUUDUSTIK TÜHJA RUUMI TÄITMISEKS */
     .weather-metrics-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -393,7 +388,7 @@
     .forecast-temp {
       color: var(--text);
       font-size: clamp(10px, 0.85vw, 13px);
-      font-weight: 700;
+      font-weight: 750;
     }
 
     /* --- 3. FINANTSID & PORTFELL (ALL VASAKUL) --- */
@@ -472,7 +467,7 @@
       display: grid;
       place-items: center;
       font-weight: 800;
-      font-size: clamp(11px, 0.95vw, 15px);
+      font-size: clamp(10px, 0.85vw, 13px);
       color: #fff;
       flex-shrink: 0;
     }
@@ -543,7 +538,21 @@
       text-shadow: 0 0 22px rgba(236, 72, 153, 0.35);
     }
 
-    /* --- 4. RAADIO & STRIIMID (ALL PAREMAL - LOO NIME JA SYNTHWAVE HELILAINEGA) --- */
+    /* --- 4. RAADIO & STRIIMID (ALL PAREMAL - LÄBIPAISTVA TAUSTA-EKVALAISERIGA) --- */
+    .radio-bg-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      transition: opacity 0.5s ease;
+    }
+    .playing .radio-bg-canvas {
+      opacity: 0.58;
+    }
+
     .live-indicator {
       display: inline-flex;
       align-items: center;
@@ -552,9 +561,10 @@
       font-weight: 750;
       padding: 3px 10px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(15, 20, 41, 0.65);
       border: 1px solid var(--line-soft);
       color: var(--muted);
+      backdrop-filter: blur(6px);
     }
     .live-dot {
       width: 7px;
@@ -564,8 +574,8 @@
     }
     .playing .live-indicator {
       color: #fff;
-      border-color: rgba(236, 72, 153, 0.5);
-      background: rgba(236, 72, 153, 0.15);
+      border-color: rgba(236, 72, 153, 0.55);
+      background: rgba(236, 72, 153, 0.2);
     }
     .playing .live-dot {
       background: var(--pink);
@@ -578,23 +588,27 @@
     }
 
     .radio-body {
+      position: relative;
+      z-index: 2;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1.2vw;
-      margin-top: 0.3vh;
+      gap: 1.5vw;
+      margin: auto 0;
+      padding: 1vh 0;
     }
     .radio-title-wrap {
       min-width: 0;
       flex: 1;
     }
     .radio-name {
-      font-size: clamp(24px, 2.5vw, 40px);
-      font-weight: 800;
+      font-size: clamp(28px, 3vw, 48px);
+      font-weight: 850;
       letter-spacing: -0.04em;
       margin: 0;
       color: #fff;
       line-height: 1.05;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.65);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -602,64 +616,50 @@
     .now-playing-row {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-top: 5px;
+      gap: 8px;
+      margin-top: 8px;
       min-width: 0;
     }
     .music-note {
       color: var(--cyan);
-      font-size: clamp(12px, 1vw, 16px);
+      font-size: clamp(13px, 1.05vw, 17px);
       flex-shrink: 0;
     }
     #radio-status {
-      color: #e2e8f0;
-      font-size: clamp(12px, 0.98vw, 15px);
-      font-weight: 600;
+      color: #f1f5f9;
+      font-size: clamp(12px, 1.05vw, 16px);
+      font-weight: 650;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .play {
-      width: clamp(54px, 5.2vw, 78px);
-      height: clamp(54px, 5.2vw, 78px);
+      width: clamp(60px, 5.6vw, 84px);
+      height: clamp(60px, 5.6vw, 84px);
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(236, 72, 153, 0.35), rgba(139, 92, 246, 0.2));
+      background: radial-gradient(circle at 30% 30%, rgba(236, 72, 153, 0.42), rgba(15, 20, 41, 0.85));
       border: 2.5px solid var(--pink);
       color: #f472b6;
-      box-shadow: 0 0 25px rgba(236, 72, 153, 0.55), inset 0 0 15px rgba(236, 72, 153, 0.35);
+      box-shadow: 0 0 28px rgba(236, 72, 153, 0.6), inset 0 0 15px rgba(236, 72, 153, 0.35);
       display: grid;
       place-items: center;
       transition: transform 0.16s, box-shadow 0.16s;
       flex-shrink: 0;
+      backdrop-filter: blur(8px);
     }
     .play:hover, .play:focus {
       outline: 2px solid #fff;
       outline-offset: 4px;
       transform: scale(1.06);
-      box-shadow: 0 0 36px rgba(236, 72, 153, 0.85), inset 0 0 18px rgba(236, 72, 153, 0.5);
+      box-shadow: 0 0 38px rgba(236, 72, 153, 0.9), inset 0 0 18px rgba(236, 72, 153, 0.5);
     }
     .play svg { width: 42%; height: 42%; fill: currentColor; filter: drop-shadow(0 0 6px var(--pink)); }
 
-    /* UUS CANVAS SYNTHWAVE SPEKTRIANALÜSAATOR */
-    .visualizer-box {
-      position: relative;
-      width: 100%;
-      height: clamp(44px, 5.8vh, 68px);
-      margin: 0.6vh 0;
-      border-radius: 14px;
-      background: rgba(8, 11, 26, 0.45);
-      border: 1px solid rgba(139, 92, 246, 0.16);
-      overflow: hidden;
-    }
-    canvas#radio-visualizer {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
     .radio-stations {
+      position: relative;
+      z-index: 2;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -670,9 +670,10 @@
       border-radius: 999px;
       font-weight: 700;
       font-size: clamp(10px, 0.85vw, 13px);
-      border: 1px solid var(--line-soft);
-      background: rgba(255, 255, 255, 0.04);
-      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(13, 17, 38, 0.65);
+      backdrop-filter: blur(8px);
+      color: #e2e8f0;
       transition: all 0.16s;
     }
     .station-btn.active {
@@ -724,7 +725,7 @@
     }
     .modal-backdrop.open { display: grid; }
     .modal {
-      width: min(560px, 92vw);
+      width: min(580px, 92vw);
       background: #121735;
       border: 1px solid var(--line);
       border-radius: 20px;
@@ -732,7 +733,7 @@
       box-shadow: 0 24px 60px rgba(0,0,0,0.6);
     }
     .modal h3 { margin: 0 0 6px; font-size: 18px; }
-    .modal p { margin: 0 0 14px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .modal p { margin: 0 0 14px; font-size: 12px; color: var(--muted); line-height: 1.45; }
     .modal textarea {
       width: 100%;
       height: 150px;
@@ -805,10 +806,10 @@
         </div>
       </section>
 
-      <!-- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL - TÄIENDATUD ANDMETEGA) -->
+      <!-- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) -->
       <section class="card">
         <div class="card-head">
-          <span class="label">Ilm & Prognoos • <span id="location" class="location-badge">Pärnu</span></span>
+          <span class="label">Ilm & Prognoos • <span id="location" class="location-badge">Pärnu • Yr.no</span></span>
           <button id="location-button" class="pill-btn">Kasuta minu asukohta</button>
         </div>
 
@@ -892,8 +893,10 @@
         </div>
       </section>
 
-      <!-- 4. RAADIO & STRIIMID (ALL PAREMAL) -->
-      <section id="radio-card" class="card">
+      <!-- 4. RAADIO & STRIIMID (ALL PAREMAL - LÄBIPAISTVA TAUSTA-HELILAINEGA) -->
+      <section id="radio-card" class="card radio">
+        <canvas id="radio-visualizer" class="radio-bg-canvas" aria-hidden="true"></canvas>
+
         <div class="card-head">
           <span class="label">Raadio & Striimid</span>
           <div class="live-indicator">
@@ -918,16 +921,12 @@
           </button>
         </div>
 
-        <div class="visualizer-box">
-          <canvas id="radio-visualizer"></canvas>
-        </div>
-
         <div class="radio-stations">
-          <button id="btn-station-sky" class="station-btn active" data-id="skyplus" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">Sky Plus</button>
-          <button id="btn-station-slam" class="station-btn" data-id="slam" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">WKNDMX</button>
-          <button id="btn-station-qdance" class="station-btn" data-id="qdance" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">Q-Dance</button>
-          <button id="btn-station-hardcore" class="station-btn" data-id="hardcore" data-name="SUNSHINE HARDCORE" data-url="https://stream.sunshine-live.de/Hardcore/mp3-192/stream.sunshine-live.de/">Hardcore</button>
-          <button id="btn-station-dnb" class="station-btn" data-id="dnb" data-name="DIFFERENT DRUMZ DNB" data-url="https://differentdrumz.radioca.st/electronic.mp3">DnB</button>
+          <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">Sky Plus</button>
+          <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">WKNDMX</button>
+          <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">Q-Dance</button>
+          <button id="btn-station-hardcore" class="station-btn" data-name="SUNSHINE HARDCORE" data-url="https://stream.sunshine-live.de/Hardcore/mp3-192/stream.sunshine-live.de/">Hardcore</button>
+          <button id="btn-station-dnb" class="station-btn" data-name="DIFFERENT DRUMZ DNB" data-url="https://differentdrumz.radioca.st/electronic.mp3">DnB</button>
         </div>
 
         <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
@@ -948,7 +947,10 @@
     <div class="modal">
       <h3 id="modal-title">Muuda kasutaja portfelli</h3>
       <p>Kirjuta iga vara eraldi reale kujul: <strong>SÜMBOL, NIMI, KOGUS</strong><br>
-      Näited: <code>BTCEUR, BTC / EUR, 0.15</code> või <code>SXR8.DE, LHV S&P500, 12</code> või <code>NVDA, Nvidia, 10</code></p>
+      Näited:<br>
+      <code>VUAA.DE, Vanguard S&P 500, 5</code><br>
+      <code>93M1.DE, MPH Health Care AG, 10</code><br>
+      <code>SXR8.DE, LHV S&P 500, 8</code> või <code>BTCEUR, BTC / EUR, 0.15</code></p>
       <textarea id="modal-textarea"></textarea>
       <div class="modal-actions">
         <button class="pill-btn" id="modal-cancel">Loobu</button>
@@ -998,7 +1000,7 @@
       $('date').textContent = d.toLocaleDateString('et-EE', {weekday:'long', day:'numeric', month:'long'});
     }
 
-    // --- 1. ELEKTRIHINNA GRAAFIK (KOOS HINDADEGA IGA TULBA KOHAL) ---
+    // --- 1. ELEKTRIHINNA GRAAFIK ---
     function drawChart(data){
       const canvas = $('price-chart');
       if(!canvas) return;
@@ -1037,23 +1039,21 @@
           ctx.strokeRect(x - 1, y - 1, barWidth + 2, barHeight + 2);
         }
 
-        // Hind iga tulba kohal
         ctx.fillStyle = '#f8fafc';
         ctx.font = '700 9.5px system-ui';
         ctx.textAlign = 'center';
         const priceLabel = point.price >= 100 ? Math.round(point.price).toString() : point.price.toFixed(1);
         ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
 
-        // Tund iga tulba all
         ctx.fillStyle = '#94a3b8';
         ctx.font = '600 9px system-ui';
         ctx.fillText(new Date(point.time).toLocaleTimeString('et-EE', {hour:'2-digit'}), x + barWidth / 2, h - 3);
       });
     }
 
-    async function fetchJson(endpoint){
+    async function fetchJson(endpoint, timeoutMs = 6000){
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 6000);
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
         const response = await fetch(endpoint, {cache:'no-store', signal:controller.signal});
         if(!response.ok) throw Error(`HTTP ${response.status}`);
@@ -1118,7 +1118,7 @@
       }
     }
 
-    // --- 2. YR.NO ILM + PÄIKESETÕUS/LOOJANG JA LISAMÕÕDIKUD ---
+    // --- 2. YR.NO ILM + TÄPNE KOHANIMI KOORDINAATIDEST ---
     function getWeatherIcon(symbol) {
       if (!symbol) return '🌤️';
       const isNight = symbol.includes('_night');
@@ -1137,7 +1137,6 @@
       }
     }
 
-    // Päikesetõusu ja -loojangu arvutus koordinaatide järgi
     function getSunTimes(lat, lon) {
       const now = new Date();
       const start = new Date(now.getFullYear(), 0, 0);
@@ -1160,6 +1159,34 @@
     }
 
     let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
+    try {
+      const savedPlace = localStorage.getItem('koduvaade_place');
+      if (savedPlace) {
+        const parsed = JSON.parse(savedPlace);
+        if (parsed?.lat && parsed?.lon && parsed?.name && parsed.name !== 'Minu asukoht') {
+          weatherPlace = parsed;
+        }
+      }
+    } catch(e) {}
+
+    async function placeNameFromCoordinates(lat, lon) {
+      // 1. OpenStreetMap Nominatim
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=10&accept-language=et`;
+        const response = await fetchJson(url, 4500);
+        const addr = response?.address || {};
+        const name = addr.city || addr.town || addr.village || addr.municipality || addr.county || response?.name;
+        if (name) return name.replace(/ linn$| vald$| maakond$/i, '');
+      } catch(e) {}
+      // 2. BigDataCloud varuvariant
+      try {
+        const url2 = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&localityLanguage=et`;
+        const response2 = await fetchJson(url2, 4500);
+        const name2 = response2?.city || response2?.locality || response2?.principalSubdivision;
+        if (name2) return name2.replace(/ linn$| vald$| maakond$/i, '');
+      } catch(e) {}
+      return 'Pärnu';
+    }
 
     function renderForecast(timeseries){
       const days = new Map();
@@ -1223,32 +1250,65 @@
       } catch(e){}
     }
 
-    $('location-button').addEventListener('click',()=>{
+    $('location-button').addEventListener('click', () => {
       if(!navigator.geolocation) return;
       $('location-button').textContent = 'Otsin…';
       navigator.geolocation.getCurrentPosition(async pos => {
-        weatherPlace = {name:'Minu asukoht', lat:pos.coords.latitude.toFixed(4), lon:pos.coords.longitude.toFixed(4)};
-        loadWeather();
-        $('location-button').textContent = 'Asukoht leitud';
-      }, () => { $('location-button').textContent = 'Luba puudub'; });
+        const lat = pos.coords.latitude.toFixed(4);
+        const lon = pos.coords.longitude.toFixed(4);
+        const placeName = await placeNameFromCoordinates(lat, lon);
+        weatherPlace = { name: placeName, lat, lon };
+        try { localStorage.setItem('koduvaade_place', JSON.stringify(weatherPlace)); } catch(e) {}
+        await loadWeather();
+        $('location-button').textContent = `Leitud: ${placeName}`;
+      }, () => {
+        $('location-button').textContent = 'Luba puudub';
+      }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
     });
 
-    // --- 3. FINANTSID & PORTFELL ---
+    // --- 3. FINANTSID & PORTFELL (NUTIKAS SÜMBOLIOTSING: VANGUARD, MPH, LHV JT) ---
+    const SYMBOL_ALIASES = {
+      'VANGUARD S&P 500': 'VUAA.DE',
+      'VANGUARD S&P500':  'VUAA.DE',
+      'VANGUARD':         'VUAA.DE',
+      'VUAA':             'VUAA.DE',
+      'VUSA':             'VUSA.DE',
+      'MPH HEALT CARE AG':'93M1.DE',
+      'MPH HEALTH CARE AG':'93M1.DE',
+      'MPH HEALTH CARE':  '93M1.DE',
+      'MPH HEALT':        '93M1.DE',
+      'MPH':              '93M1.DE',
+      '93M1':             '93M1.DE',
+      'LHV S&P 500':      'SXR8.DE',
+      'LHV S&P500':       'SXR8.DE',
+      'SXR8':             'SXR8.DE',
+      'LHV MAAILM':       'EUNL.DE',
+      'EUNL':             'EUNL.DE',
+      'LHV NASDAQ':       'EXXT.DE',
+      'EXXT':             'EXXT.DE',
+      'BTC':              'BTCEUR',
+      'BITCOIN':          'BTCEUR',
+      'ETH':              'ETHEUR',
+      'ETHEREUM':         'ETHEUR',
+      'SOL':              'SOLEUR',
+      'SOLANA':           'SOLEUR'
+    };
+
     const defaultPortfolios = [
       {
         name: 'Karmo',
         assets: [
-          { symbol: 'BTCEUR',  label: 'BTC / EUR',    qty: 0.15, icon: '₿', color: '#f59e0b' },
-          { symbol: 'ETHEUR',  label: 'ETH / EUR',    qty: 1.5,  icon: 'Ξ', color: '#6366f1' },
-          { symbol: 'SXR8.DE', label: 'LHV S&P 500',  qty: 8,    icon: '📈', color: '#10b981' }
+          { symbol: 'VUAA.DE', label: 'Vanguard S&P 500',   qty: 10, icon: 'V',  color: '#f59e0b' },
+          { symbol: '93M1.DE', label: 'MPH Health Care AG', qty: 15, icon: 'M',  color: '#6366f1' },
+          { symbol: 'SXR8.DE', label: 'LHV S&P 500',        qty: 8,  icon: '📈', color: '#10b981' }
         ]
       },
       {
         name: 'Naine',
         assets: [
-          { symbol: 'EUNL.DE', label: 'LHV Maailm',   qty: 25,   icon: '🌍', color: '#8b5cf6' },
-          { symbol: 'AAPL',    label: 'Apple (AAPL)', qty: 10,   icon: '🍎', color: '#38bdf8' },
-          { symbol: 'SOLEUR',  label: 'SOL / EUR',    qty: 12,   icon: '◎', color: '#ec4899' }
+          { symbol: 'EUNL.DE', label: 'LHV Maailm',   qty: 25, icon: '🌍', color: '#8b5cf6' },
+          { symbol: 'AAPL',    label: 'Apple (AAPL)', qty: 10, icon: '🍎', color: '#38bdf8' },
+          { symbol: 'SOLEUR',  label: 'SOL / EUR',    qty: 12, icon: '◎', color: '#ec4899' }
         ]
       },
       {
@@ -1270,8 +1330,59 @@
     let activeUser = 0;
     let hideTotals = false;
 
-    async function fetchAssetData(symbol) {
-      const clean = symbol.trim().toUpperCase();
+    function resolveSymbol(rawSym, rawLabel) {
+      const s = (rawSym || '').trim().toUpperCase();
+      const l = (rawLabel || '').trim().toUpperCase();
+      if (SYMBOL_ALIASES[s]) return SYMBOL_ALIASES[s];
+      if (SYMBOL_ALIASES[l]) return SYMBOL_ALIASES[l];
+      if (s.includes('VANGUARD') || l.includes('VANGUARD')) return 'VUAA.DE';
+      if (s.includes('MPH') || l.includes('MPH')) return '93M1.DE';
+      return s;
+    }
+
+    async function fetchYahooDirect(ticker) {
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`;
+      const urlsToTry = [
+        `/api/market?symbol=${encodeURIComponent(ticker)}`,
+        `https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
+      ];
+
+      for (const u of urlsToTry) {
+        try {
+          const data = await fetchJson(u, 4500);
+          if (data?.price !== undefined) {
+            return { price: Number(data.price), change: Number(data.change || 0) };
+          }
+          const meta = data?.chart?.result?.[0]?.meta;
+          if (meta?.regularMarketPrice) {
+            const price = Number(meta.regularMarketPrice);
+            const prev = Number(meta.chartPreviousClose || meta.previousClose || price);
+            const change = prev ? ((price - prev) / prev) * 100 : 0;
+            return { price, change };
+          }
+        } catch(e) {}
+      }
+      return null;
+    }
+
+    async function searchYahooTicker(query) {
+      try {
+        const searchUrl = `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=5`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`;
+        const data = await fetchJson(proxyUrl, 4500);
+        const quotes = data?.quotes || [];
+        const euroMatch = quotes.find(q => q.symbol?.endsWith('.DE') || q.symbol?.endsWith('.F') || q.symbol?.endsWith('.AS'));
+        return (euroMatch || quotes[0])?.symbol || null;
+      } catch(e) {
+        return null;
+      }
+    }
+
+    async function fetchAssetData(rawSymbol, rawLabel) {
+      let clean = resolveSymbol(rawSymbol, rawLabel);
+
+      // 1. Krüptopaarid otse Binance'ist
       if (clean.endsWith('EUR') || clean.endsWith('USDT')) {
         try {
           const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${clean}`);
@@ -1281,29 +1392,37 @@
           }
         } catch(e) {}
       }
-      try {
-        const r = await fetch(`/api/market?symbol=${encodeURIComponent(clean)}`);
-        if (r.ok) {
-          const d = await r.json();
-          if (d.price) return { price: Number(d.price), change: Number(d.change || 0) };
-        }
-      } catch(e) {}
 
+      // 2. Proovime otse sümboliga Yahoo Finance'ist
+      let res = await fetchYahooDirect(clean);
+      if (res) return res;
+
+      // 3. Kui kasutaja sisestas ettevõtte/fondi nime, otsime Yahoo'st õige sümboli
+      const foundTicker = await searchYahooTicker(rawLabel || rawSymbol);
+      if (foundTicker) {
+        res = await fetchYahooDirect(foundTicker);
+        if (res) return res;
+      }
+
+      // 4. Realistlikud varuväärtused juhuks kui võrk hetkeks katkeb
       const fallbacks = {
-        'SXR8.DE': { price: 564.20, change: 0.85 },
-        'EUNL.DE': { price: 98.40,  change: 0.62 },
-        'EXXT.DE': { price: 184.10, change: 1.15 },
-        'AAPL':    { price: 212.50, change: -0.45 },
-        'NVDA':    { price: 128.80, change: 2.34 },
-        'TSLA':    { price: 245.10, change: -1.20 }
+        'VUAA.DE': { price: 108.45, change: 0.78 },
+        'VUSA.DE': { price: 104.20, change: 0.74 },
+        '93M1.DE': { price: 25.40,  change: 1.20 },
+        'SXR8.DE': { price: 586.40, change: 0.85 },
+        'EUNL.DE': { price: 101.30, change: 0.62 },
+        'EXXT.DE': { price: 192.10, change: 1.15 },
+        'AAPL':    { price: 215.50, change: 0.45 },
+        'NVDA':    { price: 134.80, change: 2.10 }
       };
-      return fallbacks[clean] || { price: 100.00, change: 0.50 };
+      return fallbacks[clean] || { price: 100.00, change: 0.00 };
     }
 
     async function drawSparkline(symbol) {
       let points = [42, 45, 43, 49, 47, 53, 51, 56, 54, 60, 58, 64];
       try {
-        const pair = (symbol.endsWith('EUR') || symbol.endsWith('USDT')) ? symbol : 'BTCEUR';
+        const clean = resolveSymbol(symbol, '');
+        const pair = (clean.endsWith('EUR') || clean.endsWith('USDT')) ? clean : 'BTCEUR';
         const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=2h&limit=16`);
         if (r.ok) {
           const klines = await r.json();
@@ -1336,14 +1455,15 @@
       const rowsHtml = [];
 
       for (const item of user.assets) {
-        const data = await fetchAssetData(item.symbol);
+        const data = await fetchAssetData(item.symbol, item.label);
         const value = data.price * (Number(item.qty) || 0);
         totalEur += value;
 
         const isUp = data.change >= 0;
         const sign = isUp ? '+' : '';
         const badgeColor = item.color || '#8b5cf6';
-        const icon = item.icon || item.symbol.slice(0, 2);
+        const cleanSym = resolveSymbol(item.symbol, item.label);
+        const icon = (item.icon && item.icon !== '📈') ? item.icon : cleanSym.slice(0, 2);
 
         rowsHtml.push(`
           <div class="asset-row">
@@ -1394,12 +1514,14 @@
       const colors = ['#f59e0b', '#6366f1', '#10b981', '#ec4899', '#38bdf8'];
       portfolios[activeUser].assets = lines.map((line, i) => {
         const parts = line.split(',').map(s => s.trim());
-        const sym = (parts[0] || 'BTCEUR').toUpperCase();
+        const rawSym = parts[0] || 'BTCEUR';
+        const rawLabel = parts[1] || rawSym;
+        const resolved = resolveSymbol(rawSym, rawLabel);
         return {
-          symbol: sym,
-          label: parts[1] || sym,
+          symbol: resolved,
+          label: rawLabel,
           qty: parseFloat(parts[2]) || 1,
-          icon: sym.startsWith('BTC') ? '₿' : sym.startsWith('ETH') ? 'Ξ' : '📈',
+          icon: resolved.startsWith('BTC') ? '₿' : resolved.startsWith('ETH') ? 'Ξ' : resolved.slice(0, 2),
           color: colors[i % colors.length]
         };
       });
@@ -1408,7 +1530,7 @@
       renderPortfolio();
     });
 
-    // --- 4. RAADIO LOOGIKA + HETKEL EETRIS LOO NIMI + CANVAS SYNTHWAVE VISUALIZER ---
+    // --- 4. RAADIO + TÄISKAARDI TAUSTA-EKVALAISER ---
     const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
     let currentStationName = "SKY PLUS";
     let currentStreamUrl = "https://stream.skymedia.ee/live/SKYPLUS";
@@ -1429,7 +1551,6 @@
           }
         }
       } catch(e) {}
-      // Kui api/radio.js ei ole veel lisatud või jaam hetkel nime ei saada
       if ($('radio-status').textContent === 'Ühendan striimiga…') {
         $('radio-status').textContent = `${currentStationName} • Otse-eetris`;
       }
@@ -1487,12 +1608,11 @@
       radioCard.classList.remove('playing');
     });
 
-    // CANVAS SYNTHWAVE SPEKTRIANALÜSAATOR JA HELILAINE
+    // TÄISKAARDI LÄBIPAISTEV TAUSTA-EKVALAISER JA AURORA-LAINE
     const vCanvas = $('radio-visualizer');
     const vCtx = vCanvas.getContext('2d');
-    const numBars = 42;
-    const barHeights = new Array(numBars).fill(0.08);
-    const barPeaks = new Array(numBars).fill(0.1);
+    const numBars = 28;
+    const barHeights = new Array(numBars).fill(0.12);
     let phase = 0;
 
     function animateVisualizer() {
@@ -1504,75 +1624,65 @@
       }
       vCtx.save();
       vCtx.scale(dpr, dpr);
-      const w = rect.width, h = rect.height, midY = h / 2;
+      const w = rect.width, h = rect.height;
       vCtx.clearRect(0, 0, w, h);
 
-      phase += isPlaying ? 0.14 : 0.035;
+      phase += isPlaying ? 0.085 : 0.02;
 
       const styles = getComputedStyle(document.documentElement);
       const cCyan = styles.getPropertyValue('--cyan').trim() || '#22d3ee';
       const cPurple = styles.getPropertyValue('--purple').trim() || '#a855f7';
       const cPink = styles.getPropertyValue('--pink').trim() || '#ec4899';
 
-      const barGrad = vCtx.createLinearGradient(0, 0, w, 0);
-      barGrad.addColorStop(0, cCyan);
-      barGrad.addColorStop(0.5, cPurple);
-      barGrad.addColorStop(1, cPink);
+      // 1. Pehmed laiad taustalained (Aurora) üle kogu kaardi
+      const waveGrad = vCtx.createLinearGradient(0, h * 0.2, w, h);
+      waveGrad.addColorStop(0, cCyan + '33');
+      waveGrad.addColorStop(0.5, cPurple + '44');
+      waveGrad.addColorStop(1, cPink + '33');
 
+      vCtx.fillStyle = waveGrad;
+      vCtx.beginPath();
+      vCtx.moveTo(0, h);
+      for (let x = 0; x <= w; x += 8) {
+        const amp1 = isPlaying ? h * 0.16 : h * 0.05;
+        const amp2 = isPlaying ? h * 0.10 : h * 0.03;
+        const y = h * 0.58 + Math.sin(x * 0.012 - phase * 1.4) * amp1 + Math.cos(x * 0.022 + phase) * amp2;
+        vCtx.lineTo(x, y);
+      }
+      vCtx.lineTo(w, h);
+      vCtx.closePath();
+      vCtx.fill();
+
+      // 2. Laiad pehmed ekvalaiseri sambad kaardi põhjast üles
       const slot = w / numBars;
-      const bw = Math.max(2.5, slot - 4);
+      const bw = Math.max(6, slot - 6);
 
       for (let i = 0; i < numBars; i++) {
-        const centerFactor = 1 - Math.abs((i - numBars / 2) / (numBars / 2)) * 0.45;
         let target;
         if (isPlaying) {
-          const wave1 = Math.sin(phase + i * 0.35) * 0.35 + 0.45;
-          const wave2 = Math.cos(phase * 1.7 - i * 0.6) * 0.25;
-          const kick = (Math.sin(phase * 2.4) > 0.65 && i % 3 === 0) ? 0.35 : 0;
-          target = Math.min(0.95, Math.max(0.1, (wave1 + wave2 + kick + Math.random() * 0.22) * centerFactor));
+          const w1 = Math.sin(phase * 1.6 + i * 0.45) * 0.32 + 0.42;
+          const w2 = Math.cos(phase * 2.3 - i * 0.7) * 0.22;
+          const bassBoost = i < 7 ? 0.18 : 0;
+          target = Math.min(0.88, Math.max(0.12, w1 + w2 + bassBoost + Math.random() * 0.18));
         } else {
-          target = (0.06 + Math.sin(phase + i * 0.25) * 0.03) * centerFactor;
+          target = 0.08 + Math.sin(phase + i * 0.3) * 0.03;
         }
 
-        barHeights[i] += (target - barHeights[i]) * (isPlaying ? 0.28 : 0.1);
-        if (barHeights[i] > barPeaks[i]) {
-          barPeaks[i] = barHeights[i];
-        } else {
-          barPeaks[i] = Math.max(0.06, barPeaks[i] - (isPlaying ? 0.012 : 0.008));
-        }
-
+        barHeights[i] += (target - barHeights[i]) * (isPlaying ? 0.22 : 0.08);
+        const barH = barHeights[i] * (h * 0.82);
         const x = i * slot + (slot - bw) / 2;
-        const halfBar = Math.max(2, barHeights[i] * (h * 0.44));
+        const y = h - barH;
 
-        // Peegelsümmeetriline tulp keskelt üles ja alla
-        vCtx.fillStyle = barGrad;
-        vCtx.globalAlpha = isPlaying ? 0.92 : 0.35;
+        const colGrad = vCtx.createLinearGradient(0, y, 0, h);
+        colGrad.addColorStop(0, cPink + '99');
+        colGrad.addColorStop(0.45, cPurple + '66');
+        colGrad.addColorStop(1, cCyan + '15');
+
+        vCtx.fillStyle = colGrad;
         vCtx.beginPath();
-        vCtx.roundRect(x, midY - halfBar, bw, halfBar * 2, 2);
+        vCtx.roundRect(x, y, bw, barH, [6, 6, 0, 0]);
         vCtx.fill();
-
-        // Hõljuvad neoon-tipud (peak caps)
-        if (isPlaying) {
-          const peakOffset = barPeaks[i] * (h * 0.46);
-          vCtx.fillStyle = '#ffffff';
-          vCtx.globalAlpha = 0.85;
-          vCtx.fillRect(x, midY - peakOffset - 2, bw, 2);
-          vCtx.fillRect(x, midY + peakOffset, bw, 2);
-        }
       }
-
-      // Helendav keskmine siinuslaine
-      vCtx.globalAlpha = isPlaying ? 0.9 : 0.45;
-      vCtx.strokeStyle = cCyan;
-      vCtx.lineWidth = isPlaying ? 2 : 1.2;
-      vCtx.beginPath();
-      for (let x = 0; x <= w; x += 4) {
-        const amp = isPlaying ? 7 : 2.5;
-        const y = midY + Math.sin(x * 0.045 - phase * 2) * amp * Math.sin((x / w) * Math.PI);
-        if (x === 0) vCtx.moveTo(x, y);
-        else vCtx.lineTo(x, y);
-      }
-      vCtx.stroke();
 
       vCtx.restore();
       requestAnimationFrame(animateVisualizer);

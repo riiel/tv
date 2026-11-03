@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="et" data-theme="indigo">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f1429" />
+  <title>Koduvaade</title>
+  <style>
+    /* VAIKIMISI TEEMA: MIDNIGHT INDIGO (GoWalk stiil) */
+    :root, [data-theme="indigo"] {
+      color-scheme: only dark;
+      forced-color-adjust: none;
+      --bg: #0f1429;
+      --bg-glow: #281d66;
+      --card: rgba(24, 27, 58, 0.88);
+      --card2: rgba(15, 20, 41, 0.94);
+      --card-glow: rgba(236, 72, 153, 0.14);
+      --text: #f5f7ff;
+      --muted: #a5b4fc;
+      --line: rgba(167, 139, 250, 0.18);
+      --accent: #ec4899;
+      --accent-2: #7c3aed;
+      --accent-grad: linear-gradient(90deg, #7c3aed, #ec4899);
+      --accent-grad-diag: linear-gradient(135deg, #7c3aed, #ec4899);
+      --accent-shadow: rgba(236, 72, 153, 0.4);
+      --accent-text: #ffffff;
+      --green: #34d399;
+      --orange: #fbbf24;
+      --red: #f43f5e;
+    }
+
+    /* TEEMA 2: OOKEAN (Algne Koduvaade) */
+    [data-theme="ocean"] {
+      --bg: #07121f;
+      --bg-glow: #173c58;
+      --card: rgba(16, 38, 58, 0.94);
+      --card2: rgba(10, 25, 39, 0.94);
+      --card-glow: rgba(102, 217, 255, 0.12);
+      --text: #f5f8fb;
+      --muted: #a7b6c5;
+      --line: rgba(190, 214, 232, 0.14);
+      --accent: #66d9ff;
+      --accent-2: #38bdf8;
+      --accent-grad: linear-gradient(90deg, #38bdf8, #66d9ff);
+      --accent-grad-diag: linear-gradient(135deg, #38bdf8, #66d9ff);
+      --accent-shadow: rgba(102, 217, 255, 0.35);
+      --accent-text: #062035;
+      --green: #5be38f;
+      --orange: #ffc261;
+      --red: #ff7790;
+    }
+
+    /* TEEMA 3: SMARAGD (Emerald Night) */
+    [data-theme="emerald"] {
+      --bg: #061512;
+      --bg-glow: #0f3d33;
+      --card: rgba(12, 38, 33, 0.9);
+      --card2: rgba(7, 23, 20, 0.94);
+      --card-glow: rgba(52, 211, 153, 0.12);
+      --text: #f0fdf4;
+      --muted: #86efac;
+      --line: rgba(110, 231, 183, 0.16);
+      --accent: #34d399;
+      --accent-2: #059669;
+      --accent-grad: linear-gradient(90deg, #059669, #34d399);
+      --accent-grad-diag: linear-gradient(135deg, #059669, #34d399);
+      --accent-shadow: rgba(52, 211, 153, 0.35);
+      --accent-text: #042f2e;
+      --green: #34d399;
+      --orange: #fbbf24;
+      --red: #fb7185;
+    }
+
+    /* TEEMA 4: OLED KULD (Tume öövaade) */
+    [data-theme="oled"] {
+      --bg: #060609;
+      --bg-glow: #271f10;
+      --card: rgba(20, 20, 26, 0.92);
+      --card2: rgba(10, 10, 14, 0.96);
+      --card-glow: rgba(245, 158, 11, 0.1);
+      --text: #fafafa;
+      --muted: #a1a1aa;
+      --line: rgba(255, 255, 255, 0.12);
+      --accent: #fbbf24;
+      --accent-2: #d97706;
+      --accent-grad: linear-gradient(90deg, #d97706, #fbbf24);
+      --accent-grad-diag: linear-gradient(135deg, #d97706, #fbbf24);
+      --accent-shadow: rgba(251, 191, 36, 0.35);
+      --accent-text: #18181b;
+      --green: #4ade80;
+      --orange: #fbbf24;
+      --red: #f87171;
+    }
+
+    * { box-sizing:border-box; }
+    body { 
+      margin:0; 
+      min-width:960px; 
+      min-height:540px; 
+      color:var(--text); 
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
+      background:radial-gradient(950px 560px at 72% -10%, var(--bg-glow) 0%, transparent 70%), var(--bg); 
+      overflow:hidden; 
+      transition: background 0.35s ease, color 0.25s ease;
+    }
+    button { font:inherit; color:inherit; cursor:pointer; }
+    .screen { height:100vh; padding:3.5vh 4vw 2.5vh; display:grid; grid-template-rows:auto 1fr auto; gap:2vh; }
+    header { display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:12px; color:var(--text); font-size:clamp(13px,1.2vw,18px); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .brand-mark { width:12px; height:12px; border-radius:50%; background:var(--accent-grad-diag); box-shadow:0 0 16px var(--accent); }
+    .now { text-align:right; display:flex; align-items:baseline; gap:16px; }
+    #clock { font-size:clamp(32px,3.8vw,64px); letter-spacing:-.075em; font-weight:750; line-height:.85; }
+    #date { color:var(--muted); font-size:clamp(13px,1.3vw,20px); font-weight:600; }
+    main { display:grid; grid-template-columns:1.5fr 1fr; grid-template-rows:1fr 1fr; gap:1.8vh 1.4vw; min-height:0; }
+    .card { 
+      border:1px solid var(--line); 
+      border-radius:24px; 
+      background:linear-gradient(135deg, var(--card), var(--card2)); 
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      box-shadow:0 18px 55px rgba(0,0,0,.28); 
+      overflow:hidden; 
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .label { color:var(--muted); font-weight:750; font-size:clamp(11px,1vw,15px); text-transform:uppercase; letter-spacing:.09em; }
+    
+    /* ELEKTRI KAART */
+    .electricity { grid-row:span 2; padding:3.5vh 2.8vw 2.5vh; position:relative; display:grid; grid-template-rows:auto auto 1fr auto; }
+    .electricity::after { content:""; position:absolute; width:320px; height:320px; right:-100px; top:-120px; border-radius:50%; background:radial-gradient(circle, var(--card-glow), transparent 68%); pointer-events:none; }
+    .electricity-head { display:flex; align-items:center; justify-content:space-between; z-index:1; }
+    .status { color:var(--green); background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.28); border-radius:999px; padding:5px 10px; font-size:clamp(10px,.85vw,13px); font-weight:750; }
+    .price-line { margin-top:2vh; display:flex; align-items:flex-end; gap:10px; z-index:1; }
+    #price { font-size:clamp(56px,7.2vw,115px); letter-spacing:-.09em; line-height:.8; font-weight:760; }
+    .unit { padding-bottom:1.2vh; color:var(--muted); font-weight:650; font-size:clamp(14px,1.4vw,22px); }
+    .price-caption { margin-top:0.8vh; color:var(--muted); font-weight:600; font-size:clamp(12px,1.15vw,17px); }
+    .chart-wrap { position:relative; min-height:0; margin:1.2vh 0 1.4vh; }
+    .chart-legend { position:absolute; top:0; right:0; z-index:1; display:flex; gap:10px; color:var(--muted); font-size:clamp(9px,.75vw,12px); font-weight:700; }
+    .chart-title { position:absolute; top:0; left:0; z-index:1; color:var(--muted); font-size:clamp(9px,.75vw,12px); font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+    .chart-legend span { display:flex; align-items:center; gap:4px; }
+    .chart-legend i { width:7px; height:7px; border-radius:50%; display:block; }
+    canvas { position:absolute; inset:0; width:100%; height:100%; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); padding-top:1.5vh; gap:15px; }
+    .stat small { display:block; color:var(--muted); font-size:clamp(10px,.85vw,13px); font-weight:650; margin-bottom:3px; }
+    .stat strong { font-size:clamp(16px,1.7vw,26px); letter-spacing:-.05em; }
+
+    /* ILMA KAART */
+    .weather { padding:2vh 2.4vw 1.5vh; display:grid; grid-template-columns:1fr; grid-template-rows:auto minmax(50px,1fr) auto; }
+    .location { display:inline; align-self:start; color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:650; }
+    .location-button { margin:0 0 0 7px; padding:3px 9px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.04); color:var(--text); font-size:clamp(10px,.8vw,12px); font-weight:700; transition:all .15s; }
+    .location-button:focus, .location-button:hover { outline:2px solid #fff; outline-offset:2px; background:var(--accent-grad); color:var(--accent-text); border-color:transparent; }
+    
+    .condition { align-self:center; display:flex; align-items:center; justify-content:space-between; gap:clamp(12px,1.3vw,20px); }
+    .condition-left { display:flex; align-items:center; gap:clamp(10px,1.2vw,18px); }
+    #weather-temp { font-size:clamp(38px,3.6vw,54px); letter-spacing:-.1em; line-height:.8; font-weight:760; }
+    .weather-icon { font-size:clamp(36px,3.3vw,50px); filter:drop-shadow(0 5px 17px rgba(255,194,97,.16)); }
+    
+    /* YR.NO DETAILNE RIBA */
+    .yr-bar { display:flex; flex-direction:column; align-items:flex-end; text-align:right; gap:3px; }
+    .yr-row-main { display:flex; align-items:center; gap:12px; font-size:clamp(13px,1.2vw,18px); font-weight:750; color:var(--text); }
+    .yr-detail { display:flex; align-items:center; gap:4px; }
+    .yr-detail small { color:var(--muted); font-size:clamp(10px,.8vw,12px); font-weight:600; }
+    .yr-wind-arrow { display:inline-block; font-size:clamp(14px,1.2vw,18px); transform-origin:center; transition:transform .3s; color:var(--accent); }
+    .yr-feels { color:var(--muted); font-size:clamp(11px,.85vw,13px); font-weight:600; }
+
+    .forecast { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:.5vh; padding-top:.5vh; border-top:1px solid var(--line); }
+    .forecast-day { text-align:center; color:var(--muted); font-size:clamp(9px,.72vw,11px); font-weight:750; text-transform:uppercase; }
+    .forecast-icon { display:block; font-size:clamp(14px,1.2vw,18px); margin:1px 0; }
+    .forecast-temp { color:var(--text); font-size:clamp(10px,.82vw,13px); font-weight:750; }
+
+    /* RAADIO KAART */
+    .radio { padding:2.4vh 2.4vw; display:flex; flex-direction:column; justify-content:space-between; }
+    .radio-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .radio-stations { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+    .station-btn { padding:5px 10px; border-radius:999px; font-weight:750; font-size:clamp(10px,.85vw,12px); border:1px solid var(--line); background:rgba(255,255,255,.05); color:var(--muted); transition:all .15s; }
+    .station-btn.active { background:var(--accent-grad); color:var(--accent-text); border-color:transparent; font-weight:800; box-shadow:0 0 16px var(--accent-shadow); }
+    .station-btn:focus, .station-btn:hover { outline:2px solid #fff; }
+
+    .radio-middle { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:1vh; }
+    .visualizer-wrapper { flex:1; display:flex; align-items:center; justify-content:flex-start; padding-left:4px; }
+    .visualizer { display:flex; align-items:flex-end; gap:5px; height:32px; }
+    .visualizer .bar { width:5px; height:4px; background:linear-gradient(to top, var(--accent-2), var(--accent)); border-radius:4px; transition:height .2s ease; opacity:.28; }
+    .playing .visualizer .bar { opacity:1; animation:wave 1.2s ease-in-out infinite alternate; box-shadow:0 0 10px var(--accent-shadow); }
+    
+    .playing .visualizer .bar:nth-child(1)  { animation-duration:.65s; animation-delay:.1s; }
+    .playing .visualizer .bar:nth-child(2)  { animation-duration:.95s; animation-delay:.25s; }
+    .playing .visualizer .bar:nth-child(3)  { animation-duration:.75s; animation-delay:.15s; }
+    .playing .visualizer .bar:nth-child(4)  { animation-duration:1.15s; animation-delay:.35s; }
+    .playing .visualizer .bar:nth-child(5)  { animation-duration:.6s; animation-delay:.05s; }
+    .playing .visualizer .bar:nth-child(6)  { animation-duration:.85s; animation-delay:.4s; }
+    .playing .visualizer .bar:nth-child(7)  { animation-duration:1.05s; animation-delay:.2s; }
+    .playing .visualizer .bar:nth-child(8)  { animation-duration:.7s; animation-delay:.3s; }
+    .playing .visualizer .bar:nth-child(9)  { animation-duration:.9s; animation-delay:.15s; }
+    .playing .visualizer .bar:nth-child(10) { animation-duration:.6s; animation-delay:.45s; }
+    .playing .visualizer .bar:nth-child(11) { animation-duration:1.1s; animation-delay:.25s; }
+    .playing .visualizer .bar:nth-child(12) { animation-duration:.8s; animation-delay:.1s; }
+
+    @keyframes wave {
+      0% { height: 4px; }
+      40% { height: 26px; }
+      80% { height: 10px; }
+      100% { height: 30px; }
+    }
+
+    .radio-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:0.5vh; }
+    .radio-info { display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .radio-name { font-size:clamp(22px,2.4vw,36px); letter-spacing:-.06em; font-weight:780; margin:0; color:var(--text); line-height:1.1; }
+    #radio-status { color:var(--muted); font-size:clamp(12px,1vw,15px); font-weight:600; }
+
+    .play { 
+      width:clamp(58px,5.8vw,80px); 
+      height:clamp(58px,5.8vw,80px); 
+      border:0; 
+      border-radius:50%; 
+      background:var(--accent-grad-diag); 
+      color:var(--accent-text); 
+      box-shadow:0 8px 26px var(--accent-shadow); 
+      display:grid; 
+      place-items:center; 
+      transition:transform .16s, box-shadow .16s; 
+      flex-shrink:0; 
+    }
+    .play:focus, .play:hover { 
+      outline:3px solid #fff; 
+      outline-offset:4px; 
+      transform:scale(1.06); 
+      box-shadow:0 0 32px var(--accent); 
+    }
+    .play svg { width:42%; height:42%; fill:currentColor; }
+
+    /* JALUS JA TEEMA VAHETUSE NUPP */
+    footer { display:flex; align-items:center; justify-content:space-between; color:var(--muted); font-size:clamp(11px,.9vw,14px); font-weight:600; }
+    .theme-btn {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:6px 14px;
+      color:var(--text);
+      font-weight:700;
+      font-size:clamp(11px,.88vw,13px);
+      transition:all .18s ease;
+    }
+    .theme-btn:focus, .theme-btn:hover {
+      outline:2px solid #fff;
+      outline-offset:3px;
+      background:var(--accent-grad);
+      color:var(--accent-text);
+      border-color:transparent;
+      box-shadow:0 0 18px var(--accent-shadow);
+    }
+    .theme-dot {
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:var(--accent-grad-diag);
+      box-shadow:0 0 8px var(--accent);
+    }
+
+    .error { color:var(--orange)!important; }
+    
+    @media (max-aspect-ratio: 1/1) { body{overflow:auto; min-width:0} .screen{height:auto; min-height:100vh; padding:20px 16px} main{grid-template-columns:1fr; grid-template-rows:auto} .electricity{grid-row:auto; min-height:480px} }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <header>
+      <div class="brand"><span class="brand-mark"></span>Koduvaade TV</div>
+      <div class="now"><span id="clock">--:--</span><span id="date">--</span></div>
+    </header>
+    <main>
+      <!-- ELEKTRIHIND -->
+      <section class="card electricity">
+        <div class="electricity-head"><span class="label">Elektri börsihind · Eesti</span><span id="price-status" class="status">VÄRSKE</span></div>
+        <div><div class="price-line"><span id="price">--,--</span><span class="unit">senti / kWh</span></div><div id="price-caption" class="price-caption">Laen elektrihinda…</div></div>
+        <div class="chart-wrap"><div class="chart-title">Järgmised 24 tundi · s/kWh</div><div class="chart-legend" aria-label="Hinnatasemed"><span><i style="background:var(--green)"></i>soodne</span><span><i style="background:var(--orange)"></i>keskmine</span><span><i style="background:var(--red)"></i>kallis</span></div><canvas id="price-chart" aria-label="Elektrihinna tulpgraafik järgmise 24 tunni kohta"></canvas></div>
+        <div class="stats">
+          <div class="stat"><small>TÄNA + HOMME KESKM.</small><strong id="average">--,-- s</strong></div>
+          <div class="stat"><small>JÄRGMINE TUND</small><strong id="next-price">--,-- s</strong></div>
+          <div class="stat"><small>TÄNA + HOMME MAX</small><strong id="lowest">--,-- s</strong></div>
+        </div>
+      </section>
+
+      <!-- ILM KOOS YR.NO TÄIELIKU ANDMERIBAGA -->
+      <section class="card weather">
+        <div>
+          <div class="label">Ilm</div>
+          <div id="location" class="location">Pärnu · Yr.no andmed</div>
+          <button id="location-button" class="location-button">Kasuta minu asukohta</button>
+        </div>
+        <div class="condition">
+          <div class="condition-left">
+            <div id="weather-temp">--°</div>
+            <div id="weather-icon" class="weather-icon">☀️</div>
+          </div>
+          
+          <div class="yr-bar">
+            <div class="yr-row-main">
+              <div class="yr-detail">💧 <span id="yr-precip">0 mm</span></div>
+              <div class="yr-detail">
+                <span id="yr-wind">--</span>
+                <span id="yr-wind-arrow" class="yr-wind-arrow">↗</span>
+                <small>m/s</small>
+              </div>
+            </div>
+            <div id="yr-feels" class="yr-feels">Tajutav: --°</div>
+          </div>
+        </div>
+        <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
+      </section>
+
+      <!-- RAADIO PLAYER -->
+      <section id="radio-card" class="card radio">
+        <div class="radio-top">
+          <div class="label">Raadio & Striimid</div>
+          <div class="radio-stations">
+            <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">📻 Sky Plus</button>
+            <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">🔥 WKNDMX</button>
+            <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">⚡ Q-Dance</button>
+            <button id="btn-station-hardcore" class="station-btn" data-name="SUNSHINE LIVE HARDCORE" data-url="https://stream.sunshine-live.de/Hardcore/mp3-192/stream.sunshine-live.de/">💀 Hardcore</button>
+            <button id="btn-station-dnb" class="station-btn" data-name="DIFFERENT DRUMZ DNB" data-url="https://differentdrumz.radioca.st/electronic.mp3">🥁 DnB</button>
+          </div>
+        </div>
+
+        <div class="radio-middle">
+          <div class="visualizer-wrapper">
+            <div class="visualizer" aria-hidden="true">
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="radio-bottom">
+          <div class="radio-info">
+            <h2 id="current-station-name" class="radio-name">SKY PLUS</h2>
+            <span id="radio-status">Valmis mängima</span>
+          </div>
+
+          <button id="play-button" class="play" aria-label="Mängi raadiot">
+            <svg id="play-icon" viewBox="0 0 24 24">
+              <path d="M8 5.14v14l11-7-11-7z"/>
+            </svg>
+          </button>
+        </div>
+
+        <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
+      </section>
+
+    </main>
+    <footer>
+      <span id="updated">Uuendatakse automaatselt</span>
+      <button id="theme-button" class="theme-btn" aria-label="Vaheta kujundust">
+        <span class="theme-dot"></span>
+        <span>Teema: <strong id="theme-name">Midnight Indigo</strong></span>
+      </button>
+    </footer>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const fmt = value => Number(value).toLocaleString('et-EE', {minimumFractionDigits:2, maximumFractionDigits:2});
+    let prices = [];
+
+    // --- TEEMADE VAHETUS ---
+    const themes = [
+      { id: 'indigo',  name: 'Midnight Indigo', color: '#0f1429' },
+      { id: 'ocean',   name: 'Ookean',          color: '#07121f' },
+      { id: 'emerald', name: 'Smaragd',         color: '#061512' },
+      { id: 'oled',    name: 'OLED Kuld',       color: '#060609' }
+    ];
+
+    function applyTheme(themeId) {
+      const theme = themes.find(t => t.id === themeId) || themes[0];
+      document.documentElement.setAttribute('data-theme', theme.id);
+      $('theme-name').textContent = theme.name;
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', theme.color);
+      try { localStorage.setItem('koduvaade_theme', theme.id); } catch(e) {}
+      if (prices.length) {
+        const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000);
+        drawChart(prices.filter(p => p.time >= (current?.time ?? now)).slice(0, 24));
+      }
+    }
+
+    $('theme-button').addEventListener('click', () => {
+      const currentId = document.documentElement.getAttribute('data-theme') || 'indigo';
+      const nextIndex = (themes.findIndex(t => t.id === currentId) + 1) % themes.length;
+      applyTheme(themes[nextIndex].id);
+    });
+
+    try {
+      const savedTheme = localStorage.getItem('koduvaade_theme');
+      if (savedTheme) applyTheme(savedTheme);
+    } catch(e) {}
+
+    // --- KELL JA KUUPÄEV ---
+    function updateClock(){ 
+      const d = new Date(); 
+      $('clock').textContent = d.toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'});
+      $('date').textContent = d.toLocaleDateString('et-EE', {weekday:'long', day:'numeric', month:'long'}); 
+    }
+
+    // --- CANVAS GRAAFIK ---
+    function drawChart(data){
+      const canvas = $('price-chart');
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d'), rect = canvas.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+      canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr); 
+      const w = rect.width, h = rect.height;
+      if(data.length < 2) return; 
+
+      const styles = getComputedStyle(document.documentElement);
+      const colGreen = styles.getPropertyValue('--green').trim() || '#34d399';
+      const colOrange = styles.getPropertyValue('--orange').trim() || '#fbbf24';
+      const colRed = styles.getPropertyValue('--red').trim() || '#f43f5e';
+      const colMuted = styles.getPropertyValue('--muted').trim() || '#a5b4fc';
+      const colText = styles.getPropertyValue('--text').trim() || '#f5f7ff';
+
+      const values = data.map(x => x.price), max = Math.max(...values) || 1, average = values.reduce((sum, value) => sum + value, 0) / values.length;
+      const left = 4, right = 4, top = 26, bottom = 22, chartHeight = h - top - bottom, slot = (w - left - right) / data.length, barWidth = Math.max(2, slot - 4), now = Date.now();
+      
+      ctx.strokeStyle = 'rgba(190,214,232,.12)'; ctx.lineWidth = 1; 
+      for(let i = 1; i <= 3; i++){ const y = top + chartHeight * i / 3; ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(w - right, y); ctx.stroke(); }
+      
+      data.forEach((point, index) => {
+        const x = left + index * slot + (slot - barWidth) / 2, barHeight = Math.max(3, point.price / max * chartHeight), y = top + chartHeight - barHeight; 
+        const color = point.price <= average * .75 ? colGreen : point.price <= average * 1.25 ? colOrange : colRed; 
+        ctx.fillStyle = color; ctx.fillRect(x, y, barWidth, barHeight); 
+        if(point.time <= now && now < point.time + 3600000){ ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, barWidth + 2, barHeight + 2); } 
+        ctx.fillStyle = colText; ctx.font = '700 10px system-ui'; ctx.textAlign = 'center'; ctx.fillText(point.price.toFixed(1), x + barWidth / 2, Math.max(13, y - 5)); 
+        ctx.fillStyle = colMuted; ctx.font = '600 10px system-ui'; ctx.fillText(new Date(point.time).toLocaleTimeString('et-EE', {hour:'2-digit'}), x + barWidth / 2, h - 5); 
+      });
+    }
+
+    async function fetchJson(endpoint){
+      const controller = new AbortController(); 
+      const timer = setTimeout(() => controller.abort(), 6000);
+      try { 
+        const response = await fetch(endpoint, {cache:'no-store', signal:controller.signal}); 
+        if(!response.ok) throw Error(`HTTP ${response.status}`); 
+        const json = await response.json();
+        return typeof json === 'string' ? JSON.parse(json) : json;
+      } finally { clearTimeout(timer); }
+    }
+
+    // --- ELEKTRIHIND ---
+    async function loadElectricity(){
+      const start = new Date(); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 2);
+      try { 
+        const params = `start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
+        const endpoints = [
+          `/api/elering?${params}`,
+          `https://dashboard.elering.ee/api/nps/price?${params}`
+        ];
+
+        let json = null;
+        for (const ep of endpoints) {
+          try {
+            json = await fetchJson(ep);
+            if (json?.data?.ee?.length) break;
+          } catch(e) {}
+        }
+
+        const raw = json?.data?.ee || [];
+        
+        const quarterPrices = raw.map(v => { 
+          const time = Number(v.timestamp ?? v[0]); 
+          return {time: time < 20000000000 ? time * 1000 : time, price: Number(v.price ?? v[1]) / 10}; 
+        }).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price));
+
+        const byHour = new Map(); 
+        for(const entry of quarterPrices){ 
+          const hour = new Date(entry.time); 
+          hour.setMinutes(0,0,0); 
+          const key = hour.getTime(); 
+          const bucket = byHour.get(key) || {time: key, sum: 0, count: 0}; 
+          bucket.sum += entry.price; bucket.count++; 
+          byHour.set(key, bucket); 
+        }
+
+        const rangeStart = new Date(); rangeStart.setHours(0,0,0,0); 
+        const rangeEnd = new Date(rangeStart); rangeEnd.setDate(rangeEnd.getDate() + 2); 
+        
+        prices = [...byHour.values()]
+          .map(item => ({time: item.time, price: (item.sum / item.count) * 1.24}))
+          .filter(item => item.time >= rangeStart.getTime() && item.time < rangeEnd.getTime())
+          .sort((a, b) => a.time - b.time); 
+
+        if(!prices.length) throw Error('Hinnakirjeid ei leitud'); 
+        
+        const now = Date.now(); 
+        const current = prices.find(p => p.time <= now && now < p.time + 3600000) || prices[0]; 
+        const upcoming = prices.find(p => p.time > current.time) || current; 
+        
+        $('price').textContent = fmt(current.price);
+        $('price-caption').textContent = `Praegu · ${new Date(current.time).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})}–${new Date(current.time+3600000).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})} · km-ga`; 
+        $('average').textContent = `${fmt(prices.reduce((s, p) => s + p.price, 0) / prices.length)} s`; 
+        $('next-price').textContent = `${fmt(upcoming.price)} s`; 
+        const high = prices.reduce((a, b) => a.price > b.price ? a : b); 
+        $('lowest').textContent = `${fmt(high.price)} s`; 
+        $('updated').textContent = `Elektrihind uuendatud ${new Date().toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})}`; 
+        $('price-status').textContent = 'VÄRSKE'; 
+        $('price-status').className = 'status'; 
+        
+        drawChart(prices.filter(p => p.time >= current.time).slice(0, 24));
+      } catch(e) { 
+        $('price-status').textContent = 'ÜHENDUSE TÕRGE'; 
+        $('price-status').className = 'status error';
+        $('price-caption').textContent = 'Elektrihinna teenus ei vasta praegu. Proovin peagi uuesti.'; 
+      }
+    }
+
+    // --- YR.NO ILM ---
+    function getWeatherIcon(symbol) {
+      if (!symbol) return '🌤️';
+      const isNight = symbol.includes('_night');
+      const base = symbol.replace(/_[a-z]+$/, '');
+
+      switch (base) {
+        case 'clearsky': return isNight ? '🌙' : '☀️';
+        case 'fair': return isNight ? '☁️' : '🌤️';
+        case 'partlycloudy': return isNight ? '☁️' : '⛅';
+        case 'cloudy': return '☁️';
+        case 'rain': case 'lightrain': case 'heavyrain': return '🌧️';
+        case 'rainshowers': case 'lightrainshowers': case 'heavyrainshowers': return isNight ? '🌧️' : '🌦️';
+        case 'snow': case 'lightsnow': case 'heavysnow': return '❄️';
+        case 'snowshowers': case 'lightsnowshowers': return '🌨️';
+        case 'fog': return '🌫️';
+        case 'thunderstorm': case 'rainandthunder': return '⛈️';
+        default: return isNight ? '🌙' : '☀️';
+      }
+    }
+
+    let weatherPlace = {name:'Pärnu', lat:58.3859, lon:24.4971};
+
+    function renderForecast(timeseries){
+      const days = new Map();
+      for(const item of timeseries){ 
+        const date = new Date(item.time), key = date.toDateString(); 
+        if(!days.has(key)) days.set(key, {date, min:Infinity, max:-Infinity, representative:null, distance:Infinity}); 
+        const day = days.get(key), details = item.data.instant.details; 
+        day.min = Math.min(day.min, details.air_temperature); 
+        day.max = Math.max(day.max, details.air_temperature); 
+        const distance = Math.abs(date.getHours() - 13); 
+        if(distance < day.distance){ day.distance = distance; day.representative = item; }
+      }
+      
+      const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 5); 
+      $('forecast').innerHTML = selected.map((day, index) => {
+        const symbol = day.representative?.data.next_1_hours?.summary?.symbol_code || day.representative?.data.next_6_hours?.summary?.symbol_code || 'fair_day';
+        const icon = getWeatherIcon(symbol);
+        const name = index === 0 ? 'Täna' : (index === 1 ? 'Homme' : day.date.toLocaleDateString('et-EE', {weekday:'short'}).replace('.', ''));
+        return `<div class="forecast-day"><span>${name}</span><span class="forecast-icon">${icon}</span><span class="forecast-temp">${Math.round(day.min)}° / ${Math.round(day.max)}°</span></div>`;
+      }).join('');
+    }
+
+    async function loadWeather(){
+      try { 
+        const r = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${weatherPlace.lat}&lon=${weatherPlace.lon}`); 
+        if(!r.ok) throw Error(); 
+        const json = await r.json();
+        const timeseries = json.properties.timeseries;
+        const currentItem = timeseries[0];
+        const p = currentItem.data.instant.details; 
+        const symbol = currentItem.data.next_1_hours?.summary?.symbol_code || currentItem.data.next_6_hours?.summary?.symbol_code || 'fair_day'; 
+        
+        $('weather-temp').textContent = `${Math.round(p.air_temperature)}°`; 
+        $('weather-icon').textContent = getWeatherIcon(symbol);
+        $('location').textContent = `${weatherPlace.name} · Yr.no andmed`;
+
+        const precip = currentItem.data.next_1_hours?.details?.precipitation_amount ?? 0;
+        $('yr-precip').textContent = `${precip} mm`;
+
+        const speed = Math.round(p.wind_speed || 0);
+        const gust = p.wind_speed_of_gust ? Math.round(p.wind_speed_of_gust) : speed;
+        $('yr-wind').textContent = `${speed} (${gust})`;
+
+        if (p.wind_from_direction !== undefined) {
+          $('yr-wind-arrow').style.transform = `rotate(${p.wind_from_direction + 180}deg)`;
+        }
+
+        const t = p.air_temperature;
+        const v = (p.wind_speed || 0) * 3.6;
+        let feelsLike = t;
+        if (t <= 10 && v >= 4.8) {
+          feelsLike = 13.12 + 0.6215 * t - 11.37 * Math.pow(v, 0.16) + 0.3965 * t * Math.pow(v, 0.16);
+        }
+        $('yr-feels').textContent = `Tajutav: ${Math.round(feelsLike)}°`;
+
+        renderForecast(timeseries); 
+      } catch(e){ 
+        $('weather-temp').textContent = '--°'; 
+        $('yr-wind').textContent = '--';
+        $('yr-feels').textContent = 'Tajutav: --°';
+      }
+    }
+
+    async function placeNameFromCoordinates(lat,lon){
+      try { 
+        const url=`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=10&accept-language=et`; 
+        const response=await fetchJson(url); 
+        const address=response.address||{}; 
+        return address.city||address.town||address.village||address.municipality||address.county||response.display_name?.split(',')[0]||'Minu asukoht'; 
+      } catch(e){ return 'Minu asukoht'; }
+    }
+
+    $('location-button').addEventListener('click',()=>{ 
+      if(!navigator.geolocation){$('location-button').textContent='GPS pole saadaval';return;}
+      $('location-button').textContent='Otsin asukohta…'; 
+      navigator.geolocation.getCurrentPosition(async position=>{
+        const lat=position.coords.latitude.toFixed(4),lon=position.coords.longitude.toFixed(4);
+        weatherPlace={name:'Asukoha määramine…',lat,lon};
+        $('location').textContent='Asukoha määramine… · Yr.no andmed';
+        loadWeather();
+        weatherPlace.name=await placeNameFromCoordinates(lat,lon);
+        $('location').textContent=`${weatherPlace.name} · Yr.no andmed`;
+        $('location-button').textContent='Asukoht leitud';
+      },()=>{$('location-button').textContent='Asukoha luba puudub';},{enableHighAccuracy:false,timeout:10000,maximumAge:600000}); 
+    });
+
+    // --- RAADIO LOOGIKA ---
+    const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
+    let currentStationName = "SKY PLUS";
+
+    const svgPlay = '<path d="M8 5.14v14l11-7-11-7z"/>';
+    const svgPause = '<path d="M6 5h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1zm8 0h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1z"/>';
+
+    function setStation(btn, name, url) {
+      document.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      currentStationName = name;
+      $('current-station-name').textContent = name;
+      
+      const wasPlaying = !radio.paused;
+      radio.src = url;
+      radio.load();
+      
+      if (wasPlaying) {
+        radio.play().catch(() => $('radio-status').textContent = 'Käivitustõrge');
+      } else {
+        $('radio-status').textContent = 'Valmis mängima';
+      }
+    }
+
+    $('btn-station-sky').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-slam').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-qdance').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-hardcore').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+    $('btn-station-dnb').addEventListener('click', function() { setStation(this, this.dataset.name, this.dataset.url); });
+
+    play.addEventListener('click', async () => {
+      try { 
+        if (radio.paused) { 
+          await radio.play(); 
+        } else { 
+          radio.pause(); 
+        } 
+      } catch(e) { 
+        $('radio-status').textContent = 'Käivitustõrge'; 
+      }
+    });
+
+    radio.addEventListener('play', () => { 
+      playIcon.innerHTML = svgPause;
+      play.setAttribute('aria-label', `Peata ${currentStationName}`); 
+      $('radio-status').textContent = 'Otse-eetris'; 
+      radioCard.classList.add('playing');
+    });
+
+    radio.addEventListener('pause', () => { 
+      playIcon.innerHTML = svgPlay;
+      play.setAttribute('aria-label', `Mängi ${currentStationName}`); 
+      $('radio-status').textContent = 'Pausil'; 
+      radioCard.classList.remove('playing');
+    });
+
+    // --- KÄIVITUS ---
+    updateClock(); 
+    setInterval(updateClock, 1000); 
+    loadElectricity(); 
+    loadWeather(); 
+    setInterval(loadElectricity, 10 * 60 * 1000); 
+    setInterval(loadWeather, 30 * 60 * 1000); 
+    
+    addEventListener('resize', () => {
+      const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000); 
+      drawChart(prices.filter(p => p.time >= (current?.time ?? now)).slice(0, 24));
+    });
+  </script>
+</body>
+</html>

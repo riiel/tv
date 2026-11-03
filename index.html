@@ -169,7 +169,7 @@
       letter-spacing: 0.08em;
     }
 
-    /* --- 1. ELEKTRI BÖRSIHIND (ÜLEVAL VASAKUL) --- */
+    /* --- 1. ELEKTRI BÖRSIHIND --- */
     .status-pill {
       color: var(--cyan);
       background: rgba(34, 211, 238, 0.12);
@@ -272,7 +272,7 @@
     }
     .elec-stats-inline strong { color: var(--text); font-weight: 750; }
 
-    /* --- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) --- */
+    /* --- 2. ILM & PROGNOOS --- */
     .location-badge {
       font-size: clamp(11px, 0.95vw, 15px);
       font-weight: 800;
@@ -391,7 +391,7 @@
       font-weight: 750;
     }
 
-    /* --- 3. FINANTSID & PORTFELL (ALL VASAKUL) --- */
+    /* --- 3. FINANTSID & PORTFELL --- */
     .portfolio-tabs {
       display: flex;
       align-items: center;
@@ -433,12 +433,12 @@
 
     .portfolio-body {
       display: grid;
-      grid-template-columns: 1.25fr 0.95fr;
-      gap: 1.4vw;
+      grid-template-columns: 1.32fr 0.88fr;
+      gap: 1.2vw;
       flex: 1;
       min-height: 0;
       align-items: center;
-      margin-top: 0.8vh;
+      margin-top: 0.6vh;
     }
 
     .asset-list {
@@ -446,19 +446,23 @@
       flex-direction: column;
       justify-content: space-around;
       height: 100%;
+      overflow-y: auto;
+      padding-right: 4px;
     }
     .asset-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.6vh 0;
+      padding: 0.55vh 0;
       border-bottom: 1px solid var(--line-soft);
+      gap: 8px;
     }
     .asset-row:last-child { border-bottom: none; }
     .asset-left {
       display: flex;
       align-items: center;
       gap: 10px;
+      min-width: 0;
     }
     .asset-badge {
       width: clamp(26px, 2.1vw, 34px);
@@ -467,29 +471,41 @@
       display: grid;
       place-items: center;
       font-weight: 800;
-      font-size: clamp(10px, 0.85vw, 13px);
+      font-size: clamp(9px, 0.8vw, 12px);
       color: #fff;
       flex-shrink: 0;
     }
     .asset-info {
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
     .asset-symbol {
       font-weight: 750;
-      font-size: clamp(11px, 0.95vw, 15px);
+      font-size: clamp(11px, 0.92vw, 14px);
       color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .asset-price {
-      font-size: clamp(10px, 0.82vw, 13px);
+    .asset-sub {
+      font-size: clamp(9.5px, 0.78vw, 12px);
       color: var(--muted);
       font-weight: 600;
+      display: flex;
+      gap: 6px;
+    }
+    .asset-sub strong {
+      color: #e2e8f0;
+      font-weight: 700;
     }
     .change-pill {
       padding: 3px 9px;
       border-radius: 999px;
-      font-size: clamp(10px, 0.82vw, 13px);
+      font-size: clamp(10px, 0.8vw, 12.5px);
       font-weight: 750;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .change-pill.up {
       color: #34d399;
@@ -537,8 +553,13 @@
       color: var(--pink);
       text-shadow: 0 0 22px rgba(236, 72, 153, 0.35);
     }
+    .total-profit {
+      font-size: clamp(10px, 0.82vw, 13px);
+      font-weight: 700;
+      margin-top: 1px;
+    }
 
-    /* --- 4. RAADIO & STRIIMID (ALL PAREMAL - LÄBIPAISTVA TAUSTA-EKVALAISERIGA) --- */
+    /* --- 4. RAADIO & STRIIMID --- */
     .radio-bg-canvas {
       position: absolute;
       inset: 0;
@@ -549,9 +570,7 @@
       opacity: 0.22;
       transition: opacity 0.5s ease;
     }
-    .playing .radio-bg-canvas {
-      opacity: 0.58;
-    }
+    .playing .radio-bg-canvas { opacity: 0.58; }
 
     .live-indicator {
       display: inline-flex;
@@ -597,10 +616,7 @@
       margin: auto 0;
       padding: 1vh 0;
     }
-    .radio-title-wrap {
-      min-width: 0;
-      flex: 1;
-    }
+    .radio-title-wrap { min-width: 0; flex: 1; }
     .radio-name {
       font-size: clamp(28px, 3vw, 48px);
       font-weight: 850;
@@ -713,49 +729,163 @@
       background: var(--accent-grad);
     }
 
-    /* PORTFELLI SEADISTAMISE MODAL */
+    /* --- NUTIKAS OTSINGUGA PORTFELLI MODAL --- */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(5, 8, 20, 0.82);
-      backdrop-filter: blur(8px);
+      background: rgba(5, 8, 20, 0.85);
+      backdrop-filter: blur(10px);
       display: none;
       place-items: center;
       z-index: 50;
     }
     .modal-backdrop.open { display: grid; }
     .modal {
-      width: min(580px, 92vw);
+      width: min(620px, 94vw);
+      max-height: 90vh;
+      overflow-y: auto;
       background: #121735;
       border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 22px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+      color: var(--text);
     }
-    .modal h3 { margin: 0 0 6px; font-size: 18px; }
-    .modal p { margin: 0 0 14px; font-size: 12px; color: var(--muted); line-height: 1.45; }
-    .modal textarea {
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .modal-header h3 { margin: 0; font-size: 19px; }
+
+    .modal-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+      font-weight: 700;
+      margin: 14px 0 8px;
+    }
+
+    /* Praeguste varade nimekiri modalis */
+    .modal-current-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .modal-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .modal-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .modal-item-info small { color: var(--muted); font-size: 11px; }
+    .modal-del-btn {
+      color: #fb7185;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      font-size: 12px;
+    }
+    .modal-del-btn:hover { background: rgba(244, 63, 94, 0.25); }
+
+    /* Otsingu väli ja soovituste rippmenüü */
+    .search-box-wrap { position: relative; }
+    .modal-input {
       width: 100%;
-      height: 150px;
       background: #0b0f24;
       color: #fff;
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 10px;
-      font-family: monospace;
-      font-size: 13px;
+      padding: 10px 14px;
+      font-size: 14px;
+      outline: none;
     }
+    .modal-input:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2); }
+
+    .search-results {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #0d122b;
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      max-height: 210px;
+      overflow-y: auto;
+      z-index: 60;
+      display: none;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+    }
+    .search-results.open { display: block; }
+    .search-option {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--line-soft);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .search-option:last-child { border-bottom: none; }
+    .search-option:hover { background: rgba(34, 211, 238, 0.15); }
+    .s-opt-left { display: flex; flex-direction: column; }
+    .s-opt-sym { font-weight: 800; color: var(--cyan); font-size: 13px; }
+    .s-opt-name { font-size: 12px; color: #e2e8f0; }
+    .s-opt-exch { font-size: 11px; color: var(--muted); background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 99px; }
+
+    /* Samm 2: Koguse ja nime küsimine */
+    .add-details-box {
+      margin-top: 12px;
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      display: none;
+    }
+    .add-details-box.open { display: block; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .form-field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
     .modal-actions {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 14px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line-soft);
     }
 
     @media (max-aspect-ratio: 1/1) {
       body { overflow: auto; min-width: 0; }
       .screen { height: auto; min-height: 100vh; padding: 16px; }
       main { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -771,7 +901,7 @@
     </header>
 
     <main>
-      <!-- 1. ELEKTRI BÖRSIHIND (ÜLEVAL VASAKUL) -->
+      <!-- 1. ELEKTRI BÖRSIHIND -->
       <section class="card">
         <div class="card-head">
           <span class="label">Elektri börsihind</span>
@@ -806,7 +936,7 @@
         </div>
       </section>
 
-      <!-- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) -->
+      <!-- 2. ILM & PROGNOOS -->
       <section class="card">
         <div class="card-head">
           <span class="label">Ilm & Prognoos • <span id="location" class="location-badge">Pärnu • Yr.no</span></span>
@@ -850,7 +980,7 @@
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- 3. FINANTSID & PORTFELL (ALL VASAKUL) -->
+      <!-- 3. FINANTSID & PORTFELL -->
       <section class="card">
         <div class="card-head">
           <span class="label">Finantsid & Portfell</span>
@@ -859,7 +989,7 @@
             <button class="user-tab" data-user="1" id="tab-user-1">Naine</button>
             <button class="user-tab" data-user="2" id="tab-user-2">Poiss</button>
             <button class="icon-btn" id="btn-privacy" title="Peida/näita portfelli summa">👁️</button>
-            <button class="icon-btn" id="btn-edit-portfolio" title="Muuda sümboleid ja koguseid">✎</button>
+            <button class="icon-btn" id="btn-edit-portfolio" title="Lisa või muuda varasid">✎</button>
           </div>
         </div>
 
@@ -888,12 +1018,13 @@
             <div class="total-box">
               <div class="total-label" id="total-label">Portfell kokku</div>
               <div class="total-value" id="total-value">-- €</div>
+              <div class="total-profit" id="total-profit"></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 4. RAADIO & STRIIMID (ALL PAREMAL - LÄBIPAISTVA TAUSTA-HELILAINEGA) -->
+      <!-- 4. RAADIO & STRIIMID -->
       <section id="radio-card" class="card radio">
         <canvas id="radio-visualizer" class="radio-bg-canvas" aria-hidden="true"></canvas>
 
@@ -942,19 +1073,49 @@
     </footer>
   </div>
 
-  <!-- PORTFELLI MUUTMISE MODAL -->
+  <!-- NUTIKAS OTSINGUGA PORTFELLI HALDAMISE MODAL -->
   <div class="modal-backdrop" id="portfolio-modal">
     <div class="modal">
-      <h3 id="modal-title">Muuda kasutaja portfelli</h3>
-      <p>Kirjuta iga vara eraldi reale kujul: <strong>SÜMBOL, NIMI, KOGUS</strong><br>
-      Näited:<br>
-      <code>VUAA.DE, Vanguard S&P 500, 5</code><br>
-      <code>93M1.DE, MPH Health Care AG, 10</code><br>
-      <code>SXR8.DE, LHV S&P 500, 8</code> või <code>BTCEUR, BTC / EUR, 0.15</code></p>
-      <textarea id="modal-textarea"></textarea>
+      <div class="modal-header">
+        <h3 id="modal-title">Halda portfelli: Karmo</h3>
+        <button class="pill-btn" id="modal-close-x">✕ Sulge</button>
+      </div>
+
+      <div class="modal-section-title">Praegused varad portfellis</div>
+      <div class="modal-current-list" id="modal-current-list"></div>
+
+      <div class="modal-section-title">Lisa uus aktsia, fond (ETF) või krüpto</div>
+      <div class="search-box-wrap">
+        <input type="text" id="asset-search-input" class="modal-input" placeholder="Hakka kirjutama nime või sümbolit (nt VUAA, COINETHE, 93M1, BTC, Nvidia)..." autocomplete="off" />
+        <div class="search-results" id="search-results"></div>
+      </div>
+
+      <!-- Avaneb kohe, kui kasutaja valib otsingust vara -->
+      <div class="add-details-box" id="add-details-box">
+        <div style="font-size:13px;font-weight:700;color:var(--cyan);" id="selected-ticker-info">Valitud: VUAA.DE</div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Kuvatav nimi ekraanil</label>
+            <input type="text" id="add-name-input" class="modal-input" placeholder="nt Vanguard S&P 500" />
+          </div>
+          <div class="form-field">
+            <label>Kogus (tk)</label>
+            <input type="text" id="add-qty-input" class="modal-input" placeholder="nt 2.5502" />
+          </div>
+          <div class="form-field">
+            <label>Keskm. ostuhind € (valikuline)</label>
+            <input type="text" id="add-buy-input" class="modal-input" placeholder="nt 131.85" />
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
+          <button class="pill-btn" id="btn-cancel-add">Tühista</button>
+          <button class="pill-btn" style="background:var(--accent-grad);color:#fff;border:none;padding:6px 16px;" id="btn-confirm-add">＋ Lisa portfelli</button>
+        </div>
+      </div>
+
       <div class="modal-actions">
-        <button class="pill-btn" id="modal-cancel">Loobu</button>
-        <button class="pill-btn" style="background:var(--accent-grad);color:#fff;border:none;" id="modal-save">Salvesta</button>
+        <button class="pill-btn" id="btn-reset-defaults" title="Taasta algseaded">Taasta näidisandmed</button>
+        <button class="pill-btn" style="background:var(--cyan);color:#062035;border:none;padding:7px 18px;font-weight:800;" id="modal-done">Valmis</button>
       </div>
     </div>
   </div>
@@ -1051,7 +1212,7 @@
       });
     }
 
-    async function fetchJson(endpoint, timeoutMs = 6000){
+    async function fetchJson(endpoint, timeoutMs = 5000){
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -1118,7 +1279,7 @@
       }
     }
 
-    // --- 2. YR.NO ILM + TÄPNE KOHANIMI KOORDINAATIDEST ---
+    // --- 2. YR.NO ILM ---
     function getWeatherIcon(symbol) {
       if (!symbol) return '🌤️';
       const isNight = symbol.includes('_night');
@@ -1170,7 +1331,6 @@
     } catch(e) {}
 
     async function placeNameFromCoordinates(lat, lon) {
-      // 1. OpenStreetMap Nominatim
       try {
         const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=10&accept-language=et`;
         const response = await fetchJson(url, 4500);
@@ -1178,7 +1338,6 @@
         const name = addr.city || addr.town || addr.village || addr.municipality || addr.county || response?.name;
         if (name) return name.replace(/ linn$| vald$| maakond$/i, '');
       } catch(e) {}
-      // 2. BigDataCloud varuvariant
       try {
         const url2 = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&localityLanguage=et`;
         const response2 = await fetchJson(url2, 4500);
@@ -1266,79 +1425,63 @@
       }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
     });
 
-    // --- 3. FINANTSID & PORTFELL (NUTIKAS SÜMBOLIOTSING: VANGUARD, MPH, LHV JT) ---
-    const SYMBOL_ALIASES = {
-      'VANGUARD S&P 500': 'VUAA.DE',
-      'VANGUARD S&P500':  'VUAA.DE',
-      'VANGUARD':         'VUAA.DE',
-      'VUAA':             'VUAA.DE',
-      'VUSA':             'VUSA.DE',
-      'MPH HEALT CARE AG':'93M1.DE',
-      'MPH HEALTH CARE AG':'93M1.DE',
-      'MPH HEALTH CARE':  '93M1.DE',
-      'MPH HEALT':        '93M1.DE',
-      'MPH':              '93M1.DE',
-      '93M1':             '93M1.DE',
-      'LHV S&P 500':      'SXR8.DE',
-      'LHV S&P500':       'SXR8.DE',
-      'SXR8':             'SXR8.DE',
-      'LHV MAAILM':       'EUNL.DE',
-      'EUNL':             'EUNL.DE',
-      'LHV NASDAQ':       'EXXT.DE',
-      'EXXT':             'EXXT.DE',
-      'BTC':              'BTCEUR',
-      'BITCOIN':          'BTCEUR',
-      'ETH':              'ETHEUR',
-      'ETHEREUM':         'ETHEUR',
-      'SOL':              'SOLEUR',
-      'SOLANA':           'SOLEUR'
-    };
+    // --- 3. FINANTSID & PORTFELL (OTSINGUSOOVITUSTE JA POSITSIOONI TÄPSE ARVUTUSEGA) ---
+    const POPULAR_INSTRUMENTS = [
+      { symbol: 'VUAA.DE',     name: 'Vanguard S&P 500 UCITS ETF (EUR)', exch: 'Xetra • ETF' },
+      { symbol: '93M1.F',      name: 'MPH Health Care AG',               exch: 'Frankfurt • Aktsia' },
+      { symbol: 'COINETHE.ST', name: 'LHV Kasvukonto • CoinShares Ethereum (COINETHE)', exch: 'Stockholm • ETP' },
+      { symbol: 'COINXBT.ST',  name: 'LHV Kasvukonto • CoinShares Bitcoin (COINXBT)',   exch: 'Stockholm • ETP' },
+      { symbol: 'SXR8.DE',     name: 'LHV Kasvukonto • iShares Core S&P 500 (SXR8)',    exch: 'Xetra • ETF' },
+      { symbol: 'EUNL.DE',     name: 'LHV Kasvukonto • iShares Core MSCI World (EUNL)', exch: 'Xetra • ETF' },
+      { symbol: 'EXXT.DE',     name: 'LHV Kasvukonto • iShares NASDAQ-100 (EXXT)',      exch: 'Xetra • ETF' },
+      { symbol: 'IS3N.DE',     name: 'LHV Kasvukonto • iShares EM IMI (IS3N)',          exch: 'Xetra • ETF' },
+      { symbol: 'INRG.DE',     name: 'LHV Kasvukonto • Global Clean Energy (INRG)',     exch: 'Xetra • ETF' },
+      { symbol: 'BTCEUR',      name: 'Bitcoin / EUR (Krüpto)',           exch: 'Binance • Krüpto' },
+      { symbol: 'ETHEUR',      name: 'Ethereum / EUR (Krüpto)',          exch: 'Binance • Krüpto' },
+      { symbol: 'SOLEUR',      name: 'Solana / EUR (Krüpto)',            exch: 'Binance • Krüpto' },
+      { symbol: 'XRPEUR',      name: 'XRP / EUR (Krüpto)',               exch: 'Binance • Krüpto' },
+      { symbol: 'ADAEUR',      name: 'Cardano / EUR (Krüpto)',           exch: 'Binance • Krüpto' },
+      { symbol: 'DOGEEUR',     name: 'Dogecoin / EUR (Krüpto)',          exch: 'Binance • Krüpto' },
+      { symbol: 'NVDA',        name: 'NVIDIA Corporation',               exch: 'NASDAQ • Aktsia' },
+      { symbol: 'AAPL',        name: 'Apple Inc.',                       exch: 'NASDAQ • Aktsia' },
+      { symbol: 'TSLA',        name: 'Tesla, Inc.',                      exch: 'NASDAQ • Aktsia' },
+      { symbol: 'MSFT',        name: 'Microsoft Corporation',            exch: 'NASDAQ • Aktsia' },
+      { symbol: 'AMZN',        name: 'Amazon.com, Inc.',                 exch: 'NASDAQ • Aktsia' }
+    ];
 
-    const defaultPortfolios = [
+    const getDefaultPortfolios = () => [
       {
         name: 'Karmo',
         assets: [
-          { symbol: 'VUAA.DE', label: 'Vanguard S&P 500',   qty: 10, icon: 'V',  color: '#f59e0b' },
-          { symbol: '93M1.DE', label: 'MPH Health Care AG', qty: 15, icon: 'M',  color: '#6366f1' },
-          { symbol: 'SXR8.DE', label: 'LHV S&P 500',        qty: 8,  icon: '📈', color: '#10b981' }
+          { symbol: 'VUAA.DE',     label: 'Vanguard S&P 500',   qty: 2.55024329, buyPrice: 131.85, color: '#f59e0b' },
+          { symbol: '93M1.F',      label: 'MPH Health Care AG', qty: 3.66300366, buyPrice: 27.30,  color: '#38bdf8' },
+          { symbol: 'COINETHE.ST', label: 'LHV • COINETHE',     qty: 1.469,      buyPrice: 143.03, color: '#10b981' }
         ]
       },
       {
         name: 'Naine',
         assets: [
-          { symbol: 'EUNL.DE', label: 'LHV Maailm',   qty: 25, icon: '🌍', color: '#8b5cf6' },
-          { symbol: 'AAPL',    label: 'Apple (AAPL)', qty: 10, icon: '🍎', color: '#38bdf8' },
-          { symbol: 'SOLEUR',  label: 'SOL / EUR',    qty: 12, icon: '◎', color: '#ec4899' }
+          { symbol: 'EUNL.DE', label: 'LHV Maailm (EUNL)', qty: 10, buyPrice: 95.00, color: '#8b5cf6' },
+          { symbol: 'SXR8.DE', label: 'LHV S&P 500',       qty: 2,  buyPrice: 540.00, color: '#ec4899' }
         ]
       },
       {
         name: 'Poiss',
         assets: [
-          { symbol: 'EXXT.DE', label: 'LHV Nasdaq',   qty: 6,    icon: '🚀', color: '#22d3ee' },
-          { symbol: 'NVDA',    label: 'Nvidia',       qty: 5,    icon: '⚡', color: '#10b981' },
-          { symbol: 'BTCEUR',  label: 'Bitcoin',      qty: 0.02, icon: '₿', color: '#f59e0b' }
+          { symbol: 'EXXT.DE', label: 'LHV Nasdaq-100', qty: 4,    buyPrice: 175.00, color: '#22d3ee' },
+          { symbol: 'BTCEUR',  label: 'Bitcoin',        qty: 0.01, buyPrice: 60000,  color: '#f59e0b' }
         ]
       }
     ];
 
-    let portfolios = defaultPortfolios;
+    let portfolios = getDefaultPortfolios();
     try {
-      const saved = localStorage.getItem('koduvaade_portfolios_v1');
+      const saved = localStorage.getItem('koduvaade_portfolios_v2');
       if (saved) portfolios = JSON.parse(saved);
     } catch(e) {}
 
     let activeUser = 0;
     let hideTotals = false;
-
-    function resolveSymbol(rawSym, rawLabel) {
-      const s = (rawSym || '').trim().toUpperCase();
-      const l = (rawLabel || '').trim().toUpperCase();
-      if (SYMBOL_ALIASES[s]) return SYMBOL_ALIASES[s];
-      if (SYMBOL_ALIASES[l]) return SYMBOL_ALIASES[l];
-      if (s.includes('VANGUARD') || l.includes('VANGUARD')) return 'VUAA.DE';
-      if (s.includes('MPH') || l.includes('MPH')) return '93M1.DE';
-      return s;
-    }
 
     async function fetchYahooDirect(ticker) {
       const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`;
@@ -1356,9 +1499,11 @@
           }
           const meta = data?.chart?.result?.[0]?.meta;
           if (meta?.regularMarketPrice) {
-            const price = Number(meta.regularMarketPrice);
-            const prev = Number(meta.chartPreviousClose || meta.previousClose || price);
+            let price = Number(meta.regularMarketPrice);
+            let prev = Number(meta.chartPreviousClose || meta.previousClose || price);
             const change = prev ? ((price - prev) / prev) * 100 : 0;
+            // Kui USA aktsia on dollarites, teisendame ligikaudu eurodesse
+            if (meta.currency === 'USD') price = price * 0.92;
             return { price, change };
           }
         } catch(e) {}
@@ -1366,21 +1511,8 @@
       return null;
     }
 
-    async function searchYahooTicker(query) {
-      try {
-        const searchUrl = `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=5`;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`;
-        const data = await fetchJson(proxyUrl, 4500);
-        const quotes = data?.quotes || [];
-        const euroMatch = quotes.find(q => q.symbol?.endsWith('.DE') || q.symbol?.endsWith('.F') || q.symbol?.endsWith('.AS'));
-        return (euroMatch || quotes[0])?.symbol || null;
-      } catch(e) {
-        return null;
-      }
-    }
-
-    async function fetchAssetData(rawSymbol, rawLabel) {
-      let clean = resolveSymbol(rawSymbol, rawLabel);
+    async function fetchAssetData(symbol) {
+      const clean = (symbol || '').trim().toUpperCase();
 
       // 1. Krüptopaarid otse Binance'ist
       if (clean.endsWith('EUR') || clean.endsWith('USDT')) {
@@ -1393,36 +1525,28 @@
         } catch(e) {}
       }
 
-      // 2. Proovime otse sümboliga Yahoo Finance'ist
-      let res = await fetchYahooDirect(clean);
+      // 2. Aktsiad ja fondid Yahoo Finance'ist
+      const res = await fetchYahooDirect(clean);
       if (res) return res;
 
-      // 3. Kui kasutaja sisestas ettevõtte/fondi nime, otsime Yahoo'st õige sümboli
-      const foundTicker = await searchYahooTicker(rawLabel || rawSymbol);
-      if (foundTicker) {
-        res = await fetchYahooDirect(foundTicker);
-        if (res) return res;
-      }
-
-      // 4. Realistlikud varuväärtused juhuks kui võrk hetkeks katkeb
+      // 3. Täpsed varuväärtused (sh sinu ekraanipiltidelt), kui Yahoo ühendus hetkel viibib
       const fallbacks = {
-        'VUAA.DE': { price: 108.45, change: 0.78 },
-        'VUSA.DE': { price: 104.20, change: 0.74 },
-        '93M1.DE': { price: 25.40,  change: 1.20 },
-        'SXR8.DE': { price: 586.40, change: 0.85 },
-        'EUNL.DE': { price: 101.30, change: 0.62 },
-        'EXXT.DE': { price: 192.10, change: 1.15 },
-        'AAPL':    { price: 215.50, change: 0.45 },
-        'NVDA':    { price: 134.80, change: 2.10 }
+        'VUAA.DE':     { price: 131.13, change: -0.55 },
+        '93M1.F':      { price: 28.60,  change: 4.76  },
+        '93M1.DE':     { price: 28.60,  change: 4.76  },
+        'COINETHE.ST': { price: 168.09, change: 0.92  },
+        'SXR8.DE':     { price: 586.40, change: 0.85  },
+        'EUNL.DE':     { price: 101.30, change: 0.62  },
+        'EXXT.DE':     { price: 192.10, change: 1.15  }
       };
       return fallbacks[clean] || { price: 100.00, change: 0.00 };
     }
 
     async function drawSparkline(symbol) {
-      let points = [42, 45, 43, 49, 47, 53, 51, 56, 54, 60, 58, 64];
+      let points = [44, 46, 45, 49, 48, 52, 51, 55, 54, 58, 57, 61];
       try {
-        const clean = resolveSymbol(symbol, '');
-        const pair = (clean.endsWith('EUR') || clean.endsWith('USDT')) ? clean : 'BTCEUR';
+        const clean = (symbol || '').toUpperCase();
+        const pair = (clean.endsWith('EUR') || clean.endsWith('USDT')) ? clean : 'ETHEUR';
         const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=2h&limit=16`);
         if (r.ok) {
           const klines = await r.json();
@@ -1452,40 +1576,65 @@
       });
 
       let totalEur = 0;
+      let totalCostEur = 0;
       const rowsHtml = [];
+      const colors = ['#f59e0b', '#38bdf8', '#10b981', '#ec4899', '#8b5cf6'];
 
-      for (const item of user.assets) {
-        const data = await fetchAssetData(item.symbol, item.label);
-        const value = data.price * (Number(item.qty) || 0);
-        totalEur += value;
+      for (let i = 0; i < user.assets.length; i++) {
+        const item = user.assets[i];
+        const data = await fetchAssetData(item.symbol);
+        const qty = Number(item.qty) || 0;
+        const posValue = data.price * qty;
+        totalEur += posValue;
 
-        const isUp = data.change >= 0;
+        const buyPrice = Number(item.buyPrice) || 0;
+        let pctChange = data.change;
+        if (buyPrice > 0) {
+          pctChange = ((data.price - buyPrice) / buyPrice) * 100;
+          totalCostEur += buyPrice * qty;
+        } else {
+          totalCostEur += posValue;
+        }
+
+        const isUp = pctChange >= 0;
         const sign = isUp ? '+' : '';
-        const badgeColor = item.color || '#8b5cf6';
-        const cleanSym = resolveSymbol(item.symbol, item.label);
-        const icon = (item.icon && item.icon !== '📈') ? item.icon : cleanSym.slice(0, 2);
+        const badgeColor = item.color || colors[i % colors.length];
+        const iconText = item.symbol.replace(/\.[A-Z]+$/, '').slice(0, 3);
 
         rowsHtml.push(`
           <div class="asset-row">
             <div class="asset-left">
               <div class="asset-badge" style="background:${badgeColor}28;border:1px solid ${badgeColor};color:${badgeColor}">
-                ${icon}
+                ${iconText}
               </div>
               <div class="asset-info">
                 <span class="asset-symbol">${item.label || item.symbol}</span>
-                <span class="asset-price">${fmt(data.price)} €</span>
+                <span class="asset-sub">
+                  <strong>${hideTotals ? '•••• €' : fmt(posValue) + ' €'}</strong>
+                  <span>(${fmt(data.price)} € / tk)</span>
+                </span>
               </div>
             </div>
-            <span class="change-pill ${isUp ? 'up' : 'down'}">${sign}${fmt(data.change)}%</span>
+            <span class="change-pill ${isUp ? 'up' : 'down'}">${sign}${fmt(pctChange)}%</span>
           </div>
         `);
       }
 
-      $('asset-list').innerHTML = rowsHtml.join('');
+      $('asset-list').innerHTML = rowsHtml.join('') || '<div style="color:var(--muted);font-size:13px;">Portfell on tühi. Vajuta ✎ nuppu varade lisamiseks.</div>';
       $('total-label').textContent = `${user.name} • Portfell kokku`;
       $('total-value').textContent = hideTotals ? '•••••• €' : `${fmt(totalEur)} €`;
 
-      const firstSymbol = user.assets[0]?.symbol || 'BTCEUR';
+      const totalDiff = totalEur - totalCostEur;
+      const totalDiffPct = totalCostEur > 0 ? (totalDiff / totalCostEur) * 100 : 0;
+      if (!hideTotals && Math.abs(totalDiff) > 0.01) {
+        const up = totalDiff >= 0;
+        $('total-profit').style.color = up ? '#34d399' : '#fb7185';
+        $('total-profit').textContent = `${up ? '+' : ''}${fmt(totalDiff)} € (${up ? '+' : ''}${fmt(totalDiffPct)}%)`;
+      } else {
+        $('total-profit').textContent = '';
+      }
+
+      const firstSymbol = user.assets[0]?.symbol || 'ETHEUR';
       drawSparkline(firstSymbol);
     }
 
@@ -1501,34 +1650,182 @@
       renderPortfolio();
     });
 
-    $('btn-edit-portfolio').addEventListener('click', () => {
+    // --- NUTIKAS OTSINGUGA MODAL ---
+    let selectedInstrument = null;
+    let searchTimer = null;
+
+    function savePortfolios() {
+      try { localStorage.setItem('koduvaade_portfolios_v2', JSON.stringify(portfolios)); } catch(e) {}
+    }
+
+    function renderModalCurrentList() {
       const user = portfolios[activeUser];
-      $('modal-title').textContent = `Muuda portfelli: ${user.name}`;
-      $('modal-textarea').value = user.assets.map(a => `${a.symbol}, ${a.label}, ${a.qty}`).join('\n');
+      $('modal-title').textContent = `Halda portfelli: ${user.name}`;
+      if (!user.assets.length) {
+        $('modal-current-list').innerHTML = '<div style="color:var(--muted);font-size:12px;padding:6px 0;">Ühtegi vara pole veel lisatud.</div>';
+        return;
+      }
+      $('modal-current-list').innerHTML = user.assets.map((a, idx) => `
+        <div class="modal-item">
+          <div class="modal-item-info">
+            <strong>${a.label} <span style="color:var(--cyan);">(${a.symbol})</span></strong>
+            <small>Kogus: ${a.qty} tk ${a.buyPrice ? `• Ostuhind: ${a.buyPrice} €` : ''}</small>
+          </div>
+          <button class="modal-del-btn" data-idx="${idx}">Kustuta</button>
+        </div>
+      `).join('');
+
+      $('modal-current-list').querySelectorAll('.modal-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.dataset.idx);
+          portfolios[activeUser].assets.splice(i, 1);
+          savePortfolios();
+          renderModalCurrentList();
+          renderPortfolio();
+        });
+      });
+    }
+
+    async function performInstrumentSearch(query) {
+      const q = query.trim().toLowerCase();
+      if (q.length < 1) {
+        $('search-results').classList.remove('open');
+        return;
+      }
+
+      // 1. Kohalik kiire nimekiri (LHV Kasvukonto, Revolut, Krüpto)
+      const localMatches = POPULAR_INSTRUMENTS.filter(item =>
+        item.symbol.toLowerCase().includes(q) || item.name.toLowerCase().includes(q)
+      );
+
+      let remoteMatches = [];
+      if (q.length >= 2) {
+        try {
+          const urls = [
+            `/api/market?q=${encodeURIComponent(query)}`,
+            `https://corsproxy.io/?${encodeURIComponent(`https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=6`)}`
+          ];
+          for (const u of urls) {
+            try {
+              const d = await fetchJson(u, 3500);
+              const quotes = d?.quotes || [];
+              if (quotes.length) {
+                remoteMatches = quotes.filter(x => x.symbol && (x.shortname || x.longname)).map(x => ({
+                  symbol: x.symbol,
+                  name: x.longname || x.shortname || x.symbol,
+                  exch: `${x.exchDisp || x.exchange || 'Börs'} • ${x.quoteType || ''}`
+                }));
+                break;
+              }
+            } catch(e) {}
+          }
+        } catch(e) {}
+      }
+
+      const combined = [...localMatches];
+      for (const r of remoteMatches) {
+        if (!combined.some(c => c.symbol === r.symbol)) combined.push(r);
+      }
+
+      if (!combined.length) {
+        combined.push({
+          symbol: query.toUpperCase(),
+          name: `Kasuta täpset sümbolit "${query.toUpperCase()}"`,
+          exch: 'Kohandatud sümbol'
+        });
+      }
+
+      $('search-results').innerHTML = combined.slice(0, 8).map(item => `
+        <div class="search-option" data-symbol="${item.symbol}" data-name="${item.name.replace(/"/g, '&quot;')}">
+          <div class="s-opt-left">
+            <span class="s-opt-sym">${item.symbol}</span>
+            <span class="s-opt-name">${item.name}</span>
+          </div>
+          <span class="s-opt-exch">${item.exch}</span>
+        </div>
+      `).join('');
+
+      $('search-results').classList.add('open');
+
+      $('search-results').querySelectorAll('.search-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          selectedInstrument = {
+            symbol: opt.dataset.symbol,
+            name: opt.dataset.name
+          };
+          $('search-results').classList.remove('open');
+          $('asset-search-input').value = '';
+          $('selected-ticker-info').textContent = `Valitud sümbol: ${selectedInstrument.symbol} (${selectedInstrument.name})`;
+          $('add-name-input').value = selectedInstrument.name.replace(/ UCITS ETF.*| \(.*\)/i, '');
+          $('add-qty-input').value = '';
+          $('add-buy-input').value = '';
+          $('add-details-box').classList.add('open');
+          $('add-qty-input').focus();
+        });
+      });
+    }
+
+    $('asset-search-input').addEventListener('input', e => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => performInstrumentSearch(e.target.value), 180);
+    });
+
+    $('asset-search-input').addEventListener('focus', e => {
+      if (e.target.value.trim()) performInstrumentSearch(e.target.value);
+      else performInstrumentSearch(' '); // Näitab kohe populaarseid valikuid
+    });
+
+    $('btn-cancel-add').addEventListener('click', () => {
+      $('add-details-box').classList.remove('open');
+      selectedInstrument = null;
+    });
+
+    $('btn-confirm-add').addEventListener('click', () => {
+      if (!selectedInstrument) return;
+      const label = $('add-name-input').value.trim() || selectedInstrument.symbol;
+      const qtyRaw = $('add-qty-input').value.trim().replace(',', '.');
+      const buyRaw = $('add-buy-input').value.trim().replace(',', '.');
+      const qty = parseFloat(qtyRaw);
+      if (!qty || qty <= 0) {
+        $('add-qty-input').focus();
+        return;
+      }
+      const buyPrice = parseFloat(buyRaw) || 0;
+      const colors = ['#f59e0b', '#38bdf8', '#10b981', '#ec4899', '#8b5cf6'];
+      const nextColor = colors[portfolios[activeUser].assets.length % colors.length];
+
+      portfolios[activeUser].assets.push({
+        symbol: selectedInstrument.symbol.toUpperCase(),
+        label,
+        qty,
+        buyPrice,
+        color: nextColor
+      });
+
+      savePortfolios();
+      $('add-details-box').classList.remove('open');
+      selectedInstrument = null;
+      renderModalCurrentList();
+      renderPortfolio();
+    });
+
+    $('btn-edit-portfolio').addEventListener('click', () => {
+      renderModalCurrentList();
+      $('add-details-box').classList.remove('open');
+      $('search-results').classList.remove('open');
+      $('asset-search-input').value = '';
       $('portfolio-modal').classList.add('open');
     });
 
-    $('modal-cancel').addEventListener('click', () => $('portfolio-modal').classList.remove('open'));
-    $('modal-save').addEventListener('click', () => {
-      const lines = $('modal-textarea').value.split('\n').map(l => l.trim()).filter(Boolean);
-      const colors = ['#f59e0b', '#6366f1', '#10b981', '#ec4899', '#38bdf8'];
-      portfolios[activeUser].assets = lines.map((line, i) => {
-        const parts = line.split(',').map(s => s.trim());
-        const rawSym = parts[0] || 'BTCEUR';
-        const rawLabel = parts[1] || rawSym;
-        const resolved = resolveSymbol(rawSym, rawLabel);
-        return {
-          symbol: resolved,
-          label: rawLabel,
-          qty: parseFloat(parts[2]) || 1,
-          icon: resolved.startsWith('BTC') ? '₿' : resolved.startsWith('ETH') ? 'Ξ' : resolved.slice(0, 2),
-          color: colors[i % colors.length]
-        };
-      });
-      try { localStorage.setItem('koduvaade_portfolios_v1', JSON.stringify(portfolios)); } catch(e) {}
-      $('portfolio-modal').classList.remove('open');
+    $('btn-reset-defaults').addEventListener('click', () => {
+      portfolios = getDefaultPortfolios();
+      savePortfolios();
+      renderModalCurrentList();
       renderPortfolio();
     });
+
+    $('modal-close-x').addEventListener('click', () => $('portfolio-modal').classList.remove('open'));
+    $('modal-done').addEventListener('click', () => $('portfolio-modal').classList.remove('open'));
 
     // --- 4. RAADIO + TÄISKAARDI TAUSTA-EKVALAISER ---
     const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
@@ -1608,7 +1905,6 @@
       radioCard.classList.remove('playing');
     });
 
-    // TÄISKAARDI LÄBIPAISTEV TAUSTA-EKVALAISER JA AURORA-LAINE
     const vCanvas = $('radio-visualizer');
     const vCtx = vCanvas.getContext('2d');
     const numBars = 28;
@@ -1634,7 +1930,6 @@
       const cPurple = styles.getPropertyValue('--purple').trim() || '#a855f7';
       const cPink = styles.getPropertyValue('--pink').trim() || '#ec4899';
 
-      // 1. Pehmed laiad taustalained (Aurora) üle kogu kaardi
       const waveGrad = vCtx.createLinearGradient(0, h * 0.2, w, h);
       waveGrad.addColorStop(0, cCyan + '33');
       waveGrad.addColorStop(0.5, cPurple + '44');
@@ -1653,7 +1948,6 @@
       vCtx.closePath();
       vCtx.fill();
 
-      // 2. Laiad pehmed ekvalaiseri sambad kaardi põhjast üles
       const slot = w / numBars;
       const bw = Math.max(6, slot - 6);
 

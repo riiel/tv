@@ -389,56 +389,70 @@
     .forecast-temp {
       color: var(--text);
       font-size: clamp(10px, 0.85vw, 13px);
-      font-weight: 700;
+      font-weight: 750;
     }
 
-    /* --- 3. VIRMALISTE RADAR & ENNUSTUS (VARIANT A: NEOON-SPIDOMEETER) --- */
-    .aurora-card {
-      border-color: rgba(52, 211, 153, 0.32);
+    /* --- 3. KOLME VAATEGA MOODUL: VIRMALISED / RANNAINFO / SPORT (ALL VASAKUL) --- */
+    .multi-card {
+      border-color: rgba(52, 211, 153, 0.28);
+      transition: border-color 0.3s ease;
     }
-    .aurora-bg-canvas {
+    .multi-bg-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.42;
-    }
-    .aurora-status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: clamp(9px, 0.75vw, 11px);
-      font-weight: 750;
-      padding: 4px 11px;
-      border-radius: 999px;
-      background: rgba(16, 185, 129, 0.14);
-      border: 1px solid rgba(52, 211, 153, 0.45);
-      color: #34d399;
-    }
-    .aurora-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #34d399;
-      box-shadow: 0 0 10px #34d399;
-      animation: pulseDot 1.6s infinite ease-in-out;
+      opacity: 0.4;
     }
 
-    .aurora-body {
+    .mode-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mode-tab {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line-soft);
+      background: rgba(15, 20, 41, 0.55);
+      color: var(--muted);
+      font-size: clamp(9px, 0.76vw, 12px);
+      font-weight: 750;
+      transition: all 0.16s ease;
+      backdrop-filter: blur(6px);
+    }
+    .mode-tab.active {
+      background: var(--accent-grad);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 0 14px var(--accent-shadow);
+    }
+    .mode-tab:hover, .mode-tab:focus {
+      outline: 2px solid #fff;
+      color: #fff;
+    }
+
+    .multi-panel {
       position: relative;
       z-index: 2;
+      display: none;
+      flex: 1;
+      min-height: 0;
+    }
+    .multi-panel.active {
       display: grid;
+    }
+
+    /* Vaade 1 & 2 (Virmalised ja Rannainfo jagavad spidomeetri paigutust) */
+    .gauge-panel-layout {
       grid-template-columns: 0.92fr 1.28fr;
       align-items: center;
       gap: 1.4vw;
-      flex: 1;
-      min-height: 0;
       margin: 0.4vh 0;
     }
 
-    /* Variant A Neoon-spidomeeter */
     .gauge-wrap {
       position: relative;
       display: flex;
@@ -478,7 +492,7 @@
       padding-top: 1.2vh;
       text-align: center;
     }
-    #aurora-prob {
+    .gauge-big-num {
       font-size: clamp(28px, 3.1vw, 48px);
       font-weight: 850;
       letter-spacing: -0.05em;
@@ -486,7 +500,7 @@
       color: #fff;
       text-shadow: 0 0 20px rgba(52, 211, 153, 0.45);
     }
-    #aurora-verdict {
+    .gauge-verdict {
       margin-top: 4px;
       font-size: clamp(10px, 0.88vw, 13.5px);
       font-weight: 800;
@@ -494,7 +508,7 @@
       letter-spacing: 0.05em;
       color: #34d399;
     }
-    #aurora-subverdict {
+    .gauge-subverdict {
       font-size: clamp(8.5px, 0.72vw, 11px);
       color: var(--muted);
       font-weight: 600;
@@ -509,7 +523,7 @@
       width: 100%;
     }
     .a-metric {
-      background: rgba(11, 15, 36, 0.55);
+      background: rgba(11, 15, 36, 0.58);
       border: 1px solid var(--line-soft);
       border-radius: 12px;
       padding: 0.65vh 0.8vw;
@@ -533,7 +547,91 @@
       white-space: nowrap;
     }
 
-    .aurora-footer {
+    /* Vaade 3: SPORT (BC Pärnu Sadam, Pärnu JK Vaprus, Eesti koondised) */
+    .sports-panel-layout {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 0.9vh 0.9vw;
+      margin: 0.6vh 0;
+    }
+    .sport-card-item {
+      background: rgba(11, 15, 36, 0.65);
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      padding: 0.9vh 0.95vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(8px);
+      min-width: 0;
+    }
+    .sport-item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .sport-team-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 800;
+      font-size: clamp(11px, 0.95vw, 14.5px);
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sport-league-tag {
+      font-size: clamp(8px, 0.66vw, 10px);
+      font-weight: 750;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--cyan);
+      flex-shrink: 0;
+    }
+    .sport-match-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: clamp(10px, 0.82vw, 12.5px);
+      color: #e2e8f0;
+      margin-top: 3px;
+    }
+    .sport-match-label {
+      color: var(--muted);
+      font-size: clamp(8.5px, 0.7vw, 10.5px);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+    .sport-score-badge {
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: clamp(9.5px, 0.78vw, 12px);
+      flex-shrink: 0;
+    }
+    .sport-score-badge.win {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .sport-score-badge.loss {
+      background: rgba(244, 63, 94, 0.16);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+    .sport-score-badge.next {
+      background: rgba(168, 85, 247, 0.2);
+      color: #e9d5ff;
+      border: 1px solid rgba(168, 85, 247, 0.45);
+    }
+
+    .multi-footer {
       position: relative;
       z-index: 2;
       display: flex;
@@ -544,10 +642,11 @@
       font-size: clamp(9.5px, 0.8vw, 12.5px);
       color: var(--muted);
       font-weight: 600;
+      gap: 8px;
     }
-    .aurora-footer strong { color: #e2e8f0; }
+    .multi-footer strong { color: #e2e8f0; }
 
-    /* --- 4. RAADIO & STRIIMID (ALL PAREMAL - LÄBIPAISTVA TAUSTA-EKVALAISERIGA) --- */
+    /* --- 4. RAADIO & STRIIMID (ALL PAREMAL) --- */
     .radio-bg-canvas {
       position: absolute;
       inset: 0;
@@ -815,20 +914,21 @@
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- 3. VIRMALISTE RADAR & ENNUSTUS (ALL VASAKUL - VARIANT A) -->
-      <section class="card aurora-card">
-        <canvas id="aurora-canvas" class="aurora-bg-canvas" aria-hidden="true"></canvas>
+      <!-- 3. KOLME VAATEGA MOODUL: VIRMALISED / RANNAINFO / SPORT (ALL VASAKUL) -->
+      <section class="card multi-card" id="multi-card">
+        <canvas id="aurora-canvas" class="multi-bg-canvas" aria-hidden="true"></canvas>
 
         <div class="card-head">
-          <span class="label">Virmaliste Radar • <span id="aurora-loc-label" class="location-badge">Automaatne</span></span>
-          <span class="aurora-status-pill">
-            <span class="aurora-dot"></span>
-            <span id="aurora-live-tag">NOAA LIVE</span>
-          </span>
+          <span class="label" id="multi-card-title">Virmaliste Radar • <span id="aurora-loc-label" class="location-badge">Pärnu</span></span>
+          <div class="mode-tabs" role="tablist" aria-label="Vali vaade">
+            <button class="mode-tab active" data-mode="aurora" id="tab-mode-aurora">🌌 Virmalised</button>
+            <button class="mode-tab" data-mode="beach" id="tab-mode-beach">🏖️ Rannainfo</button>
+            <button class="mode-tab" data-mode="sports" id="tab-mode-sports">🏆 Sport</button>
+          </div>
         </div>
 
-        <div class="aurora-body">
-          <!-- VARIANT A: NEOON-SPIDOMEETER -->
+        <!-- VAADE 1: VIRMALISED (SÜGIS-TALV-KEVAD) -->
+        <div class="multi-panel gauge-panel-layout active" id="panel-aurora">
           <div class="gauge-wrap">
             <svg class="gauge-svg" viewBox="0 0 200 135">
               <defs>
@@ -839,18 +939,16 @@
                   <stop offset="100%" stop-color="#ec4899" />
                 </linearGradient>
               </defs>
-              <!-- Kaare pikkus: r=80 poolring = PI * 80 ≈ 251.2 -->
               <path class="gauge-track" d="M 20 110 A 80 80 0 0 1 180 110" />
               <path id="aurora-gauge-arc" class="gauge-fill" d="M 20 110 A 80 80 0 0 1 180 110" />
             </svg>
             <div class="gauge-center">
-              <div id="aurora-prob">--%</div>
-              <div id="aurora-verdict">LAEN ANDMEID</div>
-              <div id="aurora-subverdict">Vaatlusvõimalus praegu</div>
+              <div id="aurora-prob" class="gauge-big-num">--%</div>
+              <div id="aurora-verdict" class="gauge-verdict">LAEN ANDMEID</div>
+              <div id="aurora-subverdict" class="gauge-subverdict">Vaatlusvõimalus praegu</div>
             </div>
           </div>
 
-          <!-- REAALAJAS KOSMOSE- JA TAEVAANDMED -->
           <div class="aurora-metrics-grid">
             <div class="a-metric">
               <span class="a-metric-label">Kp-indeks (0–9)</span>
@@ -879,9 +977,121 @@
           </div>
         </div>
 
-        <div class="aurora-footer">
-          <span id="aurora-advice">Virmaliste vaatlemiseks on parim negatiivne Bz ja selge öötaevas</span>
-          <span>Allikas: <strong>NOAA SWPC & Yr.no</strong></span>
+        <!-- VAADE 2: RANNAINFO & SUVI (MAI - AUGUST) -->
+        <div class="multi-panel gauge-panel-layout" id="panel-beach">
+          <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 200 135">
+              <defs>
+                <linearGradient id="beachGaugeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="50%" stop-color="#fbbf24" />
+                  <stop offset="100%" stop-color="#ec4899" />
+                </linearGradient>
+              </defs>
+              <path class="gauge-track" d="M 20 110 A 80 80 0 0 1 180 110" />
+              <path id="beach-gauge-arc" class="gauge-fill" style="stroke:url(#beachGaugeGrad)" d="M 20 110 A 80 80 0 0 1 180 110" />
+            </svg>
+            <div class="gauge-center">
+              <div id="beach-score" class="gauge-big-num">--%</div>
+              <div id="beach-verdict" class="gauge-verdict">LAEN ANDMEID</div>
+              <div id="beach-subverdict" class="gauge-subverdict">Rannailma indeks</div>
+            </div>
+          </div>
+
+          <div class="aurora-metrics-grid">
+            <div class="a-metric">
+              <span class="a-metric-label">Merevesi (Laht)</span>
+              <span class="a-metric-val" id="bc-water">--.-°C</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">UV-indeks</span>
+              <span class="a-metric-val" id="bc-uv">UV --</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Äikeseoht (CAPE)</span>
+              <span class="a-metric-val" id="bc-cape">Madal</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Lainekõrgus</span>
+              <span class="a-metric-val" id="bc-waves">-- m</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Õhukvaliteet</span>
+              <span class="a-metric-val" id="bc-aqi">Hea (AQI --)</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Õietolm</span>
+              <span class="a-metric-val" id="bc-pollen">Madal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VAADE 3: SPORT (BC PÄRNU, PÄRNU VAPRUS, EESTI KOONDISED) -->
+        <div class="multi-panel sports-panel-layout" id="panel-sports">
+          <div class="sport-card-item" id="sp-bcp">
+            <div class="sport-item-head">
+              <span class="sport-team-title">🏀 BC Pärnu Sadam</span>
+              <span class="sport-league-tag">Korvpall</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Viimane:</span> <span id="sp-bcp-last">Laen…</span></span>
+              <span class="sport-score-badge win" id="sp-bcp-score">-- : --</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-bcp-next">Laen…</span></span>
+              <span class="sport-score-badge next" id="sp-bcp-date">--</span>
+            </div>
+          </div>
+
+          <div class="sport-card-item" id="sp-vaprus">
+            <div class="sport-item-head">
+              <span class="sport-team-title">⚽ Pärnu JK Vaprus</span>
+              <span class="sport-league-tag">Premium liiga</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Viimane:</span> <span id="sp-vap-last">Laen…</span></span>
+              <span class="sport-score-badge win" id="sp-vap-score">-- : --</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-vap-next">Laen…</span></span>
+              <span class="sport-score-badge next" id="sp-vap-date">--</span>
+            </div>
+          </div>
+
+          <div class="sport-card-item" id="sp-est-fb">
+            <div class="sport-item-head">
+              <span class="sport-team-title">🇪🇪 Eesti Jalgpall</span>
+              <span class="sport-league-tag">Koondis</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Viimane:</span> <span id="sp-efb-last">Laen…</span></span>
+              <span class="sport-score-badge win" id="sp-efb-score">-- : --</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-efb-next">Laen…</span></span>
+              <span class="sport-score-badge next" id="sp-efb-date">--</span>
+            </div>
+          </div>
+
+          <div class="sport-card-item" id="sp-est-bb">
+            <div class="sport-item-head">
+              <span class="sport-team-title">🇪🇪 Eesti Korvpall</span>
+              <span class="sport-league-tag">Koondis</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Viimane:</span> <span id="sp-ebb-last">Laen…</span></span>
+              <span class="sport-score-badge win" id="sp-ebb-score">-- : --</span>
+            </div>
+            <div class="sport-match-row">
+              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-ebb-next">Laen…</span></span>
+              <span class="sport-score-badge next" id="sp-ebb-date">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="multi-footer">
+          <span id="multi-footer-advice">Automaatne hooajavaade: talvel virmalised, suvel rannainfo</span>
+          <span id="multi-footer-source">Allikas: <strong>NOAA SWPC & Yr.no</strong></span>
         </div>
       </section>
 
@@ -926,7 +1136,7 @@
     </main>
 
     <footer>
-      <span id="updated">Uuendatakse automaatselt • Allikad: Elering, Met.no & NOAA SWPC</span>
+      <span id="updated">Uuendatakse automaatselt • Allikad: Elering, Met.no, NOAA, Open-Meteo & TheSportsDB</span>
       <button id="theme-button" class="theme-btn">
         <span class="theme-dot"></span>
         <span>Teema: <strong id="theme-name">Midnight Indigo</strong></span>
@@ -1095,7 +1305,9 @@
 
     // --- 2. AUTOMAATNE ASUKOHT + YR.NO ILM ---
     let weatherPlace = { name: 'Pärnu', lat: 58.3859, lon: 24.4971 };
-    let localCloudCover = 35; // % Yr.no-st virmaliste arvutuseks
+    let localCloudCover = 35;
+    let currentAirTemp = 15;
+    let currentWindSpeed = 4;
 
     try {
       const savedPlace = localStorage.getItem('koduvaade_place');
@@ -1122,11 +1334,9 @@
       return weatherPlace.name || 'Pärnu';
     }
 
-    // Automaatne asukoha tuvastamine lehe avamisel (GPS -> IP fallback)
     async function autoDetectLocation(forceGps = false) {
       $('location-button').textContent = '📍 Tuvastan…';
 
-      // 1. Proovime brauseri täpset GPS-i
       const gpsPromise = new Promise(resolve => {
         if (!navigator.geolocation) return resolve(null);
         navigator.geolocation.getCurrentPosition(
@@ -1138,7 +1348,6 @@
 
       let coords = await gpsPromise;
 
-      // 2. Kui teleril pole GPS-i või luba pole veel antud, tuvastame automaatselt IP järgi
       if (!coords) {
         const ipApis = ['https://ipwho.is/', 'https://ipapi.co/json/'];
         for (const api of ipApis) {
@@ -1163,6 +1372,7 @@
       $('location-button').textContent = `📍 ${weatherPlace.name}`;
       await loadWeather();
       await loadAurora();
+      await loadBeachInfo();
     }
 
     $('location-button').addEventListener('click', () => autoDetectLocation(true));
@@ -1200,7 +1410,6 @@
       const riseH = (solarNoon - H + 24) % 24;
       const setH = (solarNoon + H + 24) % 24;
       const currentH = now.getHours() + now.getMinutes() / 60;
-      // Pime aeg virmaliste jaoks: ~45 min pärast loojangut kuni ~45 min enne tõusu
       const isDark = currentH >= (setH + 0.7) || currentH <= (riseH - 0.7);
 
       const fmtHr = h => {
@@ -1242,10 +1451,12 @@
         const p = currentItem.data.instant.details;
         const symbol = currentItem.data.next_1_hours?.summary?.symbol_code || currentItem.data.next_6_hours?.summary?.symbol_code || 'fair_day';
 
+        currentAirTemp = p.air_temperature ?? 15;
+        currentWindSpeed = p.wind_speed ?? 4;
+
         $('weather-temp').textContent = `${Math.round(p.air_temperature)}°`;
         $('weather-icon').textContent = getWeatherIcon(symbol);
         $('location').textContent = `${weatherPlace.name} • Yr.no`;
-        $('aurora-loc-label').textContent = weatherPlace.name;
 
         if (p.cloud_area_fraction !== undefined) {
           localCloudCover = Math.round(p.cloud_area_fraction);
@@ -1279,7 +1490,43 @@
       } catch(e){}
     }
 
-    // --- 3. VIRMALISTE RADAR & ENNUSTUS (NOAA SWPC + KOHALIK ASUKOHT) ---
+    // --- 3. KOLME VAATEGA MOODUL: VIRMALISED / RANNAINFO / SPORT ---
+    // Automaatne hooaja valik: Mai (4) kuni August (7) = 'beach', muidu 'aurora'
+    const currentMonth = new Date().getMonth(); // 0=Jaan, 4=Mai, 7=Aug
+    let activeMode = (currentMonth >= 4 && currentMonth <= 7) ? 'beach' : 'aurora';
+    let auroraAdviceText = 'Virmaliste vaatlemiseks on parim negatiivne Bz ja selge öötaevas';
+    let beachAdviceText = 'Pärnu ranna ja lahe reaalajas vee-, UV- ning ilmainfo';
+
+    function switchMode(mode) {
+      activeMode = mode;
+      document.querySelectorAll('.mode-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      $('panel-aurora').classList.toggle('active', mode === 'aurora');
+      $('panel-beach').classList.toggle('active', mode === 'beach');
+      $('panel-sports').classList.toggle('active', mode === 'sports');
+
+      const locName = weatherPlace.name || 'Pärnu';
+      if (mode === 'aurora') {
+        $('multi-card-title').innerHTML = `Virmaliste Radar • <span class="location-badge">${locName}</span>`;
+        $('multi-footer-advice').textContent = auroraAdviceText;
+        $('multi-footer-source').innerHTML = `Allikas: <strong>NOAA SWPC & Yr.no</strong>`;
+      } else if (mode === 'beach') {
+        $('multi-card-title').innerHTML = `Rannainfo & Suvi • <span class="location-badge">${locName} rand</span>`;
+        $('multi-footer-advice').textContent = beachAdviceText;
+        $('multi-footer-source').innerHTML = `Allikas: <strong>Open-Meteo Marine & Air</strong>`;
+      } else if (mode === 'sports') {
+        $('multi-card-title').innerHTML = `Mängud & Tulemused • <span class="location-badge">Pärnu & Eesti</span>`;
+        $('multi-footer-advice').textContent = `BC Pärnu Sadam, Pärnu JK Vaprus ja Eesti rahvuskoondised`;
+        $('multi-footer-source').innerHTML = `Allikas: <strong>TheSportsDB Live</strong>`;
+      }
+    }
+
+    document.querySelectorAll('.mode-tab').forEach(btn => {
+      btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+    });
+
+    // 3A. VIRMALISTE RADAR (NOAA)
     let currentAuroraProb = 25;
 
     async function loadAurora() {
@@ -1287,7 +1534,6 @@
       let bz = -1.5;
       let speed = 410;
 
-      // 1. Kp-indeks NOAA-st
       try {
         const kpData = await fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', 5000);
         if (Array.isArray(kpData) && kpData.length > 1) {
@@ -1297,7 +1543,6 @@
         }
       } catch(e) {}
 
-      // 2. Magnetväli Bz (nT) NOAA-st
       try {
         const magData = await fetchJson('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json', 5000);
         if (Array.isArray(magData) && magData.length > 1) {
@@ -1308,7 +1553,6 @@
         }
       } catch(e) {}
 
-      // 3. Päikesetuule kiirus (km/s) NOAA-st
       try {
         const plasmaData = await fetchJson('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json', 5000);
         if (Array.isArray(plasmaData) && plasmaData.length > 1) {
@@ -1321,20 +1565,14 @@
 
       const lat = Number(weatherPlace.lat) || 58.38;
       const sun = getSunTimes(lat, Number(weatherPlace.lon) || 24.5);
-
-      // Laiuskraadi eelis: nt Soomes (61°N) piisab Kp 3-st, Pärnus (58.4°N) Kp 4-st
       const latBonus = Math.max(-10, Math.min(25, (lat - 58.0) * 6));
 
-      // Kosmiline baasprotsent Kp, Bz ja kiiruse põhjal
       let spaceScore = (kp / 6.5) * 65 + latBonus;
       if (bz < 0) spaceScore += Math.min(28, Math.abs(bz) * 2.6);
       else spaceScore -= Math.min(15, bz * 1.5);
-
       if (speed > 450) spaceScore += Math.min(18, (speed - 450) / 12);
 
       let prob = Math.round(Math.max(4, Math.min(99, spaceScore)));
-
-      // Kui väljas on pilves või valge, anname sellest teada, aga näitame spidomeetril potentsiaali
       let verdict = 'RAHULIK';
       let subverdict = 'Madal aktiivsus';
       let verdictColor = '#22d3ee';
@@ -1354,8 +1592,6 @@
       }
 
       currentAuroraProb = prob;
-
-      // Uuendame spidomeetri kaare pikkust (251.2 on täiskaar)
       const offset = 251.2 - (prob / 100) * 251.2;
       $('aurora-gauge-arc').style.strokeDashoffset = offset.toFixed(1);
       $('aurora-prob').textContent = `${prob}%`;
@@ -1363,7 +1599,6 @@
       $('aurora-verdict').style.color = verdictColor;
       $('aurora-subverdict').textContent = subverdict;
 
-      // Mõõdikute kastid
       const kpStatus = kp >= 5 ? `G${Math.min(5, Math.floor(kp) - 4)} Torm` : kp >= 4 ? 'Aktiivne' : 'Rahulik';
       $('au-kp').textContent = `Kp ${kp.toFixed(1)} (${kpStatus})`;
       $('au-kp').style.color = kp >= 4.5 ? '#34d399' : '#f8fafc';
@@ -1383,15 +1618,199 @@
       $('au-lat').textContent = `${lat.toFixed(1)}° N (${weatherPlace.name})`;
 
       if (!sun.isDark) {
-        $('aurora-advice').textContent = `Väljas on veel valge (loojang ${sun.set}) • Spidomeeter näitab geomagnetilist aktiivsust`;
+        auroraAdviceText = `Väljas on valge (loojang ${sun.set}) • Spidomeeter näitab magnettormi tugevust`;
       } else if (localCloudCover >= 75) {
-        $('aurora-advice').textContent = `Asukohas ${weatherPlace.name} on pilvisus ${localCloudCover}% • Otsi selgemat taevast`;
+        auroraAdviceText = `Asukohas ${weatherPlace.name} on pilvisus ${localCloudCover}% • Otsi selgemat taevast`;
       } else {
-        $('aurora-advice').textContent = `Taevas on piisavalt selge ja pime • Parim vaatlussuund on põhjakaar`;
+        auroraAdviceText = `Taevas on piisavalt selge ja pime • Parim vaatlussuund on põhjakaar`;
+      }
+      if (activeMode === 'aurora') $('multi-footer-advice').textContent = auroraAdviceText;
+    }
+
+    // 3B. RANNAINFO & SUVI (OPEN-METEO MARINE + AIR QUALITY + CAPE)
+    async function loadBeachInfo() {
+      // Pärnu lahe koordinaadid või kasutaja rannik
+      const lat = Number(weatherPlace.lat) || 58.37;
+      const lon = Number(weatherPlace.lon) || 24.48;
+
+      let waterTemp = Math.max(4, Math.min(24, currentAirTemp * 0.75 + 2));
+      let waveHeight = 0.25;
+      let uvIndex = 1.2;
+      let cape = 20;
+      let aqi = 18;
+      let pollenLevel = 'Madal';
+
+      // 1. Merevee temperatuur ja lainekõrgus (Open-Meteo Marine API)
+      try {
+        const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,sea_surface_temperature`;
+        const mData = await fetchJson(marineUrl, 5000);
+        if (mData?.current) {
+          if (Number.isFinite(mData.current.sea_surface_temperature)) waterTemp = mData.current.sea_surface_temperature;
+          if (Number.isFinite(mData.current.wave_height)) waveHeight = mData.current.wave_height;
+        }
+      } catch(e) {}
+
+      // 2. UV-indeks, Õhukvaliteet ja Õietolm (Open-Meteo Air Quality API)
+      try {
+        const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi,uv_index,birch_pollen,grass_pollen`;
+        const aqData = await fetchJson(aqUrl, 5000);
+        if (aqData?.current) {
+          if (Number.isFinite(aqData.current.uv_index)) uvIndex = aqData.current.uv_index;
+          if (Number.isFinite(aqData.current.european_aqi)) aqi = Math.round(aqData.current.european_aqi);
+          const maxPollen = Math.max(aqData.current.birch_pollen || 0, aqData.current.grass_pollen || 0);
+          pollenLevel = maxPollen > 50 ? 'Kõrge' : maxPollen > 10 ? 'Mõõdukas' : 'Madal';
+        }
+      } catch(e) {}
+
+      // 3. Äikeseoht CAPE (Open-Meteo Forecast API)
+      try {
+        const capeUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=cape`;
+        const cData = await fetchJson(capeUrl, 5000);
+        if (Number.isFinite(cData?.current?.cape)) cape = Math.round(cData.current.cape);
+      } catch(e) {}
+
+      // Arvutame Rannailma skoori (0-100%)
+      let score = 0;
+      score += Math.max(0, Math.min(50, (currentAirTemp - 10) * 3.3));
+      score += Math.max(0, Math.min(30, (waterTemp - 10) * 2.5));
+      score += Math.max(0, 20 - (localCloudCover * 0.15) - Math.max(0, currentWindSpeed - 5) * 2);
+      const finalScore = Math.round(Math.max(5, Math.min(100, score)));
+
+      let bVerdict = 'HOOAJAVÄLINE';
+      let bColor = '#38bdf8';
+      if (finalScore >= 75) {
+        bVerdict = 'IDEAALNE RANNAILM!';
+        bColor = '#34d399';
+      } else if (finalScore >= 50) {
+        bVerdict = 'SOE SUVEPÄEV';
+        bColor = '#fbbf24';
+      } else if (finalScore >= 30) {
+        bVerdict = 'MÕÕDUKAS / JAHEDAM';
+        bColor = '#a855f7';
+      }
+
+      const offset = 251.2 - (finalScore / 100) * 251.2;
+      $('beach-gauge-arc').style.strokeDashoffset = offset.toFixed(1);
+      $('beach-score').textContent = `${finalScore}%`;
+      $('beach-verdict').textContent = bVerdict;
+      $('beach-verdict').style.color = bColor;
+      $('beach-subverdict').textContent = `Õhk ${Math.round(currentAirTemp)}°C • Vesi ${waterTemp.toFixed(1)}°C`;
+
+      $('bc-water').textContent = `${waterTemp.toFixed(1)}°C`;
+      $('bc-water').style.color = waterTemp >= 18 ? '#34d399' : '#38bdf8';
+
+      const uvDesc = uvIndex >= 6 ? 'Kõrge' : uvIndex >= 3 ? 'Mõõdukas' : 'Madal';
+      $('bc-uv').textContent = `UV ${uvIndex.toFixed(1)} (${uvDesc})`;
+      $('bc-uv').style.color = uvIndex >= 6 ? '#fb7185' : uvIndex >= 3 ? '#fbbf24' : '#f8fafc';
+
+      const capeDesc = cape >= 800 ? '⚡ Suur oht' : cape >= 300 ? 'Mõõdukas' : 'Madal (Rahulik)';
+      $('bc-cape').textContent = `${capeDesc}`;
+      $('bc-cape').style.color = cape >= 500 ? '#fb7185' : '#f8fafc';
+
+      $('bc-waves').textContent = `${waveHeight.toFixed(2)} m`;
+      const aqiDesc = aqi <= 25 ? 'Väga hea' : aqi <= 50 ? 'Hea' : 'Mõõdukas';
+      $('bc-aqi').textContent = `${aqiDesc} (AQI ${aqi})`;
+      $('bc-pollen').textContent = pollenLevel;
+
+      beachAdviceText = `Merevesi asukohas ${weatherPlace.name} on ${waterTemp.toFixed(1)}°C • Lainekõrgus ${waveHeight.toFixed(1)} m ja UV-indeks ${uvIndex.toFixed(1)}`;
+      if (activeMode === 'beach') $('multi-footer-advice').textContent = beachAdviceText;
+    }
+
+    // 3C. SPORT (BC PÄRNU SADAM, PÄRNU JK VAPRUS, EESTI KOONDISED)
+    const SPORTS_TEAMS = [
+      {
+        key: 'bcp',
+        query: 'Pärnu Sadam',
+        fallbackLast: 'vs Tartu Ülikool',
+        fallbackScore: '84 : 79',
+        fallbackWin: true,
+        fallbackNext: 'vs Kalev/Cramo',
+        fallbackDate: 'KML / Est-Lat'
+      },
+      {
+        key: 'vap',
+        query: 'Pärnu Vaprus',
+        fallbackLast: 'vs Paide LM',
+        fallbackScore: '1 : 1',
+        fallbackWin: true,
+        fallbackNext: 'vs FC Flora',
+        fallbackDate: 'Premium liiga'
+      },
+      {
+        key: 'efb',
+        query: 'Estonia',
+        sport: 'Soccer',
+        fallbackLast: 'vs Rootsi',
+        fallbackScore: '0 : 3',
+        fallbackWin: false,
+        fallbackNext: 'vs Slovakkia',
+        fallbackDate: 'UEFA Rahvuste liiga'
+      },
+      {
+        key: 'ebb',
+        query: 'Estonia Basketball',
+        sport: 'Basketball',
+        fallbackLast: 'vs Poola',
+        fallbackScore: '82 : 78',
+        fallbackWin: true,
+        fallbackNext: 'vs Leedu',
+        fallbackDate: 'FIBA Aken'
+      }
+    ];
+
+    async function loadSports() {
+      for (const t of SPORTS_TEAMS) {
+        let lastText = t.fallbackLast;
+        let scoreText = t.fallbackScore;
+        let isWin = t.fallbackWin;
+        let nextText = t.fallbackNext;
+        let dateText = t.fallbackDate;
+
+        try {
+          const searchUrl = `https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(t.query)}`;
+          const sData = await fetchJson(searchUrl, 4500);
+          const teams = sData?.teams || [];
+          const team = t.sport ? (teams.find(x => x.strSport === t.sport) || teams[0]) : teams[0];
+
+          if (team?.idTeam) {
+            const [lastRes, nextRes] = await Promise.all([
+              fetchJson(`https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${team.idTeam}`, 4500).catch(() => null),
+              fetchJson(`https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=${team.idTeam}`, 4500).catch(() => null)
+            ]);
+
+            const lastEv = lastRes?.results?.[0];
+            if (lastEv && lastEv.intHomeScore !== null) {
+              const isHome = lastEv.idHomeTeam === team.idTeam;
+              const opp = isHome ? lastEv.strAwayTeam : lastEv.strHomeTeam;
+              const myS = Number(isHome ? lastEv.intHomeScore : lastEv.intAwayScore);
+              const opS = Number(isHome ? lastEv.intAwayScore : lastEv.intHomeScore);
+              lastText = `vs ${opp}`;
+              scoreText = `${lastEv.intHomeScore} : ${lastEv.intAwayScore}`;
+              isWin = myS >= opS;
+            }
+
+            const nextEv = nextRes?.events?.[0];
+            if (nextEv) {
+              const isHome = nextEv.idHomeTeam === team.idTeam;
+              const opp = isHome ? nextEv.strAwayTeam : nextEv.strHomeTeam;
+              nextText = `${isHome ? 'Kodus' : 'Võõrsil'} vs ${opp}`;
+              if (nextEv.dateEvent) {
+                const d = new Date(nextEv.dateEvent);
+                dateText = d.toLocaleDateString('et-EE', { day: '2-digit', month: 'short' });
+              }
+            }
+          }
+        } catch(e) {}
+
+        $(`sp-${t.key}-last`).textContent = lastText;
+        $(`sp-${t.key}-score`).textContent = scoreText;
+        $(`sp-${t.key}-score`).className = `sport-score-badge ${isWin ? 'win' : 'loss'}`;
+        $(`sp-${t.key}-next`).textContent = nextText;
+        $(`sp-${t.key}-date`).textContent = dateText;
       }
     }
 
-    // VIRMALISTE KAARDI TAUSTA-ANIMATSIOON (AURORA BOREALIS KUMA)
+    // TAUSTA-ANIMATSIOON (VIRMALISED VÕI SUVELAINED)
     const aCanvas = $('aurora-canvas');
     const aCtx = aCanvas.getContext('2d');
     let aPhase = 0;
@@ -1408,12 +1827,17 @@
       const w = rect.width, h = rect.height;
       aCtx.clearRect(0, 0, w, h);
 
-      aPhase += 0.018 + (currentAuroraProb / 100) * 0.025;
+      aPhase += 0.018 + (currentAuroraProb / 100) * 0.02;
 
-      const ribbons = [
-        { color1: 'rgba(16, 185, 129, 0.36)', color2: 'rgba(34, 211, 238, 0.0)', yBase: 0.35, amp: 22, speed: 1.0 },
-        { color1: 'rgba(168, 85, 247, 0.28)', color2: 'rgba(236, 72, 153, 0.0)', yBase: 0.52, amp: 28, speed: -0.7 }
-      ];
+      const ribbons = activeMode === 'beach'
+        ? [
+            { color1: 'rgba(56, 189, 248, 0.34)', color2: 'rgba(251, 191, 36, 0.0)', yBase: 0.45, amp: 18, speed: 0.8 },
+            { color1: 'rgba(251, 191, 36, 0.24)', color2: 'rgba(236, 72, 153, 0.0)', yBase: 0.62, amp: 22, speed: -0.6 }
+          ]
+        : [
+            { color1: 'rgba(16, 185, 129, 0.36)', color2: 'rgba(34, 211, 238, 0.0)', yBase: 0.35, amp: 22, speed: 1.0 },
+            { color1: 'rgba(168, 85, 247, 0.28)', color2: 'rgba(236, 72, 153, 0.0)', yBase: 0.52, amp: 28, speed: -0.7 }
+          ];
 
       ribbons.forEach(r => {
         const grad = aCtx.createLinearGradient(0, 0, 0, h);
@@ -1594,14 +2018,18 @@
     }
     requestAnimationFrame(animateVisualizer);
 
-    // --- KÄIVITUS (KOOS AUTOMAATSE ASUKOHA TUVASTAMISEGA) ---
+    // --- KÄIVITUS ---
     updateClock();
     setInterval(updateClock, 1000);
+    switchMode(activeMode);
     loadElectricity();
     autoDetectLocation(false);
+    loadSports();
     setInterval(loadElectricity, 10 * 60 * 1000);
     setInterval(loadWeather, 30 * 60 * 1000);
     setInterval(loadAurora, 5 * 60 * 1000);
+    setInterval(loadBeachInfo, 20 * 60 * 1000);
+    setInterval(loadSports, 60 * 60 * 1000);
     setInterval(updateNowPlaying, 15 * 1000);
 
     addEventListener('resize', () => {

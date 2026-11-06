@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#0b0f24" />
   <title>Koduvaade</title>
   <link rel="icon" href="/koduvaade-favicon.svg" type="image/svg+xml" />
+  <script src="https://cdn.jsdelivr.net/npm/d3-array@3/dist/d3-array.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-geo@3/dist/d3-geo.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
   <style>
     /* VAIKIMISI TEEMA: MIDNIGHT INDIGO */
     :root, [data-theme="indigo"] {
@@ -93,7 +96,6 @@
       gap: 1.8vh;
     }
 
-    /* PÄIS */
     header {
       display: flex;
       align-items: center;
@@ -129,7 +131,6 @@
     .now-sep { color: var(--cyan); }
     #date { color: #cbd5e1; font-weight: 500; }
 
-    /* 2x2 BENTO RUUDUSTIK */
     main {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -170,7 +171,7 @@
       letter-spacing: 0.08em;
     }
 
-    /* --- 1. ELEKTRI BÖRSIHIND (ÜLEVAL VASAKUL) --- */
+    /* --- 1. ELEKTRI BÖRSIHIND --- */
     .status-pill {
       color: var(--cyan);
       background: rgba(34, 211, 238, 0.12);
@@ -196,16 +197,8 @@
       min-height: 0;
       margin: 0.6vh 0;
     }
-    .elec-left {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .price-line {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-    }
+    .elec-left { display: flex; flex-direction: column; justify-content: center; }
+    .price-line { display: flex; align-items: baseline; gap: 6px; }
     #price {
       font-size: clamp(38px, 4.3vw, 68px);
       font-weight: 800;
@@ -213,30 +206,10 @@
       line-height: 0.95;
       color: #fff;
     }
-    .unit {
-      font-size: clamp(13px, 1.15vw, 18px);
-      font-weight: 700;
-      color: #e2e8f0;
-    }
-    .price-caption {
-      margin-top: 0.8vh;
-      color: var(--muted);
-      font-size: clamp(11px, 0.9vw, 14px);
-      font-weight: 500;
-    }
-
-    .chart-wrap {
-      position: relative;
-      height: 100%;
-      min-height: 95px;
-      width: 100%;
-    }
-    canvas#price-chart {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+    .unit { font-size: clamp(13px, 1.15vw, 18px); font-weight: 700; color: #e2e8f0; }
+    .price-caption { margin-top: 0.8vh; color: var(--muted); font-size: clamp(11px, 0.9vw, 14px); font-weight: 500; }
+    .chart-wrap { position: relative; height: 100%; min-height: 95px; width: 100%; }
+    canvas#price-chart { position: absolute; inset: 0; width: 100%; height: 100%; }
 
     .elec-footer {
       display: flex;
@@ -249,36 +222,14 @@
       gap: 8px;
       flex-wrap: wrap;
     }
-    .chart-legend {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 600;
-    }
-    .chart-legend span {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .chart-legend i {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .elec-stats-inline {
-      display: flex;
-      gap: 14px;
-      font-weight: 600;
-    }
+    .chart-legend { display: flex; align-items: center; gap: 12px; font-weight: 600; }
+    .chart-legend span { display: flex; align-items: center; gap: 5px; }
+    .chart-legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .elec-stats-inline { display: flex; gap: 14px; font-weight: 600; }
     .elec-stats-inline strong { color: var(--text); font-weight: 750; }
 
-    /* --- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) --- */
-    .location-badge {
-      font-size: clamp(11px, 0.95vw, 15px);
-      font-weight: 800;
-      color: var(--cyan);
-    }
+    /* --- 2. ILM & PROGNOOS --- */
+    .location-badge { font-size: clamp(11px, 0.95vw, 15px); font-weight: 800; color: var(--cyan); }
     .pill-btn {
       padding: 4px 11px;
       border: 1px solid var(--line);
@@ -303,22 +254,9 @@
       margin: 0.6vh 0;
       flex: 1;
     }
-    .weather-main-temp {
-      display: flex;
-      align-items: center;
-      gap: 0.8vw;
-      padding-right: 0.6vw;
-    }
-    #weather-temp {
-      font-size: clamp(44px, 4.6vw, 72px);
-      font-weight: 800;
-      letter-spacing: -0.06em;
-      line-height: 0.9;
-    }
-    .weather-icon {
-      font-size: clamp(38px, 3.8vw, 60px);
-      filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.35));
-    }
+    .weather-main-temp { display: flex; align-items: center; gap: 0.8vw; padding-right: 0.6vw; }
+    #weather-temp { font-size: clamp(44px, 4.6vw, 72px); font-weight: 800; letter-spacing: -0.06em; line-height: 0.9; }
+    .weather-icon { font-size: clamp(38px, 3.8vw, 60px); filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.35)); }
 
     .weather-metrics-grid {
       display: grid;
@@ -337,83 +275,24 @@
       justify-content: center;
       gap: 2px;
     }
-    .w-metric-label {
-      font-size: clamp(8px, 0.68vw, 10px);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      font-weight: 700;
-    }
-    .w-metric-val {
-      font-size: clamp(11px, 0.92vw, 14px);
-      font-weight: 750;
-      color: var(--text);
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    #yr-wind-arrow {
-      display: inline-block;
-      color: var(--cyan);
-      font-weight: 800;
-      transition: transform 0.3s ease;
-    }
+    .w-metric-label { font-size: clamp(8px, 0.68vw, 10px); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+    .w-metric-val { font-size: clamp(11px, 0.92vw, 14px); font-weight: 750; color: var(--text); white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+    #yr-wind-arrow { display: inline-block; color: var(--cyan); font-weight: 800; transition: transform 0.3s ease; }
 
-    .forecast {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      border-top: 1px solid var(--line-soft);
-      padding-top: 1vh;
-    }
-    .forecast-day {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      border-right: 1px solid var(--line-soft);
-      padding: 0 4px;
-    }
+    .forecast { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line-soft); padding-top: 1vh; }
+    .forecast-day { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; border-right: 1px solid var(--line-soft); padding: 0 4px; }
     .forecast-day:last-child { border-right: none; }
-    .forecast-name {
-      color: var(--muted);
-      font-size: clamp(9px, 0.75vw, 12px);
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .forecast-icon {
-      font-size: clamp(16px, 1.35vw, 22px);
-      margin: 1px 0;
-    }
-    .forecast-temp {
-      color: var(--text);
-      font-size: clamp(10px, 0.85vw, 13px);
-      font-weight: 750;
-    }
+    .forecast-name { color: var(--muted); font-size: clamp(9px, 0.75vw, 12px); font-weight: 700; text-transform: uppercase; }
+    .forecast-icon { font-size: clamp(16px, 1.35vw, 22px); margin: 1px 0; }
+    .forecast-temp { color: var(--text); font-size: clamp(10px, 0.85vw, 13px); font-weight: 750; }
 
-    /* --- 3. KOLME VAATEGA MOODUL: VIRMALISED / RANNAINFO / SPORT (ALL VASAKUL) --- */
-    .multi-card {
-      border-color: rgba(52, 211, 153, 0.28);
-      transition: border-color 0.3s ease;
-    }
-    .multi-bg-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0.4;
-    }
+    /* --- 3. VIRMALISED & RANNAINFO + 3D KAARDI NUPP --- */
+    .multi-card { border-color: rgba(52, 211, 153, 0.28); }
+    .multi-bg-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.4; }
 
-    .mode-tabs {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .mode-tab {
-      padding: 4px 10px;
+    .mode-tabs { display: flex; align-items: center; gap: 6px; }
+    .mode-tab, .map-open-btn {
+      padding: 4px 11px;
       border-radius: 999px;
       border: 1px solid var(--line-soft);
       background: rgba(15, 20, 41, 0.55);
@@ -429,7 +308,12 @@
       color: #fff;
       box-shadow: 0 0 14px var(--accent-shadow);
     }
-    .mode-tab:hover, .mode-tab:focus {
+    .map-open-btn {
+      border-color: rgba(34, 211, 238, 0.5);
+      background: rgba(34, 211, 238, 0.14);
+      color: var(--cyan);
+    }
+    .mode-tab:hover, .mode-tab:focus, .map-open-btn:hover, .map-open-btn:focus {
       outline: 2px solid #fff;
       color: #fff;
     }
@@ -441,11 +325,8 @@
       flex: 1;
       min-height: 0;
     }
-    .multi-panel.active {
-      display: grid;
-    }
+    .multi-panel.active { display: grid; }
 
-    /* Vaade 1 & 2 (Virmalised ja Rannainfo jagavad spidomeetri paigutust) */
     .gauge-panel-layout {
       grid-template-columns: 0.92fr 1.28fr;
       align-items: center;
@@ -453,25 +334,9 @@
       margin: 0.4vh 0;
     }
 
-    .gauge-wrap {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-    }
-    .gauge-svg {
-      width: clamp(135px, 13.5vw, 210px);
-      height: auto;
-      overflow: visible;
-    }
-    .gauge-track {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.08);
-      stroke-width: 12;
-      stroke-linecap: round;
-    }
+    .gauge-wrap { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .gauge-svg { width: clamp(135px, 13.5vw, 210px); height: auto; overflow: visible; }
+    .gauge-track { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 12; stroke-linecap: round; }
     .gauge-fill {
       fill: none;
       stroke: url(#auroraGaugeGrad);
@@ -508,12 +373,7 @@
       letter-spacing: 0.05em;
       color: #34d399;
     }
-    .gauge-subverdict {
-      font-size: clamp(8.5px, 0.72vw, 11px);
-      color: var(--muted);
-      font-weight: 600;
-      margin-top: 1px;
-    }
+    .gauge-subverdict { font-size: clamp(8.5px, 0.72vw, 11px); color: var(--muted); font-weight: 600; margin-top: 1px; }
 
     .aurora-metrics-grid {
       display: grid;
@@ -533,103 +393,8 @@
       gap: 2px;
       backdrop-filter: blur(8px);
     }
-    .a-metric-label {
-      font-size: clamp(8px, 0.66vw, 10px);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      font-weight: 700;
-    }
-    .a-metric-val {
-      font-size: clamp(11px, 0.92vw, 14px);
-      font-weight: 750;
-      color: var(--text);
-      white-space: nowrap;
-    }
-
-    /* Vaade 3: SPORT (BC Pärnu Sadam, Pärnu JK Vaprus, Eesti koondised) */
-    .sports-panel-layout {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 0.9vh 0.9vw;
-      margin: 0.6vh 0;
-    }
-    .sport-card-item {
-      background: rgba(11, 15, 36, 0.65);
-      border: 1px solid var(--line-soft);
-      border-radius: 14px;
-      padding: 0.9vh 0.95vw;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      backdrop-filter: blur(8px);
-      min-width: 0;
-    }
-    .sport-item-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-    .sport-team-title {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-weight: 800;
-      font-size: clamp(11px, 0.95vw, 14.5px);
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .sport-league-tag {
-      font-size: clamp(8px, 0.66vw, 10px);
-      font-weight: 750;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--cyan);
-      flex-shrink: 0;
-    }
-    .sport-match-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      font-size: clamp(10px, 0.82vw, 12.5px);
-      color: #e2e8f0;
-      margin-top: 3px;
-    }
-    .sport-match-label {
-      color: var(--muted);
-      font-size: clamp(8.5px, 0.7vw, 10.5px);
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-right: 4px;
-    }
-    .sport-score-badge {
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-weight: 800;
-      font-size: clamp(9.5px, 0.78vw, 12px);
-      flex-shrink: 0;
-    }
-    .sport-score-badge.win {
-      background: rgba(16, 185, 129, 0.18);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-    .sport-score-badge.loss {
-      background: rgba(244, 63, 94, 0.16);
-      color: #fb7185;
-      border: 1px solid rgba(244, 63, 94, 0.35);
-    }
-    .sport-score-badge.next {
-      background: rgba(168, 85, 247, 0.2);
-      color: #e9d5ff;
-      border: 1px solid rgba(168, 85, 247, 0.45);
-    }
+    .a-metric-label { font-size: clamp(8px, 0.66vw, 10px); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+    .a-metric-val { font-size: clamp(11px, 0.92vw, 14px); font-weight: 750; color: var(--text); white-space: nowrap; }
 
     .multi-footer {
       position: relative;
@@ -646,17 +411,8 @@
     }
     .multi-footer strong { color: #e2e8f0; }
 
-    /* --- 4. RAADIO & STRIIMID (ALL PAREMAL) --- */
-    .radio-bg-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0.22;
-      transition: opacity 0.5s ease;
-    }
+    /* --- 4. RAADIO & STRIIMID --- */
+    .radio-bg-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.22; transition: opacity 0.5s ease; }
     .playing .radio-bg-canvas { opacity: 0.58; }
 
     .live-indicator {
@@ -672,71 +428,20 @@
       color: var(--muted);
       backdrop-filter: blur(6px);
     }
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--muted);
-    }
-    .playing .live-indicator {
-      color: #fff;
-      border-color: rgba(236, 72, 153, 0.55);
-      background: rgba(236, 72, 153, 0.2);
-    }
-    .playing .live-dot {
-      background: var(--pink);
-      box-shadow: 0 0 10px var(--pink);
-      animation: pulseDot 1.2s infinite ease-in-out;
-    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .playing .live-indicator { color: #fff; border-color: rgba(236, 72, 153, 0.55); background: rgba(236, 72, 153, 0.2); }
+    .playing .live-dot { background: var(--pink); box-shadow: 0 0 10px var(--pink); animation: pulseDot 1.2s infinite ease-in-out; }
     @keyframes pulseDot {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.35); opacity: 0.55; }
     }
 
-    .radio-body {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1.5vw;
-      margin: auto 0;
-      padding: 1vh 0;
-    }
+    .radio-body { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 1.5vw; margin: auto 0; padding: 1vh 0; }
     .radio-title-wrap { min-width: 0; flex: 1; }
-    .radio-name {
-      font-size: clamp(26px, 2.8vw, 44px);
-      font-weight: 850;
-      letter-spacing: -0.04em;
-      margin: 0;
-      color: #fff;
-      line-height: 1.05;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.65);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .now-playing-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-      min-width: 0;
-    }
-    .music-note {
-      color: var(--cyan);
-      font-size: clamp(13px, 1.05vw, 17px);
-      flex-shrink: 0;
-    }
-    #radio-status {
-      color: #f1f5f9;
-      font-size: clamp(12px, 1.05vw, 16px);
-      font-weight: 650;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .radio-name { font-size: clamp(26px, 2.8vw, 44px); font-weight: 850; letter-spacing: -0.04em; margin: 0; color: #fff; line-height: 1.05; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .now-playing-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; min-width: 0; }
+    .music-note { color: var(--cyan); font-size: clamp(13px, 1.05vw, 17px); flex-shrink: 0; }
+    #radio-status { color: #f1f5f9; font-size: clamp(12px, 1.05vw, 16px); font-weight: 650; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .play {
       width: clamp(60px, 5.6vw, 84px);
@@ -752,68 +457,152 @@
       flex-shrink: 0;
       backdrop-filter: blur(8px);
     }
-    .play:hover, .play:focus {
-      outline: 2px solid #fff;
-      outline-offset: 4px;
-      transform: scale(1.06);
-      box-shadow: 0 0 38px rgba(236, 72, 153, 0.9), inset 0 0 18px rgba(236, 72, 153, 0.5);
-    }
+    .play:hover, .play:focus { outline: 2px solid #fff; outline-offset: 4px; transform: scale(1.06); box-shadow: 0 0 38px rgba(236, 72, 153, 0.9), inset 0 0 18px rgba(236, 72, 153, 0.5); }
     .play svg { width: 42%; height: 42%; fill: currentColor; filter: drop-shadow(0 0 6px var(--pink)); }
 
-    .radio-stations {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .station-btn {
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: clamp(10px, 0.85vw, 13px);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(13, 17, 38, 0.65);
-      backdrop-filter: blur(8px);
-      color: #e2e8f0;
-      transition: all 0.16s;
-    }
-    .station-btn.active {
-      background: var(--accent-grad);
-      color: #fff;
-      border-color: #f472b6;
-      box-shadow: 0 0 18px var(--accent-shadow);
-    }
+    .radio-stations { position: relative; z-index: 2; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .station-btn { padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: clamp(10px, 0.85vw, 13px); border: 1px solid rgba(255, 255, 255, 0.16); background: rgba(13, 17, 38, 0.65); backdrop-filter: blur(8px); color: #e2e8f0; transition: all 0.16s; }
+    .station-btn.active { background: var(--accent-grad); color: #fff; border-color: #f472b6; box-shadow: 0 0 18px var(--accent-shadow); }
     .station-btn:hover, .station-btn:focus { outline: 2px solid #fff; }
 
-    /* JALUS */
-    footer {
+    footer { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: clamp(10px, 0.82vw, 13px); font-weight: 500; padding: 0 0.2vw; }
+    .theme-btn { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text); font-size: clamp(10px, 0.8vw, 12px); font-weight: 600; }
+    .theme-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); }
+
+    /* --- 3D VIRMALISTE MAAKERA MODAL --- */
+    .globe-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(6, 9, 25, 0.84);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      place-items: center;
+      padding: 2vh 2vw;
+    }
+    .globe-modal-backdrop.open { display: grid; }
+
+    .globe-modal-card {
+      width: min(860px, 94vw);
+      height: min(640px, 90vh);
+      border-radius: 26px;
+      border: 1px solid rgba(139, 92, 246, 0.38);
+      background:
+        radial-gradient(circle at 50% 48%, rgba(56, 189, 248, 0.12), rgba(15, 20, 44, 0.96) 70%),
+        #0b0f24;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(139, 92, 246, 0.22);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 20px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .globe-modal-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      color: var(--muted);
-      font-size: clamp(10px, 0.82vw, 13px);
-      font-weight: 500;
-      padding: 0 0.2vw;
+      gap: 12px;
+      z-index: 2;
     }
-    .theme-btn {
-      display: inline-flex;
+    .globe-title-box h3 {
+      margin: 0;
+      font-size: clamp(16px, 1.5vw, 22px);
+      font-weight: 850;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .globe-title-box p {
+      margin: 3px 0 0;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .globe-controls {
+      display: flex;
       align-items: center;
       gap: 8px;
-      padding: 4px 12px;
+    }
+    .globe-btn {
+      padding: 6px 14px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      font-size: clamp(10px, 0.8vw, 12px);
-      font-weight: 600;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.16s;
     }
-    .theme-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .globe-btn.active {
       background: var(--accent-grad);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent-shadow);
+    }
+    .globe-btn:hover, .globe-btn:focus {
+      outline: 2px solid var(--cyan);
+      color: #fff;
+    }
+
+    .globe-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      cursor: grab;
+    }
+    .globe-stage:active { cursor: grabbing; }
+    canvas#globe-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .globe-hud-left {
+      position: absolute;
+      left: 4px;
+      bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(11, 15, 36, 0.75);
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+      font-size: 12px;
+    }
+    .globe-hud-left strong { color: var(--cyan); }
+
+    .globe-modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      z-index: 2;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .aurora-scale {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 650;
+    }
+    .scale-bar {
+      width: 110px;
+      height: 8px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(16,185,129,0.25), #10b981, #a855f7, #ec4899);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
     }
 
     @media (max-aspect-ratio: 1/1) {
@@ -914,20 +703,20 @@
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
       </section>
 
-      <!-- 3. KOLME VAATEGA MOODUL: VIRMALISED / RANNAINFO / SPORT (ALL VASAKUL) -->
+      <!-- 3. VIRMALISED & RANNAINFO + 3D KAART (ALL VASAKUL) -->
       <section class="card multi-card" id="multi-card">
         <canvas id="aurora-canvas" class="multi-bg-canvas" aria-hidden="true"></canvas>
 
         <div class="card-head">
           <span class="label" id="multi-card-title">Virmaliste Radar • <span id="aurora-loc-label" class="location-badge">Pärnu</span></span>
-          <div class="mode-tabs" role="tablist" aria-label="Vali vaade">
+          <div class="mode-tabs">
             <button class="mode-tab active" data-mode="aurora" id="tab-mode-aurora">🌌 Virmalised</button>
             <button class="mode-tab" data-mode="beach" id="tab-mode-beach">🏖️ Rannainfo</button>
-            <button class="mode-tab" data-mode="sports" id="tab-mode-sports">🏆 Sport</button>
+            <button class="map-open-btn" id="btn-open-globe" title="Ava 3D virmaliste maakera">🌍 Kaart</button>
           </div>
         </div>
 
-        <!-- VAADE 1: VIRMALISED (SÜGIS-TALV-KEVAD) -->
+        <!-- VAADE 1: VIRMALISED -->
         <div class="multi-panel gauge-panel-layout active" id="panel-aurora">
           <div class="gauge-wrap">
             <svg class="gauge-svg" viewBox="0 0 200 135">
@@ -977,7 +766,7 @@
           </div>
         </div>
 
-        <!-- VAADE 2: RANNAINFO & SUVI (MAI - AUGUST) -->
+        <!-- VAADE 2: RANNAINFO & SUVI -->
         <div class="multi-panel gauge-panel-layout" id="panel-beach">
           <div class="gauge-wrap">
             <svg class="gauge-svg" viewBox="0 0 200 135">
@@ -1026,71 +815,8 @@
           </div>
         </div>
 
-        <!-- VAADE 3: SPORT (BC PÄRNU, PÄRNU VAPRUS, EESTI KOONDISED) -->
-        <div class="multi-panel sports-panel-layout" id="panel-sports">
-          <div class="sport-card-item" id="sp-bcp">
-            <div class="sport-item-head">
-              <span class="sport-team-title">🏀 BC Pärnu Sadam</span>
-              <span class="sport-league-tag">Korvpall</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Viimane:</span> <span id="sp-bcp-last">Laen…</span></span>
-              <span class="sport-score-badge win" id="sp-bcp-score">-- : --</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-bcp-next">Laen…</span></span>
-              <span class="sport-score-badge next" id="sp-bcp-date">--</span>
-            </div>
-          </div>
-
-          <div class="sport-card-item" id="sp-vaprus">
-            <div class="sport-item-head">
-              <span class="sport-team-title">⚽ Pärnu JK Vaprus</span>
-              <span class="sport-league-tag">Premium liiga</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Viimane:</span> <span id="sp-vap-last">Laen…</span></span>
-              <span class="sport-score-badge win" id="sp-vap-score">-- : --</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-vap-next">Laen…</span></span>
-              <span class="sport-score-badge next" id="sp-vap-date">--</span>
-            </div>
-          </div>
-
-          <div class="sport-card-item" id="sp-est-fb">
-            <div class="sport-item-head">
-              <span class="sport-team-title">🇪🇪 Eesti Jalgpall</span>
-              <span class="sport-league-tag">Koondis</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Viimane:</span> <span id="sp-efb-last">Laen…</span></span>
-              <span class="sport-score-badge win" id="sp-efb-score">-- : --</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-efb-next">Laen…</span></span>
-              <span class="sport-score-badge next" id="sp-efb-date">--</span>
-            </div>
-          </div>
-
-          <div class="sport-card-item" id="sp-est-bb">
-            <div class="sport-item-head">
-              <span class="sport-team-title">🇪🇪 Eesti Korvpall</span>
-              <span class="sport-league-tag">Koondis</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Viimane:</span> <span id="sp-ebb-last">Laen…</span></span>
-              <span class="sport-score-badge win" id="sp-ebb-score">-- : --</span>
-            </div>
-            <div class="sport-match-row">
-              <span><span class="sport-match-label">Järgmine:</span> <span id="sp-ebb-next">Laen…</span></span>
-              <span class="sport-score-badge next" id="sp-ebb-date">--</span>
-            </div>
-          </div>
-        </div>
-
         <div class="multi-footer">
-          <span id="multi-footer-advice">Automaatne hooajavaade: talvel virmalised, suvel rannainfo</span>
+          <span id="multi-footer-advice">Vajuta "🌍 Kaart", et näha virmaliste reaalajas asukohta 3D maakeral</span>
           <span id="multi-footer-source">Allikas: <strong>NOAA SWPC & Yr.no</strong></span>
         </div>
       </section>
@@ -1136,12 +862,48 @@
     </main>
 
     <footer>
-      <span id="updated">Uuendatakse automaatselt • Allikad: Elering, Met.no, NOAA, Open-Meteo & TheSportsDB</span>
+      <span id="updated">Uuendatakse automaatselt • Allikad: Elering, Met.no, NOAA & Open-Meteo</span>
       <button id="theme-button" class="theme-btn">
         <span class="theme-dot"></span>
         <span>Teema: <strong id="theme-name">Midnight Indigo</strong></span>
       </button>
     </footer>
+  </div>
+
+  <!-- 3D VIRMALISTE MAAKERA MODAL -->
+  <div class="globe-modal-backdrop" id="globe-modal" role="dialog" aria-modal="true" aria-label="3D Virmaliste Maakera">
+    <div class="globe-modal-card">
+      <div class="globe-modal-head">
+        <div class="globe-title-box">
+          <h3>🌍 Reaalajas 3D Virmaliste Maakera</h3>
+          <p>Lohista hiire või sõrmega pööramiseks • Helendav vöönd näitab virmaliste hetkeasukohta</p>
+        </div>
+        <div class="globe-controls">
+          <button class="globe-btn active" id="btn-globe-spin">🔄 Pöörlemine</button>
+          <button class="globe-btn" id="btn-globe-estonia">📍 Keskenda minule</button>
+          <button class="globe-btn" id="btn-globe-close" style="border-color:rgba(244,63,94,0.5);color:#fda4af;">✕ Sulge</button>
+        </div>
+      </div>
+
+      <div class="globe-stage" id="globe-stage">
+        <canvas id="globe-canvas"></canvas>
+        <div class="globe-hud-left">
+          <div>Kp-indeks: <strong id="globe-hud-kp">Kp --</strong></div>
+          <div>Magnetväli Bz: <strong id="globe-hud-bz">-- nT</strong></div>
+          <div>Päikesetuul: <strong id="globe-hud-speed">--- km/s</strong></div>
+          <div>Asukoht: <strong id="globe-hud-loc">Pärnu</strong></div>
+        </div>
+      </div>
+
+      <div class="globe-modal-foot">
+        <div class="aurora-scale">
+          <span>Virmaliste intensiivsus:</span>
+          <div class="scale-bar"></div>
+          <span>Nõrk (Roheline) → Torm (Lilla / Roosa)</span>
+        </div>
+        <span id="globe-data-status">NOAA OVATION & Geomagnetic Oval</span>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1370,6 +1132,7 @@
       }
 
       $('location-button').textContent = `📍 ${weatherPlace.name}`;
+      $('globe-hud-loc').textContent = `${weatherPlace.name} (${Number(weatherPlace.lat).toFixed(1)}°N)`;
       await loadWeather();
       await loadAurora();
       await loadBeachInfo();
@@ -1490,11 +1253,10 @@
       } catch(e){}
     }
 
-    // --- 3. KOLME VAATEGA MOODUL: VIRMALISED / RANNAINFO / SPORT ---
-    // Automaatne hooaja valik: Mai (4) kuni August (7) = 'beach', muidu 'aurora'
-    const currentMonth = new Date().getMonth(); // 0=Jaan, 4=Mai, 7=Aug
+    // --- 3. VIRMALISED & RANNAINFO MOODUL ---
+    const currentMonth = new Date().getMonth();
     let activeMode = (currentMonth >= 4 && currentMonth <= 7) ? 'beach' : 'aurora';
-    let auroraAdviceText = 'Virmaliste vaatlemiseks on parim negatiivne Bz ja selge öötaevas';
+    let auroraAdviceText = 'Vajuta "🌍 Kaart", et näha virmaliste reaalajas asukohta 3D maakeral';
     let beachAdviceText = 'Pärnu ranna ja lahe reaalajas vee-, UV- ning ilmainfo';
 
     function switchMode(mode) {
@@ -1504,21 +1266,16 @@
       });
       $('panel-aurora').classList.toggle('active', mode === 'aurora');
       $('panel-beach').classList.toggle('active', mode === 'beach');
-      $('panel-sports').classList.toggle('active', mode === 'sports');
 
       const locName = weatherPlace.name || 'Pärnu';
       if (mode === 'aurora') {
         $('multi-card-title').innerHTML = `Virmaliste Radar • <span class="location-badge">${locName}</span>`;
         $('multi-footer-advice').textContent = auroraAdviceText;
         $('multi-footer-source').innerHTML = `Allikas: <strong>NOAA SWPC & Yr.no</strong>`;
-      } else if (mode === 'beach') {
+      } else {
         $('multi-card-title').innerHTML = `Rannainfo & Suvi • <span class="location-badge">${locName} rand</span>`;
         $('multi-footer-advice').textContent = beachAdviceText;
         $('multi-footer-source').innerHTML = `Allikas: <strong>Open-Meteo Marine & Air</strong>`;
-      } else if (mode === 'sports') {
-        $('multi-card-title').innerHTML = `Mängud & Tulemused • <span class="location-badge">Pärnu & Eesti</span>`;
-        $('multi-footer-advice').textContent = `BC Pärnu Sadam, Pärnu JK Vaprus ja Eesti rahvuskoondised`;
-        $('multi-footer-source').innerHTML = `Allikas: <strong>TheSportsDB Live</strong>`;
       }
     }
 
@@ -1528,11 +1285,14 @@
 
     // 3A. VIRMALISTE RADAR (NOAA)
     let currentAuroraProb = 25;
+    let liveKp = 2.6;
+    let liveBz = -2.1;
+    let liveSpeed = 420;
 
     async function loadAurora() {
-      let kp = 2.3;
-      let bz = -1.5;
-      let speed = 410;
+      let kp = liveKp;
+      let bz = liveBz;
+      let speed = liveSpeed;
 
       try {
         const kpData = await fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', 5000);
@@ -1562,6 +1322,10 @@
           }
         }
       } catch(e) {}
+
+      liveKp = kp;
+      liveBz = bz;
+      liveSpeed = speed;
 
       const lat = Number(weatherPlace.lat) || 58.38;
       const sun = getSunTimes(lat, Number(weatherPlace.lon) || 24.5);
@@ -1617,19 +1381,15 @@
       $('au-darkness').textContent = sun.isDark ? '🌙 Pime aeg (Sobiv)' : '☀️ Valge aeg';
       $('au-lat').textContent = `${lat.toFixed(1)}° N (${weatherPlace.name})`;
 
-      if (!sun.isDark) {
-        auroraAdviceText = `Väljas on valge (loojang ${sun.set}) • Spidomeeter näitab magnettormi tugevust`;
-      } else if (localCloudCover >= 75) {
-        auroraAdviceText = `Asukohas ${weatherPlace.name} on pilvisus ${localCloudCover}% • Otsi selgemat taevast`;
-      } else {
-        auroraAdviceText = `Taevas on piisavalt selge ja pime • Parim vaatlussuund on põhjakaar`;
-      }
+      $('globe-hud-kp').textContent = `Kp ${kp.toFixed(1)} (${kpStatus})`;
+      $('globe-hud-bz').textContent = `${bz > 0 ? '+' : ''}${bz.toFixed(1)} nT`;
+      $('globe-hud-speed').textContent = `${speed} km/s`;
+
       if (activeMode === 'aurora') $('multi-footer-advice').textContent = auroraAdviceText;
     }
 
-    // 3B. RANNAINFO & SUVI (OPEN-METEO MARINE + AIR QUALITY + CAPE)
+    // 3B. RANNAINFO & SUVI
     async function loadBeachInfo() {
-      // Pärnu lahe koordinaadid või kasutaja rannik
       const lat = Number(weatherPlace.lat) || 58.37;
       const lon = Number(weatherPlace.lon) || 24.48;
 
@@ -1640,7 +1400,6 @@
       let aqi = 18;
       let pollenLevel = 'Madal';
 
-      // 1. Merevee temperatuur ja lainekõrgus (Open-Meteo Marine API)
       try {
         const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,sea_surface_temperature`;
         const mData = await fetchJson(marineUrl, 5000);
@@ -1650,7 +1409,6 @@
         }
       } catch(e) {}
 
-      // 2. UV-indeks, Õhukvaliteet ja Õietolm (Open-Meteo Air Quality API)
       try {
         const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi,uv_index,birch_pollen,grass_pollen`;
         const aqData = await fetchJson(aqUrl, 5000);
@@ -1662,14 +1420,12 @@
         }
       } catch(e) {}
 
-      // 3. Äikeseoht CAPE (Open-Meteo Forecast API)
       try {
         const capeUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=cape`;
         const cData = await fetchJson(capeUrl, 5000);
         if (Number.isFinite(cData?.current?.cape)) cape = Math.round(cData.current.cape);
       } catch(e) {}
 
-      // Arvutame Rannailma skoori (0-100%)
       let score = 0;
       score += Math.max(0, Math.min(50, (currentAirTemp - 10) * 3.3));
       score += Math.max(0, Math.min(30, (waterTemp - 10) * 2.5));
@@ -1678,16 +1434,9 @@
 
       let bVerdict = 'HOOAJAVÄLINE';
       let bColor = '#38bdf8';
-      if (finalScore >= 75) {
-        bVerdict = 'IDEAALNE RANNAILM!';
-        bColor = '#34d399';
-      } else if (finalScore >= 50) {
-        bVerdict = 'SOE SUVEPÄEV';
-        bColor = '#fbbf24';
-      } else if (finalScore >= 30) {
-        bVerdict = 'MÕÕDUKAS / JAHEDAM';
-        bColor = '#a855f7';
-      }
+      if (finalScore >= 75) { bVerdict = 'IDEAALNE RANNAILM!'; bColor = '#34d399'; }
+      else if (finalScore >= 50) { bVerdict = 'SOE SUVEPÄEV'; bColor = '#fbbf24'; }
+      else if (finalScore >= 30) { bVerdict = 'MÕÕDUKAS / JAHEDAM'; bColor = '#a855f7'; }
 
       const offset = 251.2 - (finalScore / 100) * 251.2;
       $('beach-gauge-arc').style.strokeDashoffset = offset.toFixed(1);
@@ -1716,101 +1465,301 @@
       if (activeMode === 'beach') $('multi-footer-advice').textContent = beachAdviceText;
     }
 
-    // 3C. SPORT (BC PÄRNU SADAM, PÄRNU JK VAPRUS, EESTI KOONDISED)
-    const SPORTS_TEAMS = [
-      {
-        key: 'bcp',
-        query: 'Pärnu Sadam',
-        fallbackLast: 'vs Tartu Ülikool',
-        fallbackScore: '84 : 79',
-        fallbackWin: true,
-        fallbackNext: 'vs Kalev/Cramo',
-        fallbackDate: 'KML / Est-Lat'
-      },
-      {
-        key: 'vap',
-        query: 'Pärnu Vaprus',
-        fallbackLast: 'vs Paide LM',
-        fallbackScore: '1 : 1',
-        fallbackWin: true,
-        fallbackNext: 'vs FC Flora',
-        fallbackDate: 'Premium liiga'
-      },
-      {
-        key: 'efb',
-        query: 'Estonia',
-        sport: 'Soccer',
-        fallbackLast: 'vs Rootsi',
-        fallbackScore: '0 : 3',
-        fallbackWin: false,
-        fallbackNext: 'vs Slovakkia',
-        fallbackDate: 'UEFA Rahvuste liiga'
-      },
-      {
-        key: 'ebb',
-        query: 'Estonia Basketball',
-        sport: 'Basketball',
-        fallbackLast: 'vs Poola',
-        fallbackScore: '82 : 78',
-        fallbackWin: true,
-        fallbackNext: 'vs Leedu',
-        fallbackDate: 'FIBA Aken'
+    // --- INTERAKTIIVNE 3D VIRMALISTE MAAKERA ---
+    let worldLand = null;
+    let ovationPoints = [];
+    let globeOpen = false;
+    let globeAutoSpin = true;
+    let globeRotation = [-24.5, -62, 0]; // Fokuseeritud Põhja-Euroopale / Eestile
+    let isDraggingGlobe = false;
+    let dragStart = [0, 0];
+    let rotStart = [0, 0];
+
+    async function initGlobeData() {
+      // 1. Laeme maailmakaardi kontuurid
+      try {
+        const topo = await fetchJson('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json', 6000);
+        if (window.topojson && topo) {
+          worldLand = topojson.feature(topo, topo.objects.land);
+        }
+      } catch(e) {}
+
+      // 2. Laeme NOAA OVATION reaalajas virmaliste koordinaadid
+      try {
+        const ov = await fetchJson('https://services.swpc.noaa.gov/json/ovation_aurora_latest.json', 7000);
+        if (Array.isArray(ov?.coordinates)) {
+          // Filtreerime põhjapoolkera punktid, kus tõenäosus >= 6%
+          ovationPoints = ov.coordinates.filter(pt => pt[1] >= 42 && pt[2] >= 6 && (pt[0] % 2 === 0) && (pt[1] % 2 === 0));
+          $('globe-data-status').textContent = `NOAA OVATION Live (${ovationPoints.length} aktiivset punkti)`;
+        }
+      } catch(e) {}
+    }
+
+    function generateGeomagneticOvalRing(kpVal) {
+      // Geomagnetiline põhjapoolus ~80.6°N, -72.6°W
+      const magPoleLat = 80.6;
+      const magPoleLon = -72.6;
+      const ovalRadiusDeg = 18 + Math.min(7, Math.max(1.5, kpVal)) * 2.35; // Mida suurem Kp, seda lõuna poole ulatub
+      const ring = [];
+      const rad = Math.PI / 180;
+      const lat0 = magPoleLat * rad;
+      const lon0 = magPoleLon * rad;
+      const d = ovalRadiusDeg * rad;
+
+      for (let brng = 0; brng <= 360; brng += 4) {
+        const b = brng * rad;
+        const lat2 = Math.asin(Math.sin(lat0) * Math.cos(d) + Math.cos(lat0) * Math.sin(d) * Math.cos(b));
+        const lon2 = lon0 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(lat0), Math.cos(d) - Math.sin(lat0) * Math.sin(lat2));
+        ring.push([lon2 / rad, lat2 / rad]);
       }
-    ];
+      return { ring, ovalRadiusDeg };
+    }
 
-    async function loadSports() {
-      for (const t of SPORTS_TEAMS) {
-        let lastText = t.fallbackLast;
-        let scoreText = t.fallbackScore;
-        let isWin = t.fallbackWin;
-        let nextText = t.fallbackNext;
-        let dateText = t.fallbackDate;
+    const gCanvas = $('globe-canvas');
+    const gCtx = gCanvas.getContext('2d');
+    let starField = Array.from({length: 90}, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.6 + 0.4,
+      a: Math.random() * 0.65 + 0.2
+    }));
 
-        try {
-          const searchUrl = `https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(t.query)}`;
-          const sData = await fetchJson(searchUrl, 4500);
-          const teams = sData?.teams || [];
-          const team = t.sport ? (teams.find(x => x.strSport === t.sport) || teams[0]) : teams[0];
+    function render3DGlobe() {
+      if (!globeOpen) return;
+      const rect = gCanvas.getBoundingClientRect();
+      const dpr = devicePixelRatio || 1;
+      if (gCanvas.width !== Math.floor(rect.width * dpr) || gCanvas.height !== Math.floor(rect.height * dpr)) {
+        gCanvas.width = rect.width * dpr;
+        gCanvas.height = rect.height * dpr;
+      }
 
-          if (team?.idTeam) {
-            const [lastRes, nextRes] = await Promise.all([
-              fetchJson(`https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${team.idTeam}`, 4500).catch(() => null),
-              fetchJson(`https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=${team.idTeam}`, 4500).catch(() => null)
-            ]);
+      gCtx.save();
+      gCtx.scale(dpr, dpr);
+      const w = rect.width, h = rect.height;
+      const cx = w / 2, cy = h / 2;
+      const radius = Math.min(w, h) * 0.41;
 
-            const lastEv = lastRes?.results?.[0];
-            if (lastEv && lastEv.intHomeScore !== null) {
-              const isHome = lastEv.idHomeTeam === team.idTeam;
-              const opp = isHome ? lastEv.strAwayTeam : lastEv.strHomeTeam;
-              const myS = Number(isHome ? lastEv.intHomeScore : lastEv.intAwayScore);
-              const opS = Number(isHome ? lastEv.intAwayScore : lastEv.intHomeScore);
-              lastText = `vs ${opp}`;
-              scoreText = `${lastEv.intHomeScore} : ${lastEv.intAwayScore}`;
-              isWin = myS >= opS;
+      gCtx.clearRect(0, 0, w, h);
+
+      // 1. Kosmosetähed taustal
+      starField.forEach(s => {
+        gCtx.fillStyle = `rgba(226, 232, 240, ${s.a})`;
+        gCtx.beginPath();
+        gCtx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+        gCtx.fill();
+      });
+
+      if (globeAutoSpin && !isDraggingGlobe) {
+        globeRotation[0] = (globeRotation[0] - 0.16) % 360;
+      }
+
+      // Atmosfääri väline neoonkuma
+      const atmoGrad = gCtx.createRadialGradient(cx, cy, radius * 0.88, cx, cy, radius * 1.18);
+      atmoGrad.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
+      atmoGrad.addColorStop(0.5, 'rgba(168, 85, 247, 0.14)');
+      atmoGrad.addColorStop(1, 'rgba(11, 15, 36, 0)');
+      gCtx.fillStyle = atmoGrad;
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, radius * 1.18, 0, Math.PI * 2);
+      gCtx.fill();
+
+      // Maakera ookeani 3D sfäär (Midnight Indigo)
+      const oceanGrad = gCtx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, radius * 0.1, cx, cy, radius);
+      oceanGrad.addColorStop(0, '#1e2759');
+      oceanGrad.addColorStop(0.65, '#0f1535');
+      oceanGrad.addColorStop(1, '#070a1c');
+      gCtx.fillStyle = oceanGrad;
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+      gCtx.fill();
+
+      if (window.d3 && d3.geoOrthographic) {
+        const projection = d3.geoOrthographic()
+          .scale(radius)
+          .translate([cx, cy])
+          .clipAngle(90)
+          .rotate(globeRotation);
+
+        const path = d3.geoPath(projection, gCtx);
+
+        // 2. Koordinaatvõrgustik (Graticule)
+        const graticule = d3.geoGraticule10();
+        gCtx.strokeStyle = 'rgba(148, 163, 184, 0.11)';
+        gCtx.lineWidth = 0.8;
+        gCtx.beginPath();
+        path(graticule);
+        gCtx.stroke();
+
+        // 3. Mandrid ja riigid
+        if (worldLand) {
+          gCtx.fillStyle = 'rgba(30, 41, 82, 0.92)';
+          gCtx.strokeStyle = 'rgba(99, 102, 241, 0.5)';
+          gCtx.lineWidth = 1;
+          gCtx.beginPath();
+          path(worldLand);
+          gCtx.fill();
+          gCtx.stroke();
+        }
+
+        // 4. Virmaliste helendav ovaal (Geomagnetic + Live NOAA OVATION)
+        const { ring } = generateGeomagneticOvalRing(liveKp);
+        const isStorm = liveKp >= 5 || liveBz <= -5;
+
+        // Kihiline helendav virmaliste vöönd
+        const bandWidths = [24, 15, 7];
+        bandWidths.forEach((bw, idx) => {
+          gCtx.save();
+          gCtx.beginPath();
+          let started = false;
+          ring.forEach(coord => {
+            const pt = projection(coord);
+            if (pt) {
+              if (!started) { gCtx.moveTo(pt[0], pt[1]); started = true; }
+              else gCtx.lineTo(pt[0], pt[1]);
+            } else {
+              started = false;
             }
+          });
+          gCtx.strokeStyle = idx === 0
+            ? 'rgba(16, 185, 129, 0.18)'
+            : idx === 1
+              ? (isStorm ? 'rgba(168, 85, 247, 0.36)' : 'rgba(52, 211, 153, 0.38)')
+              : (isStorm ? 'rgba(236, 72, 153, 0.8)' : 'rgba(52, 211, 153, 0.85)');
+          gCtx.lineWidth = bw;
+          gCtx.lineCap = 'round';
+          gCtx.lineJoin = 'round';
+          gCtx.shadowColor = isStorm ? '#ec4899' : '#10b981';
+          gCtx.shadowBlur = 16;
+          gCtx.stroke();
+          gCtx.restore();
+        });
 
-            const nextEv = nextRes?.events?.[0];
-            if (nextEv) {
-              const isHome = nextEv.idHomeTeam === team.idTeam;
-              const opp = isHome ? nextEv.strAwayTeam : nextEv.strHomeTeam;
-              nextText = `${isHome ? 'Kodus' : 'Võõrsil'} vs ${opp}`;
-              if (nextEv.dateEvent) {
-                const d = new Date(nextEv.dateEvent);
-                dateText = d.toLocaleDateString('et-EE', { day: '2-digit', month: 'short' });
+        // NOAA OVATION reaalajas täppide kiht
+        if (ovationPoints.length) {
+          gCtx.save();
+          for (let i = 0; i < ovationPoints.length; i += 2) {
+            const p = ovationPoints[i];
+            const lon = p[0] > 180 ? p[0] - 360 : p[0];
+            const lat = p[1];
+            const val = p[2];
+            // Kontrollime, kas punkt on nähtaval poolkeral
+            const centerLon = -globeRotation[0];
+            const centerLat = -globeRotation[1];
+            const d3Dist = d3.geoDistance([lon, lat], [centerLon, centerLat]);
+            if (d3Dist < Math.PI / 2) {
+              const xy = projection([lon, lat]);
+              if (xy) {
+                const alpha = Math.min(0.85, val / 45);
+                gCtx.fillStyle = val > 35
+                  ? `rgba(236, 72, 153, ${alpha})`
+                  : val > 18
+                    ? `rgba(168, 85, 247, ${alpha})`
+                    : `rgba(16, 185, 129, ${alpha})`;
+                gCtx.beginPath();
+                gCtx.arc(xy[0], xy[1], Math.max(2.5, (val / 15) + 2), 0, Math.PI * 2);
+                gCtx.fill();
               }
             }
           }
-        } catch(e) {}
+          gCtx.restore();
+        }
 
-        $(`sp-${t.key}-last`).textContent = lastText;
-        $(`sp-${t.key}-score`).textContent = scoreText;
-        $(`sp-${t.key}-score`).className = `sport-score-badge ${isWin ? 'win' : 'loss'}`;
-        $(`sp-${t.key}-next`).textContent = nextText;
-        $(`sp-${t.key}-date`).textContent = dateText;
+        // 5. Kasutaja asukoha helendav märk (nt Pärnu)
+        const userLon = Number(weatherPlace.lon) || 24.5;
+        const userLat = Number(weatherPlace.lat) || 58.38;
+        const distUser = d3.geoDistance([userLon, userLat], [-globeRotation[0], -globeRotation[1]]);
+        if (distUser < Math.PI / 2) {
+          const uPt = projection([userLon, userLat]);
+          if (uPt) {
+            const pulseR = 6 + Math.sin(Date.now() * 0.006) * 3;
+            gCtx.fillStyle = 'rgba(34, 211, 238, 0.35)';
+            gCtx.beginPath();
+            gCtx.arc(uPt[0], uPt[1], pulseR * 1.8, 0, Math.PI * 2);
+            gCtx.fill();
+
+            gCtx.fillStyle = '#22d3ee';
+            gCtx.strokeStyle = '#ffffff';
+            gCtx.lineWidth = 2;
+            gCtx.beginPath();
+            gCtx.arc(uPt[0], uPt[1], 5, 0, Math.PI * 2);
+            gCtx.fill();
+            gCtx.stroke();
+
+            gCtx.fillStyle = '#ffffff';
+            gCtx.font = '800 12px Inter, system-ui';
+            gCtx.shadowColor = '#000';
+            gCtx.shadowBlur = 6;
+            gCtx.fillText(weatherPlace.name || 'Pärnu', uPt[0] + 10, uPt[1] + 4);
+            gCtx.shadowBlur = 0;
+          }
+        }
       }
+
+      // Maakera klaasjas äärerõngas
+      gCtx.strokeStyle = 'rgba(139, 92, 246, 0.45)';
+      gCtx.lineWidth = 2;
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+      gCtx.stroke();
+
+      gCtx.restore();
+      if (globeOpen) requestAnimationFrame(render3DGlobe);
     }
 
-    // TAUSTA-ANIMATSIOON (VIRMALISED VÕI SUVELAINED)
+    // 3D Maakera modali juhtimine
+    $('btn-open-globe').addEventListener('click', () => {
+      globeOpen = true;
+      $('globe-modal').classList.add('open');
+      if (!worldLand) initGlobeData();
+      requestAnimationFrame(render3DGlobe);
+    });
+
+    $('btn-globe-close').addEventListener('click', () => {
+      globeOpen = false;
+      $('globe-modal').classList.remove('open');
+    });
+
+    $('globe-modal').addEventListener('click', e => {
+      if (e.target === $('globe-modal')) {
+        globeOpen = false;
+        $('globe-modal').classList.remove('open');
+      }
+    });
+
+    $('btn-globe-spin').addEventListener('click', () => {
+      globeAutoSpin = !globeAutoSpin;
+      $('btn-globe-spin').classList.toggle('active', globeAutoSpin);
+    });
+
+    $('btn-globe-estonia').addEventListener('click', () => {
+      globeAutoSpin = false;
+      $('btn-globe-spin').classList.remove('active');
+      const uLon = Number(weatherPlace.lon) || 24.5;
+      const uLat = Number(weatherPlace.lat) || 58.38;
+      globeRotation = [-uLon, -Math.min(72, uLat + 4), 0];
+    });
+
+    // Hiire ja puuteekraaniga 3D maakera pööramine
+    const stage = $('globe-stage');
+    stage.addEventListener('pointerdown', e => {
+      isDraggingGlobe = true;
+      dragStart = [e.clientX, e.clientY];
+      rotStart = [...globeRotation];
+      stage.setPointerCapture(e.pointerId);
+    });
+
+    stage.addEventListener('pointermove', e => {
+      if (!isDraggingGlobe) return;
+      const dx = e.clientX - dragStart[0];
+      const dy = e.clientY - dragStart[1];
+      globeRotation[0] = rotStart[0] + dx * 0.35;
+      globeRotation[1] = Math.max(-85, Math.min(85, rotStart[1] - dy * 0.35));
+    });
+
+    stage.addEventListener('pointerup', () => { isDraggingGlobe = false; });
+    stage.addEventListener('pointercancel', () => { isDraggingGlobe = false; });
+
+    // TAUSTA-ANIMATSIOON KAARDIL
     const aCanvas = $('aurora-canvas');
     const aCtx = aCanvas.getContext('2d');
     let aPhase = 0;
@@ -2024,12 +1973,12 @@
     switchMode(activeMode);
     loadElectricity();
     autoDetectLocation(false);
-    loadSports();
+    initGlobeData();
     setInterval(loadElectricity, 10 * 60 * 1000);
     setInterval(loadWeather, 30 * 60 * 1000);
     setInterval(loadAurora, 5 * 60 * 1000);
     setInterval(loadBeachInfo, 20 * 60 * 1000);
-    setInterval(loadSports, 60 * 60 * 1000);
+    setInterval(initGlobeData, 15 * 60 * 1000);
     setInterval(updateNowPlaying, 15 * 1000);
 
     addEventListener('resize', () => {

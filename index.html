@@ -1462,11 +1462,19 @@
       return { mlat, kpNeeded, space, darkF, cloudF, chance: Math.min(95, space * darkF * cloudF) };
     }
 
+    // Proovib väiksemat 5-minutilist faili enne, siis 2-tunnist; aeglase võrgu jaoks pikem ooteaeg
+    async function fetchFirst(names) {
+      for (const n of names) {
+        try { return await fetchJson(`https://services.swpc.noaa.gov/products/solar-wind/${n}.json`, 10000); } catch(e) {}
+      }
+      return null;
+    }
+
     async function loadAurora() {
       const [kpData, magData, plasmaData] = await Promise.all([
         fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', 5000).catch(() => null),
-        fetchJson('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json', 5000).catch(() => null),
-        fetchJson('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json', 5000).catch(() => null)
+        fetchFirst(['mag-5-minute', 'mag-2-hour']),
+        fetchFirst(['plasma-5-minute', 'plasma-2-hour'])
       ]);
 
       const newKp = lastValue(kpData, 1, ['Kp', 'kp', 'kp_index', 'estimated_kp']);
@@ -1490,7 +1498,7 @@
       const prob = Math.round(r.chance);
       const spacePct = Math.round(r.space);
       let verdict = 'RAHULIK';
-      let subverdict = `Siin on vaja u Kp ${r.kpNeeded.toFixed(1)}`;
+      let subverdict = `Siin on vaja Kp ${r.kpNeeded.toFixed(1)}`;
       let verdictColor = '#22d3ee';
 
       if (prob >= 60) {

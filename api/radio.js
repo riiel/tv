@@ -80,6 +80,21 @@ export default async function handler(req, res) {
   const streamUrl = req.query.url;
   if (!streamUrl || !/^https?:\/\//i.test(streamUrl)) return res.status(400).json({ title: '' });
 
+  // Diagnostika: /api/radio?url=...&debug=1 näitab, mida jaama server tegelikult vastab
+  if (req.query.debug) {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), 6000);
+    try {
+      const r = await fetch(streamUrl, { headers: { 'Icy-MetaData': '1', 'User-Agent': 'VLC/3.0.18 LibVLC/3.0.18' }, signal: c.signal });
+      const headers = {};
+      r.headers.forEach((v, k) => { if (/^(icy-|content-type|server|x-)/i.test(k)) headers[k] = v; });
+      try { await r.body?.cancel(); } catch (e) {}
+      return res.status(200).json({ status: r.status, headers });
+    } catch (e) {
+      return res.status(200).json({ error: String(e && e.message || e) });
+    } finally { clearTimeout(t); }
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
 

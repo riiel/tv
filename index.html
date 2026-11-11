@@ -246,6 +246,17 @@
       color: #fff;
     }
 
+    .loc-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .place-select {
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      max-width: 13vw;
+      text-overflow: ellipsis;
+    }
+    .place-select option { background: #0b0f24; color: #f8fafc; }
+
     .weather-middle {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -663,7 +674,10 @@
       <section class="card">
         <div class="card-head">
           <span class="label">Ilm & Prognoos • <span id="location" class="location-badge">Tuvastan asukohta…</span></span>
-          <button id="location-button" class="pill-btn">📍 Uuenda asukohta</button>
+          <div class="loc-controls">
+            <select id="place-select" class="pill-btn place-select" aria-label="Vali asukoht"></select>
+            <button id="location-button" class="pill-btn">📍 Uuenda</button>
+          </div>
         </div>
 
         <div class="weather-middle">
@@ -789,7 +803,7 @@
 
           <div class="aurora-metrics-grid">
             <div class="a-metric">
-              <span class="a-metric-label">Merevesi (Laht)</span>
+              <span class="a-metric-label">Merevesi</span>
               <span class="a-metric-val" id="bc-water">--.-°C</span>
             </div>
             <div class="a-metric">
@@ -1072,18 +1086,42 @@
     }
 
     // --- 2. AUTOMAATNE ASUKOHT + YR.NO ILM ---
-    let weatherPlace = { name: 'Pärnu', lat: 58.3859, lon: 24.4971 };
+    let weatherPlace = { name: 'Pärnu', lat: 58.3859, lon: 24.4971, source: 'default' };
     let localCloudCover = 35;
     let currentAirTemp = 15;
     let currentWindSpeed = 4;
 
+    // Käsitsi valitavad kohad. Uue koha lisamiseks kopeeri rida ja muuda nimi + koordinaadid.
+    const PLACE_PRESETS = [
+      { name: 'Pärnu',     lat: 58.3859, lon: 24.4971 },
+      { name: 'Vändra',    lat: 58.6481, lon: 25.0361 },
+      { name: 'Tallinn',   lat: 59.4370, lon: 24.7536 },
+      { name: 'Tartu',     lat: 58.3780, lon: 26.7290 },
+      { name: 'Helsinki',  lat: 60.1699, lon: 24.9384 },
+      { name: 'Turku',     lat: 60.4518, lon: 22.2666 },
+      { name: 'Tampere',   lat: 61.4978, lon: 23.7610 },
+      { name: 'Oulu',      lat: 65.0121, lon: 25.4651 },
+      { name: 'Rovaniemi', lat: 66.5039, lon: 25.7294 }
+    ];
+
+    // source: 'gps' (seadme asukoht), 'ip' (ligikaudne), 'manual' (ise valitud), 'default'
     try {
-      const savedPlace = localStorage.getItem('koduvaade_place');
-      if (savedPlace) {
-        const parsed = JSON.parse(savedPlace);
-        if (parsed?.lat && parsed?.lon && parsed?.name) weatherPlace = parsed;
+      const parsed = JSON.parse(localStorage.getItem('koduvaade_place') || 'null');
+      if (parsed && parsed.name && Number.isFinite(Number(parsed.lat)) && Number.isFinite(Number(parsed.lon))) {
+        weatherPlace = { name: parsed.name, lat: Number(parsed.lat), lon: Number(parsed.lon), source: parsed.source || 'ip' };
       }
     } catch(e) {}
+
+    function savePlace() {
+      try { localStorage.setItem('koduvaade_place', JSON.stringify(weatherPlace)); } catch(e) {}
+    }
+
+    function distanceKm(lat1, lon1, lat2, lon2) {
+      const rad = Math.PI / 180;
+      const a = Math.sin((lat2 - lat1) * rad / 2) ** 2 +
+                Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin((lon2 - lon1) * rad / 2) ** 2;
+      return 12742 * Math.asin(Math.sqrt(a));
+    }
 
     async function placeNameFromCoordinates(lat, lon) {
       try {
@@ -1102,10 +1140,34 @@
       return weatherPlace.name || 'Pärnu';
     }
 
-    async function autoDetectLocation(forceGps = false) {
-      $('location-button').textContent = '📍 Tuvastan…';
+    function fillPlaceSelect() {
+      $('place-select').innerHTML = '<option value="auto">📍 Automaatne</option>' +
+        PLACE_PRESETS.map((p, i) => `<option value="${i}">${p.name}</option>`).join('');
+      syncPlaceSelect();
+    }
 
-      const gpsPromise = new Promise(resolve => {
+    function syncPlaceSelect() {
+      const idx = weatherPlace.source === 'manual' ? PLACE_PRESETS.findIndex(p => p.name === weatherPlace.name) : -1;
+      $('place-select').value = idx >= 0 ? String(idx) : 'auto';
+    }
+
+    // Laeb kõik asukohast sõltuva uuesti: ilm, virmalised, lähim rand
+    async function refreshForPlace() {
+      syncPlaceSelect();
+      $('globe-hud-loc').textContent = `${weatherPlace.name} (${Number(weatherPlace.lat).toFixed(1)}°N)`;
+      switchMode(activeMode);
+      await loadWeather();
+      await Promise.all([loadAurora(), loadBeachInfo()]);
+    }
+
+    async function autoDetectLocation(forceGps = false) {
+      // Ise valitud kohta automaatika üle ei kirjuta (v.a "Uuenda" nupp)
+      if (weatherPlace.source === 'manual' && !forceGps) return;
+
+      const btn = $('location-button');
+      btn.textContent = '📍 Tuvastan…';
+
+      let coords = await new Promise(resolve => {
         if (!navigator.geolocation) return resolve(null);
         navigator.geolocation.getCurrentPosition(
           pos => resolve({ lat: Number(pos.coords.latitude.toFixed(4)), lon: Number(pos.coords.longitude.toFixed(4)) }),
@@ -1113,12 +1175,13 @@
           { enableHighAccuracy: false, timeout: forceGps ? 8000 : 3500, maximumAge: 600000 }
         );
       });
+      let source = 'gps';
 
-      let coords = await gpsPromise;
-
-      if (!coords) {
-        const ipApis = ['https://ipwho.is/', 'https://ipapi.co/json/'];
-        for (const api of ipApis) {
+      // GPS puudub (nt telekas). Kui koht on varem GPS-iga leitud, jääb see kehtima;
+      // IP-põhist (ebatäpset) asukohta kasutame ainult siis, kui paremat pole.
+      if (!coords && (forceGps || weatherPlace.source !== 'gps')) {
+        source = 'ip';
+        for (const api of ['https://ipwho.is/', 'https://ipapi.co/json/']) {
           try {
             const d = await fetchJson(api, 3500);
             const lat = Number(d?.latitude ?? d?.lat);
@@ -1131,20 +1194,44 @@
         }
       }
 
-      if (coords) {
-        const cityName = await placeNameFromCoordinates(coords.lat, coords.lon) || coords.cityHint || 'Pärnu';
-        weatherPlace = { name: cityName, lat: coords.lat, lon: coords.lon };
-        try { localStorage.setItem('koduvaade_place', JSON.stringify(weatherPlace)); } catch(e) {}
-      }
+      btn.textContent = '📍 Uuenda';
+      if (!coords) { syncPlaceSelect(); return; }
 
-      $('location-button').textContent = `📍 ${weatherPlace.name}`;
-      $('globe-hud-loc').textContent = `${weatherPlace.name} (${Number(weatherPlace.lat).toFixed(1)}°N)`;
-      await loadWeather();
-      await loadAurora();
-      await loadBeachInfo();
+      const moved = distanceKm(weatherPlace.lat, weatherPlace.lon, coords.lat, coords.lon) > 2;
+      const wasManual = weatherPlace.source === 'manual';
+      if (moved || wasManual) {
+        const cityName = await placeNameFromCoordinates(coords.lat, coords.lon) || coords.cityHint || 'Pärnu';
+        weatherPlace = { name: cityName, lat: coords.lat, lon: coords.lon, source };
+      } else {
+        weatherPlace.source = source;
+      }
+      savePlace();
+
+      if (moved || wasManual || forceGps) await refreshForPlace();
+      else syncPlaceSelect();
+    }
+
+    // Avamisel: näita kohe viimast teadaolevat kohta, seejärel täpsusta asukohta taustal
+    async function startLocation() {
+      await refreshForPlace();
+      await autoDetectLocation(false);
     }
 
     $('location-button').addEventListener('click', () => autoDetectLocation(true));
+
+    $('place-select').addEventListener('change', e => {
+      if (e.target.value === 'auto') {
+        weatherPlace.source = 'default';
+        savePlace();
+        autoDetectLocation(true);
+        return;
+      }
+      const preset = PLACE_PRESETS[Number(e.target.value)];
+      if (!preset) return;
+      weatherPlace = { ...preset, source: 'manual' };
+      savePlace();
+      refreshForPlace();
+    });
 
     function getWeatherIcon(symbol) {
       if (!symbol) return '🌤️';
@@ -1188,6 +1275,18 @@
         return `${String(hh).padStart(2,'0')}:${String(mm === 60 ? 59 : mm).padStart(2,'0')}`;
       };
       return { rise: fmtHr(riseH), set: fmtHr(setH), isDark };
+    }
+
+    // Päikese kõrgus horisondist kraadides (miinus = horisondi all). Töötab ka valgete ööde ajal.
+    function sunAltitudeDeg(lat, lon, date = new Date()) {
+      const rad = Math.PI / 180;
+      const dayOfYear = (date.getTime() - Date.UTC(date.getUTCFullYear(), 0, 0)) / 86400000;
+      const decl = 23.45 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+      const utcH = date.getUTCHours() + date.getUTCMinutes() / 60;
+      const hourAngle = (((utcH + lon / 15) % 24 + 24) % 24 - 12) * 15;
+      const sinAlt = Math.sin(lat * rad) * Math.sin(decl * rad) +
+                     Math.cos(lat * rad) * Math.cos(decl * rad) * Math.cos(hourAngle * rad);
+      return Math.asin(Math.max(-1, Math.min(1, sinAlt))) / rad;
     }
 
     function renderForecast(timeseries){
@@ -1263,7 +1362,34 @@
     const currentMonth = new Date().getMonth();
     let activeMode = (currentMonth >= 4 && currentMonth <= 7) ? 'beach' : 'aurora';
     let auroraAdviceText = 'Vajuta "🌍 Kaart", et näha virmaliste reaalajas asukohta 3D maakeral';
-    let beachAdviceText = 'Pärnu ranna ja lahe reaalajas vee-, UV- ning ilmainfo';
+    let beachAdviceText = 'Lähima ranna vee-, UV- ja ilmainfo';
+
+    // Rannad, mille seast valitakse asukohale lähim. Lisa ridu juurde, kui vaja.
+    const BEACHES = [
+      { name: 'Pärnu',        lat: 58.370, lon: 24.490 },
+      { name: 'Haapsalu',     lat: 58.935, lon: 23.515 },
+      { name: 'Kuressaare',   lat: 58.243, lon: 22.480 },
+      { name: 'Pirita',       lat: 59.470, lon: 24.830 },
+      { name: 'Narva-Jõesuu', lat: 59.465, lon: 28.035 },
+      { name: 'Helsinki',     lat: 60.172, lon: 24.905 },
+      { name: 'Hanko',        lat: 59.820, lon: 22.960 },
+      { name: 'Kotka',        lat: 60.450, lon: 26.950 },
+      { name: 'Turku',        lat: 60.425, lon: 22.100 },
+      { name: 'Yyteri',       lat: 61.565, lon: 21.525 },
+      { name: 'Vaasa',        lat: 63.090, lon: 21.570 },
+      { name: 'Oulu',         lat: 65.030, lon: 25.410 }
+    ];
+
+    function currentBeach() {
+      let best = null;
+      for (const b of BEACHES) {
+        const km = distanceKm(Number(weatherPlace.lat), Number(weatherPlace.lon), b.lat, b.lon);
+        if (!best || km < best.km) best = { ...b, km };
+      }
+      return best;
+    }
+
+    const beachLabel = b => b.km < 3 ? `${b.name} rand` : `${b.name} · ${Math.round(b.km)} km`;
 
     function switchMode(mode) {
       activeMode = mode;
@@ -1279,7 +1405,7 @@
         $('multi-footer-advice').textContent = auroraAdviceText;
         $('multi-footer-source').innerHTML = `Allikas: <strong>NOAA SWPC & Yr.no</strong>`;
       } else {
-        $('multi-card-title').innerHTML = `Rannainfo & Suvi • <span class="location-badge">${locName} rand</span>`;
+        $('multi-card-title').innerHTML = `Lähim rand • <span class="location-badge">${beachLabel(currentBeach())}</span>`;
         $('multi-footer-advice').textContent = beachAdviceText;
         $('multi-footer-source').innerHTML = `Allikas: <strong>Open-Meteo Marine & Air</strong>`;
       }
@@ -1290,153 +1416,171 @@
     });
 
     // 3A. VIRMALISTE RADAR (NOAA)
-    let currentAuroraProb = 25;
-    let liveKp = 2.6;
+    let currentAuroraProb = 0;
+    let liveKp = 2.6;      // algväärtused ainult 3D maakera joonistamiseks, kuni NOAA vastab
     let liveBz = -2.1;
     let liveSpeed = 420;
+    let kpLoaded = false, bzLoaded = false, speedLoaded = false;
+
+    // NOAA tabelist viimane kehtiv number (toetab nii ridu-massiividena kui objektidena)
+    function lastValue(rows, index, keys) {
+      if (!Array.isArray(rows)) return null;
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const row = rows[i];
+        let raw = null;
+        if (Array.isArray(row)) raw = row[index];
+        else if (row) for (const k of keys) { if (row[k] !== undefined) { raw = row[k]; break; } }
+        const val = parseFloat(raw);
+        if (Number.isFinite(val)) return val;
+      }
+      return null;
+    }
+
+    // Geomagnetiline laius: virmaliste jaoks loeb kaugus magnetpoolusest, mitte geograafilisest
+    function geomagneticLat(lat, lon) {
+      const rad = Math.PI / 180, poleLat = 80.6, poleLon = -72.6;
+      const s = Math.sin(lat * rad) * Math.sin(poleLat * rad) +
+                Math.cos(lat * rad) * Math.cos(poleLat * rad) * Math.cos((lon - poleLon) * rad);
+      return Math.asin(Math.max(-1, Math.min(1, s))) / rad;
+    }
+
+    // Virmaliste nägemise võimalus = kosmoseilm × pimedus × selge taevas
+    function auroraChance({ kp, bz, speed, lat, lon, cloud, sunAlt }) {
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      const mlat = geomagneticLat(lat, lon);
+      // Kp, mille juures virmaliste vöönd ulatub selle laiuseni (NOAA: vööndi serv ≈ 66,5° − 2×Kp)
+      const kpNeeded = Math.max(0, (66.5 - mlat) / 2.05);
+
+      // Bz ja päikesetuul nihutavad tulemust ainult veidi
+      let kpEff = kp;
+      if (bz < 0) kpEff += Math.min(0.7, -bz * 0.07); else kpEff -= Math.min(0.4, bz * 0.05);
+      if (speed > 500) kpEff += Math.min(0.3, (speed - 500) / 500);
+
+      const space = 100 / (1 + Math.exp(-1.6 * (kpEff - kpNeeded)));
+      const darkF = clamp((-6 - sunAlt) / 6, 0, 1);          // päike −12° või madalamal = täiesti pime
+      const cloudF = clamp(1 - (cloud - 20) / 70, 0.05, 1);  // 20% pilvi ei sega, 90% varjab peaaegu kõik
+      return { mlat, kpNeeded, space, darkF, cloudF, chance: Math.min(95, space * darkF * cloudF) };
+    }
 
     async function loadAurora() {
-      let kp = liveKp;
-      let bz = liveBz;
-      let speed = liveSpeed;
+      const [kpData, magData, plasmaData] = await Promise.all([
+        fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', 5000).catch(() => null),
+        fetchJson('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json', 5000).catch(() => null),
+        fetchJson('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json', 5000).catch(() => null)
+      ]);
 
-      try {
-        const kpData = await fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', 5000);
-        if (Array.isArray(kpData) && kpData.length > 1) {
-          const lastRow = kpData[kpData.length - 1];
-          const parsedKp = parseFloat(lastRow[1]);
-          if (Number.isFinite(parsedKp)) kp = parsedKp;
-        }
-      } catch(e) {}
+      const newKp = lastValue(kpData, 1, ['Kp', 'kp', 'kp_index', 'estimated_kp']);
+      const newBz = lastValue(magData, 3, ['bz_gsm', 'bz']);
+      const newSpeed = lastValue(plasmaData, 2, ['speed']);
+      if (newKp !== null) { liveKp = newKp; kpLoaded = true; }
+      if (newBz !== null) { liveBz = newBz; bzLoaded = true; }
+      if (newSpeed !== null) { liveSpeed = Math.round(newSpeed); speedLoaded = true; }
 
-      try {
-        const magData = await fetchJson('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json', 5000);
-        if (Array.isArray(magData) && magData.length > 1) {
-          for (let i = magData.length - 1; i >= 1; i--) {
-            const val = parseFloat(magData[i][3]);
-            if (Number.isFinite(val)) { bz = val; break; }
-          }
-        }
-      } catch(e) {}
-
-      try {
-        const plasmaData = await fetchJson('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json', 5000);
-        if (Array.isArray(plasmaData) && plasmaData.length > 1) {
-          for (let i = plasmaData.length - 1; i >= 1; i--) {
-            const val = parseFloat(plasmaData[i][2]);
-            if (Number.isFinite(val)) { speed = Math.round(val); break; }
-          }
-        }
-      } catch(e) {}
-
-      liveKp = kp;
-      liveBz = bz;
-      liveSpeed = speed;
-
+      const kp = liveKp, bz = liveBz, speed = liveSpeed;
       const lat = Number(weatherPlace.lat) || 58.38;
-      const sun = getSunTimes(lat, Number(weatherPlace.lon) || 24.5);
-      const latBonus = Math.max(-10, Math.min(25, (lat - 58.0) * 6));
+      const lon = Number(weatherPlace.lon) || 24.5;
+      const sunAlt = sunAltitudeDeg(lat, lon);
+      const r = auroraChance({
+        kp,
+        bz: bzLoaded ? bz : 0,
+        speed: speedLoaded ? speed : 400,
+        lat, lon, cloud: localCloudCover, sunAlt
+      });
 
-      let spaceScore = (kp / 6.5) * 65 + latBonus;
-      if (bz < 0) spaceScore += Math.min(28, Math.abs(bz) * 2.6);
-      else spaceScore -= Math.min(15, bz * 1.5);
-      if (speed > 450) spaceScore += Math.min(18, (speed - 450) / 12);
-
-      let prob = Math.round(Math.max(4, Math.min(99, spaceScore)));
+      const prob = Math.round(r.chance);
+      const spacePct = Math.round(r.space);
       let verdict = 'RAHULIK';
-      let subverdict = 'Madal aktiivsus';
+      let subverdict = `Siin on vaja u Kp ${r.kpNeeded.toFixed(1)}`;
       let verdictColor = '#22d3ee';
 
-      if (prob >= 70) {
-        verdict = sun.isDark && localCloudCover < 70 ? 'MINE ÕUE!' : 'TORM KÄIMAS!';
-        subverdict = sun.isDark ? 'Suur virmaliste võimalus' : 'Kosmoseilm on tormine';
-        verdictColor = '#34d399';
-      } else if (prob >= 45) {
-        verdict = 'HEA VÕIMALUS';
-        subverdict = 'Kaameraga / silmaga nähtav';
-        verdictColor = '#a855f7';
-      } else if (prob >= 25) {
-        verdict = 'MÕÕDUKAS';
-        subverdict = 'Jälgi Bz langust miinusesse';
-        verdictColor = '#38bdf8';
+      if (prob >= 60) {
+        verdict = 'MINE ÕUE!'; subverdict = 'Suur võimalus silmaga näha'; verdictColor = '#34d399';
+      } else if (prob >= 30) {
+        verdict = 'HEA VÕIMALUS'; subverdict = 'Vaata põhjakaarde'; verdictColor = '#a855f7';
+      } else if (prob >= 10) {
+        verdict = 'VÄIKE VÕIMALUS'; subverdict = 'Kaameraga võib näha'; verdictColor = '#38bdf8';
+      } else if (spacePct >= 30 && r.darkF < 0.5) {
+        verdict = 'VALGE AEG'; subverdict = `Aktiivsus ${spacePct}% • oota pimedat`; verdictColor = '#fbbf24';
+      } else if (spacePct >= 30 && r.cloudF < 0.5) {
+        verdict = 'PILVED SEGAVAD'; subverdict = `Aktiivsus ${spacePct}% • taevas pilves`; verdictColor = '#fbbf24';
       }
 
-      currentAuroraProb = prob;
-      const offset = 251.2 - (prob / 100) * 251.2;
-      $('aurora-gauge-arc').style.strokeDashoffset = offset.toFixed(1);
-      $('aurora-prob').textContent = `${prob}%`;
-      $('aurora-verdict').textContent = verdict;
-      $('aurora-verdict').style.color = verdictColor;
-      $('aurora-subverdict').textContent = subverdict;
+      if (!kpLoaded) {
+        currentAuroraProb = 0;
+        $('aurora-gauge-arc').style.strokeDashoffset = '251.2';
+        $('aurora-prob').textContent = '--%';
+        $('aurora-verdict').textContent = 'ANDMED PUUDUVAD';
+        $('aurora-verdict').style.color = '#fbbf24';
+        $('aurora-subverdict').textContent = 'NOAA ei vasta, proovin uuesti';
+      } else {
+        currentAuroraProb = prob;
+        $('aurora-gauge-arc').style.strokeDashoffset = (251.2 - (prob / 100) * 251.2).toFixed(1);
+        $('aurora-prob').textContent = `${prob}%`;
+        $('aurora-verdict').textContent = verdict;
+        $('aurora-verdict').style.color = verdictColor;
+        $('aurora-subverdict').textContent = subverdict;
+      }
 
       const kpStatus = kp >= 5 ? `G${Math.min(5, Math.floor(kp) - 4)} Torm` : kp >= 4 ? 'Aktiivne' : 'Rahulik';
-      $('au-kp').textContent = `Kp ${kp.toFixed(1)} (${kpStatus})`;
-      $('au-kp').style.color = kp >= 4.5 ? '#34d399' : '#f8fafc';
+      const kpText = kpLoaded ? `Kp ${kp.toFixed(1)} (${kpStatus})` : 'Kp --';
+      $('au-kp').textContent = kpText;
+      $('au-kp').style.color = kpLoaded && kp >= r.kpNeeded - 0.5 ? '#34d399' : '#f8fafc';
 
-      const bzDir = bz < 0 ? 'Lõuna ↓ (Hea)' : 'Põhi ↑';
-      $('au-bz').textContent = `${bz > 0 ? '+' : ''}${bz.toFixed(1)} nT • ${bzDir}`;
-      $('au-bz').style.color = bz <= -4 ? '#34d399' : bz < 0 ? '#22d3ee' : '#f8fafc';
+      const bzText = bzLoaded ? `${bz > 0 ? '+' : ''}${bz.toFixed(1)} nT` : '-- nT';
+      $('au-bz').textContent = bzLoaded ? `${bzText} • ${bz < 0 ? 'Lõuna ↓ (Hea)' : 'Põhi ↑'}` : bzText;
+      $('au-bz').style.color = !bzLoaded ? '#f8fafc' : bz <= -4 ? '#34d399' : bz < 0 ? '#22d3ee' : '#f8fafc';
 
       const speedDesc = speed >= 550 ? 'Tugev' : speed >= 450 ? 'Mõõdukas' : 'Tavaline';
-      $('au-speed').textContent = `${speed} km/s (${speedDesc})`;
+      const speedText = speedLoaded ? `${speed} km/s` : '--- km/s';
+      $('au-speed').textContent = speedLoaded ? `${speedText} (${speedDesc})` : speedText;
 
       const cloudDesc = localCloudCover <= 25 ? 'Selge' : localCloudCover <= 65 ? 'Poolpilves' : 'Pilves';
       $('au-clouds').textContent = `${localCloudCover}% (${cloudDesc})`;
       $('au-clouds').style.color = localCloudCover <= 35 ? '#34d399' : localCloudCover >= 75 ? '#fb7185' : '#f8fafc';
 
-      $('au-darkness').textContent = sun.isDark ? '🌙 Pime aeg (Sobiv)' : '☀️ Valge aeg';
-      $('au-lat').textContent = `${lat.toFixed(1)}° N (${weatherPlace.name})`;
+      $('au-darkness').textContent = r.darkF >= 1 ? '🌙 Pime (sobiv)' : r.darkF > 0 ? '🌆 Hämarik' : '☀️ Valge aeg';
+      $('au-lat').textContent = `${lat.toFixed(1)}° N • vaja Kp ${r.kpNeeded.toFixed(1)}`;
 
-      $('globe-hud-kp').textContent = `Kp ${kp.toFixed(1)} (${kpStatus})`;
-      $('globe-hud-bz').textContent = `${bz > 0 ? '+' : ''}${bz.toFixed(1)} nT`;
-      $('globe-hud-speed').textContent = `${speed} km/s`;
+      $('globe-hud-kp').textContent = kpText;
+      $('globe-hud-bz').textContent = bzText;
+      $('globe-hud-speed').textContent = speedText;
 
       if (activeMode === 'aurora') $('multi-footer-advice').textContent = auroraAdviceText;
     }
 
     // 3B. RANNAINFO & SUVI
     async function loadBeachInfo() {
-      const lat = Number(weatherPlace.lat) || 58.37;
-      const lon = Number(weatherPlace.lon) || 24.48;
+      const beach = currentBeach();
+      const q = `latitude=${beach.lat}&longitude=${beach.lon}`;
 
-      let waterTemp = Math.max(4, Math.min(24, currentAirTemp * 0.75 + 2));
-      let waveHeight = 0.25;
-      let uvIndex = 1.2;
-      let cape = 20;
-      let aqi = 18;
-      let pollenLevel = 'Madal';
+      const [mData, aqData, fData] = await Promise.all([
+        fetchJson(`https://marine-api.open-meteo.com/v1/marine?${q}&current=wave_height,sea_surface_temperature`, 5000).catch(() => null),
+        fetchJson(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}&current=european_aqi,uv_index,birch_pollen,grass_pollen`, 5000).catch(() => null),
+        fetchJson(`https://api.open-meteo.com/v1/forecast?${q}&current=cape,temperature_2m,cloud_cover,wind_speed_10m&wind_speed_unit=ms`, 5000).catch(() => null)
+      ]);
+      const num = v => Number.isFinite(v) ? v : null;
 
-      try {
-        const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,sea_surface_temperature`;
-        const mData = await fetchJson(marineUrl, 5000);
-        if (mData?.current) {
-          if (Number.isFinite(mData.current.sea_surface_temperature)) waterTemp = mData.current.sea_surface_temperature;
-          if (Number.isFinite(mData.current.wave_height)) waveHeight = mData.current.wave_height;
-        }
-      } catch(e) {}
+      const waterTemp = num(mData?.current?.sea_surface_temperature);
+      const waveHeight = num(mData?.current?.wave_height);
+      const uvIndex = num(aqData?.current?.uv_index);
+      const aqi = num(aqData?.current?.european_aqi);
+      const cape = num(fData?.current?.cape);
+      let pollenLevel = '--';
+      if (aqData?.current) {
+        const maxPollen = Math.max(aqData.current.birch_pollen || 0, aqData.current.grass_pollen || 0);
+        pollenLevel = maxPollen > 50 ? 'Kõrge' : maxPollen > 10 ? 'Mõõdukas' : 'Madal';
+      }
 
-      try {
-        const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi,uv_index,birch_pollen,grass_pollen`;
-        const aqData = await fetchJson(aqUrl, 5000);
-        if (aqData?.current) {
-          if (Number.isFinite(aqData.current.uv_index)) uvIndex = aqData.current.uv_index;
-          if (Number.isFinite(aqData.current.european_aqi)) aqi = Math.round(aqData.current.european_aqi);
-          const maxPollen = Math.max(aqData.current.birch_pollen || 0, aqData.current.grass_pollen || 0);
-          pollenLevel = maxPollen > 50 ? 'Kõrge' : maxPollen > 10 ? 'Mõõdukas' : 'Madal';
-        }
-      } catch(e) {}
-
-      try {
-        const capeUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=cape`;
-        const cData = await fetchJson(capeUrl, 5000);
-        if (Number.isFinite(cData?.current?.cape)) cape = Math.round(cData.current.cape);
-      } catch(e) {}
+      // Ilm ranna enda juures (nt Vändras olles ikkagi Pärnu ranna õhk ja tuul)
+      const airTemp = num(fData?.current?.temperature_2m) ?? currentAirTemp;
+      const cloud = num(fData?.current?.cloud_cover) ?? localCloudCover;
+      const wind = num(fData?.current?.wind_speed_10m) ?? currentWindSpeed;
 
       let score = 0;
-      score += Math.max(0, Math.min(50, (currentAirTemp - 10) * 3.3));
-      score += Math.max(0, Math.min(30, (waterTemp - 10) * 2.5));
-      score += Math.max(0, 20 - (localCloudCover * 0.15) - Math.max(0, currentWindSpeed - 5) * 2);
-      const finalScore = Math.round(Math.max(5, Math.min(100, score)));
+      score += Math.max(0, Math.min(50, (airTemp - 10) * 3.3));
+      if (waterTemp !== null) score += Math.max(0, Math.min(30, (waterTemp - 10) * 2.5));
+      score += Math.max(0, 20 - (cloud * 0.15) - Math.max(0, wind - 5) * 2);
+      const finalScore = Math.round(Math.max(0, Math.min(100, score)));
 
       let bVerdict = 'HOOAJAVÄLINE';
       let bColor = '#38bdf8';
@@ -1444,31 +1588,35 @@
       else if (finalScore >= 50) { bVerdict = 'SOE SUVEPÄEV'; bColor = '#fbbf24'; }
       else if (finalScore >= 30) { bVerdict = 'MÕÕDUKAS / JAHEDAM'; bColor = '#a855f7'; }
 
-      const offset = 251.2 - (finalScore / 100) * 251.2;
-      $('beach-gauge-arc').style.strokeDashoffset = offset.toFixed(1);
+      const waterText = waterTemp !== null ? `${waterTemp.toFixed(1)}°C` : '--';
+      $('beach-gauge-arc').style.strokeDashoffset = (251.2 - (finalScore / 100) * 251.2).toFixed(1);
       $('beach-score').textContent = `${finalScore}%`;
       $('beach-verdict').textContent = bVerdict;
       $('beach-verdict').style.color = bColor;
-      $('beach-subverdict').textContent = `Õhk ${Math.round(currentAirTemp)}°C • Vesi ${waterTemp.toFixed(1)}°C`;
+      $('beach-subverdict').textContent = `Õhk ${Math.round(airTemp)}°C • Vesi ${waterText}`;
 
-      $('bc-water').textContent = `${waterTemp.toFixed(1)}°C`;
-      $('bc-water').style.color = waterTemp >= 18 ? '#34d399' : '#38bdf8';
+      $('bc-water').textContent = waterText;
+      $('bc-water').style.color = waterTemp !== null && waterTemp >= 18 ? '#34d399' : '#38bdf8';
 
-      const uvDesc = uvIndex >= 6 ? 'Kõrge' : uvIndex >= 3 ? 'Mõõdukas' : 'Madal';
-      $('bc-uv').textContent = `UV ${uvIndex.toFixed(1)} (${uvDesc})`;
-      $('bc-uv').style.color = uvIndex >= 6 ? '#fb7185' : uvIndex >= 3 ? '#fbbf24' : '#f8fafc';
+      if (uvIndex !== null) {
+        const uvDesc = uvIndex >= 6 ? 'Kõrge' : uvIndex >= 3 ? 'Mõõdukas' : 'Madal';
+        $('bc-uv').textContent = `UV ${uvIndex.toFixed(1)} (${uvDesc})`;
+        $('bc-uv').style.color = uvIndex >= 6 ? '#fb7185' : uvIndex >= 3 ? '#fbbf24' : '#f8fafc';
+      } else { $('bc-uv').textContent = 'UV --'; }
 
-      const capeDesc = cape >= 800 ? '⚡ Suur oht' : cape >= 300 ? 'Mõõdukas' : 'Madal (Rahulik)';
-      $('bc-cape').textContent = `${capeDesc}`;
-      $('bc-cape').style.color = cape >= 500 ? '#fb7185' : '#f8fafc';
+      $('bc-cape').textContent = cape === null ? '--' : cape >= 800 ? '⚡ Suur oht' : cape >= 300 ? 'Mõõdukas' : 'Madal (Rahulik)';
+      $('bc-cape').style.color = cape !== null && cape >= 500 ? '#fb7185' : '#f8fafc';
 
-      $('bc-waves').textContent = `${waveHeight.toFixed(2)} m`;
-      const aqiDesc = aqi <= 25 ? 'Väga hea' : aqi <= 50 ? 'Hea' : 'Mõõdukas';
-      $('bc-aqi').textContent = `${aqiDesc} (AQI ${aqi})`;
+      $('bc-waves').textContent = waveHeight !== null ? `${waveHeight.toFixed(2)} m` : '-- m';
+      $('bc-aqi').textContent = aqi === null ? 'AQI --' : `${aqi <= 25 ? 'Väga hea' : aqi <= 50 ? 'Hea' : 'Mõõdukas'} (AQI ${Math.round(aqi)})`;
       $('bc-pollen').textContent = pollenLevel;
 
-      beachAdviceText = `Merevesi asukohas ${weatherPlace.name} on ${waterTemp.toFixed(1)}°C • Lainekõrgus ${waveHeight.toFixed(1)} m ja UV-indeks ${uvIndex.toFixed(1)}`;
-      if (activeMode === 'beach') $('multi-footer-advice').textContent = beachAdviceText;
+      const where = beach.km < 3 ? `${beach.name} rand` : `Lähim rand ${beach.name} (${Math.round(beach.km)} km)`;
+      beachAdviceText = `${where} • vesi ${waterText} • laine ${waveHeight !== null ? waveHeight.toFixed(1) + ' m' : '--'} • UV ${uvIndex !== null ? uvIndex.toFixed(1) : '--'}`;
+      if (activeMode === 'beach') {
+        $('multi-footer-advice').textContent = beachAdviceText;
+        $('multi-card-title').innerHTML = `Lähim rand • <span class="location-badge">${beachLabel(beach)}</span>`;
+      }
     }
 
     // --- INTERAKTIIVNE 3D VIRMALISTE MAAKERA ---
@@ -1976,9 +2124,10 @@
     // --- KÄIVITUS ---
     updateClock();
     setInterval(updateClock, 1000);
+    fillPlaceSelect();
     switchMode(activeMode);
     loadElectricity();
-    autoDetectLocation(false);
+    startLocation();
     initGlobeData();
     setInterval(loadElectricity, 10 * 60 * 1000);
     setInterval(loadWeather, 30 * 60 * 1000);

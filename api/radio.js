@@ -91,7 +91,8 @@ export default async function handler(req, res) {
       try { await r.body?.cancel(); } catch (e) {}
       return res.status(200).json({ status: r.status, headers });
     } catch (e) {
-      return res.status(200).json({ error: String(e && e.message || e) });
+      const c0 = e && e.cause;
+      return res.status(200).json({ error: String(e && e.message || e), cause: c0 ? { code: c0.code, message: c0.message, hostname: c0.hostname } : null });
     } finally { clearTimeout(t); }
   }
 

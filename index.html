@@ -1233,21 +1233,23 @@
       refreshForPlace();
     });
 
+    // Yr.no sümbolikoodid: https://api.met.no/weatherapi/weathericon/2.0/documentation
+    // Kontrollime märksõnu, et kõik variandid (light/heavy, showers, andthunder) saaksid õige ikooni.
     function getWeatherIcon(symbol) {
-      if (!symbol) return '🌤️';
+      if (!symbol) return '☁️';
       const isNight = symbol.includes('_night');
-      const base = symbol.replace(/_[a-z]+$/, '');
+      const base = symbol.replace(/_(day|night|polartwilight)$/, '');
+      if (base.includes('thunder')) return '⛈️';
+      if (base.includes('snow')) return base.includes('showers') && !isNight ? '🌨️' : '❄️';
+      if (base.includes('sleet')) return '🌨️';
+      if (base.includes('rain')) return base.includes('showers') && !isNight ? '🌦️' : '🌧️';
       switch (base) {
         case 'clearsky': return isNight ? '🌙' : '☀️';
-        case 'fair': return isNight ? '☁️' : '🌤️';
+        case 'fair': return isNight ? '🌙' : '🌤️';
         case 'partlycloudy': return isNight ? '☁️' : '⛅';
         case 'cloudy': return '☁️';
-        case 'rain': case 'lightrain': case 'heavyrain': return '🌧️';
-        case 'rainshowers': case 'lightrainshowers': case 'heavyrainshowers': return isNight ? '🌧️' : '🌦️';
-        case 'snow': case 'lightsnow': case 'heavysnow': return '❄️';
         case 'fog': return '🌫️';
-        case 'thunderstorm': case 'rainandthunder': return '⛈️';
-        default: return isNight ? '🌙' : '☀️';
+        default: return '☁️';
       }
     }
 
@@ -1315,7 +1317,9 @@
         if(!r.ok) throw Error();
         const json = await r.json();
         const timeseries = json.properties.timeseries;
-        const currentItem = timeseries[0];
+        // Viimane prognoosirida, mis on juba alanud (mitte esimene rida, mis võib olla vana)
+        const nowMs = Date.now();
+        const currentItem = timeseries.filter(t => new Date(t.time).getTime() <= nowMs).pop() || timeseries[0];
         const p = currentItem.data.instant.details;
         const symbol = currentItem.data.next_1_hours?.summary?.symbol_code || currentItem.data.next_6_hours?.summary?.symbol_code || 'fair_day';
 

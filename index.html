@@ -1641,13 +1641,12 @@
       if (bz < 0) kpEff += Math.min(0.7, -bz * 0.07); else kpEff -= Math.min(0.4, bz * 0.05);
       if (speed > 500) kpEff += Math.min(0.3, (speed - 500) / 500);
 
-      // Kui vööndi serv on täpselt sinu kohal, paistab virmalisi vaid nõrgalt silmapiiril (~20%).
-      // 50% võimalus tuleb siis, kui Kp on piirist 1 võrra suurem. Nii klapib tulemus NOAA OVATION mudeliga.
-      const kpGood = kpNeeded + 1;
-      const space = 100 / (1 + Math.exp(-1.6 * (kpEff - kpGood)));
+      // 50% võimalus, kui virmaliste vööndi serv ulatub sinu laiuseni. Lapimaal näeb virmalisi ka vaikse Kp 1–2 korral
+      // umbes igal teisel selgel ööl (Soome Ilmatieteen laitos), Lõuna-Soomes ja Eestis umbes kord kuus; see valem annab sama.
+      const space = 100 / (1 + Math.exp(-1.6 * (kpEff - kpNeeded)));
       const darkF = clamp((-6 - sunAlt) / 6, 0, 1);          // päike −12° või madalamal = täiesti pime
       const cloudF = clamp(1 - (cloud - 20) / 70, 0.05, 1);  // 20% pilvi ei sega, 90% varjab peaaegu kõik
-      return { mlat, kpNeeded: kpGood, space, darkF, cloudF, chance: Math.min(95, space * darkF * cloudF) };
+      return { mlat, kpNeeded, space, darkF, cloudF, chance: Math.min(95, space * darkF * cloudF) };
     }
 
     // Proovib väiksemat 5-minutilist faili enne, siis 2-tunnist; aeglase võrgu jaoks pikem ooteaeg

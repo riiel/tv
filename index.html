@@ -476,6 +476,48 @@
     .station-btn.active { background: var(--accent-grad); color: #fff; border-color: #f472b6; box-shadow: 0 0 18px var(--accent-shadow); }
     .station-btn:hover, .station-btn:focus { outline: 2px solid #fff; }
 
+    /* Hoiatusbänner päises */
+    .alert-banner {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: center;
+      min-width: 0;
+      margin: 0 2vw;
+    }
+    .alert-banner[hidden] { display: none; }
+    .alert-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 100%;
+      padding: 0.8vh 1.4vw;
+      border-radius: 999px;
+      font-size: clamp(13px, 1.15vw, 19px);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: 1px solid var(--alert-c, #22d3ee);
+      color: #f8fafc;
+      background: color-mix(in srgb, var(--alert-c, #22d3ee) 22%, rgba(11, 15, 36, 0.85));
+      box-shadow: 0 0 22px color-mix(in srgb, var(--alert-c, #22d3ee) 45%, transparent);
+      animation: alertPulse 2.4s ease-in-out infinite;
+      transition: opacity 0.6s ease;
+    }
+    .alert-pill.fade { opacity: 0; }
+    .alert-count { font-size: 0.75em; opacity: 0.7; font-weight: 600; }
+    @keyframes alertPulse {
+      0%, 100% { box-shadow: 0 0 14px color-mix(in srgb, var(--alert-c, #22d3ee) 35%, transparent); }
+      50% { box-shadow: 0 0 30px color-mix(in srgb, var(--alert-c, #22d3ee) 70%, transparent); }
+    }
+
+    /* Ilmakaardi taustaefektid (lumi, vihm, tähed jne) */
+    .weather-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    .weather-card > :not(.weather-fx) { position: relative; z-index: 2; }
+
+    /* Põlemiskaitse: kogu ekraan nihkub väga aeglaselt mõne piksli võrra */
+    .screen { transition: transform 40s ease-in-out; will-change: transform; }
+
     footer { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: clamp(10px, 0.82vw, 13px); font-weight: 500; padding: 0 0.2vw; }
     .theme-btn { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text); font-size: clamp(10px, 0.8vw, 12px); font-weight: 600; }
     .theme-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); }
@@ -627,6 +669,9 @@
   <div class="screen">
     <header>
       <div class="brand"><span class="brand-mark"></span>KODUVAADE</div>
+      <div id="alert-banner" class="alert-banner" hidden>
+        <div id="alert-pill" class="alert-pill"><span id="alert-text"></span><span id="alert-count" class="alert-count"></span></div>
+      </div>
       <div class="now">
         <span id="clock">--:--</span>
         <span class="now-sep">•</span>
@@ -671,7 +716,8 @@
       </section>
 
       <!-- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) -->
-      <section class="card">
+      <section class="card weather-card">
+        <canvas id="weather-fx" class="weather-fx" aria-hidden="true"></canvas>
         <div class="card-head">
           <span class="label">Ilm & Prognoos • <span id="location" class="location-badge">Tuvastan asukohta…</span></span>
           <div class="loc-controls">
@@ -1068,6 +1114,8 @@
         const now = Date.now();
         const current = prices.find(p => p.time <= now && now < p.time + 3600000) || prices[0];
         const upcoming = prices.find(p => p.time > current.time) || current;
+        elecState = { now: current, prices };
+        updateAlerts();
 
         $('price').textContent = fmt(current.price);
         $('price-caption').textContent = `Praegu ${new Date(current.time).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})}–${new Date(current.time+3600000).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})} • km-ga`;
@@ -1359,6 +1407,9 @@
         $('yr-sun').textContent = `↑ ${sun.rise}  ↓ ${sun.set}`;
 
         renderForecast(timeseries);
+        weatherAlerts = buildWeatherAlerts(timeseries);
+        setWeatherFx(symbol, precip, sun.isDark);
+        updateAlerts();
       } catch(e){}
     }
 
@@ -1557,7 +1608,14 @@
       $('au-clouds').textContent = `${localCloudCover}% (${cloudDesc})`;
       $('au-clouds').style.color = localCloudCover <= 35 ? '#34d399' : localCloudCover >= 75 ? '#fb7185' : '#f8fafc';
 
-      $('au-darkness').textContent = r.darkF >= 1 ? '🌙 Pime (sobiv)' : r.darkF > 0 ? '🌆 Hämarik' : '☀️ Valge aeg';
+      const moon = moonInfo();
+      const lightText = r.darkF >= 1 ? 'Pime' : r.darkF > 0 ? '🌆 Hämarik' : '☀️ Valge aeg';
+      $('au-darkness').textContent = `${lightText} • ${moon.emoji} kuu ${moon.illum}%`;
+      $('au-darkness').title = moon.name;
+      if (prob >= 10 && moon.illum >= 75 && r.darkF > 0) {
+        $('aurora-subverdict').textContent = `${subverdict} • hele kuu segab`;
+      }
+      updateAlerts();
       $('au-lat').textContent = `${lat.toFixed(1)}° N • vaja Kp ${r.kpNeeded.toFixed(1)}`;
 
       $('globe-hud-kp').textContent = kpText;
@@ -2163,6 +2221,204 @@
       requestAnimationFrame(animateVisualizer);
     }
     requestAnimationFrame(animateVisualizer);
+
+    // --- 5. KUUFAAS ---
+    // Kuu vanus päevades viimasest noorkuust (2000-01-06 18:14 UTC), sünoodiline kuu 29,53 päeva
+    function moonInfo(date = new Date()) {
+      const SYN = 29.530588853;
+      const age = ((date.getTime() - Date.UTC(2000, 0, 6, 18, 14)) / 86400000 % SYN + SYN) % SYN;
+      const phase = age / SYN;                                   // 0 = noorkuu, 0,5 = täiskuu
+      const illum = Math.round((1 - Math.cos(2 * Math.PI * phase)) / 2 * 100);
+      const names = [
+        ['🌑', 'Noorkuu'], ['🌒', 'Kasvav sirp'], ['🌓', 'Esimene veerand'], ['🌔', 'Kasvav kuu'],
+        ['🌕', 'Täiskuu'], ['🌖', 'Kahanev kuu'], ['🌗', 'Viimane veerand'], ['🌘', 'Kahanev sirp']
+      ];
+      const [emoji, name] = names[Math.round(phase * 8) % 8];
+      return { phase, illum, emoji, name, age };
+    }
+
+    // --- 6. HOIATUSBÄNNER ---
+    let elecState = null;
+    let weatherAlerts = [];
+    let alertList = [];
+    let alertIndex = 0;
+
+    const hourText = t => new Date(t).toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' });
+
+    // Ilmahoiatused järgmise 12 tunni Yr.no prognoosist
+    function buildWeatherAlerts(timeseries) {
+      const now = Date.now();
+      const next = timeseries.filter(t => {
+        const ms = new Date(t.time).getTime();
+        return ms >= now - 3600000 && ms <= now + 12 * 3600000;
+      });
+      const out = [];
+      let maxWind = { v: 0, t: null };
+      let thunder = null, icy = null, snow6 = 0, rain3 = 0;
+      next.forEach((t, i) => {
+        const d = t.data.instant.details;
+        const sym = t.data.next_1_hours?.summary?.symbol_code || '';
+        const pr = t.data.next_1_hours?.details?.precipitation_amount ?? 0;
+        const wind = Math.max(d.wind_speed || 0, d.wind_speed_of_gust || 0);
+        if (wind > maxWind.v) maxWind = { v: wind, t: t.time };
+        if (!thunder && sym.includes('thunder') && i < 8) thunder = t.time;
+        if (!icy && pr >= 0.1 && d.air_temperature <= 1 && d.air_temperature >= -4 && (sym.includes('rain') || sym.includes('sleet'))) icy = t.time;
+        if (i < 6 && d.air_temperature <= 1) snow6 += pr;
+        if (i < 3) rain3 += pr;
+      });
+      if (maxWind.v >= 15) out.push({ prio: 90, color: '#f43f5e', text: `🌬️ Tormine tuul kuni ${Math.round(maxWind.v)} m/s • kl ${hourText(maxWind.t)}` });
+      if (thunder) out.push({ prio: 85, color: '#f59e0b', text: `⛈️ Äikeseoht • alates kl ${hourText(thunder)}` });
+      if (icy) out.push({ prio: 80, color: '#38bdf8', text: `🧊 Libedusoht: lörts või vihm 0° lähedal • alates kl ${hourText(icy)}` });
+      if (snow6 >= 4) out.push({ prio: 70, color: '#e2e8f0', text: `❄️ Tugev lumesadu: ${fmt(snow6, 1)} mm järgmise 6 h jooksul` });
+      else if (rain3 >= 8) out.push({ prio: 65, color: '#3b82f6', text: `🌧️ Tugev vihm: ${fmt(rain3, 1)} mm järgmise 3 h jooksul` });
+      return out;
+    }
+
+    function electricityAlerts() {
+      if (!elecState?.now) return [];
+      const { now, prices } = elecState;
+      const p = now.price;
+      const out = [];
+      if (p < 0) out.push({ prio: 75, color: '#10b981', text: `⚡ Elektri hind on negatiivne: ${fmt(p)} s/kWh` });
+      else if (p <= 3) out.push({ prio: 60, color: '#22d3ee', text: `⚡ Elekter praegu väga odav: ${fmt(p)} s/kWh` });
+      else if (p >= 30) {
+        const later = prices.filter(x => x.time > now.time && x.time <= now.time + 12 * 3600000);
+        const cheap = later.length ? later.reduce((a, b) => a.price < b.price ? a : b) : null;
+        const tip = cheap && cheap.price < p * 0.6 ? ` • odavam kl ${hourText(cheap.time)} (${fmt(cheap.price, 1)} s)` : '';
+        out.push({ prio: 55, color: '#ec4899', text: `💸 Elekter kallis: ${fmt(p)} s/kWh${tip}` });
+      }
+      return out;
+    }
+
+    function auroraAlerts() {
+      if (!kpLoaded || currentAuroraProb < 30) return [];
+      return [{ prio: 95, color: '#34d399', text: `🌌 Virmalised! ${currentAuroraProb}% võimalus • vaata põhja poole` }];
+    }
+
+    function showAlert() {
+      const banner = $('alert-banner');
+      if (!alertList.length) { banner.hidden = true; return; }
+      banner.hidden = false;
+      alertIndex %= alertList.length;
+      const a = alertList[alertIndex];
+      $('alert-pill').style.setProperty('--alert-c', a.color);
+      $('alert-text').textContent = a.text;
+      $('alert-count').textContent = alertList.length > 1 ? `${alertIndex + 1}/${alertList.length}` : '';
+    }
+
+    function updateAlerts() {
+      alertList = [...auroraAlerts(), ...weatherAlerts, ...electricityAlerts()].sort((a, b) => b.prio - a.prio);
+      showAlert();
+    }
+
+    // Mitme hoiatuse korral vahetub iga 8 sekundi järel
+    setInterval(() => {
+      if (alertList.length < 2) return;
+      $('alert-pill').classList.add('fade');
+      setTimeout(() => { alertIndex++; showAlert(); $('alert-pill').classList.remove('fade'); }, 600);
+    }, 8000);
+
+    // --- 7. ILMAKAARDI TAUST ILMA JÄRGI ---
+    const fxCanvas = $('weather-fx');
+    const fxCtx = fxCanvas.getContext('2d');
+    let fxMode = 'none', fxAmount = 0, fxParts = [], fxFlash = 0, fxLast = 0;
+
+    function setWeatherFx(symbol, precip, isDark) {
+      const s = String(symbol || '');
+      let mode = 'clouds';
+      if (s.includes('thunder')) mode = 'thunder';
+      else if (s.includes('snow')) mode = 'snow';
+      else if (s.includes('sleet')) mode = 'sleet';
+      else if (s.includes('rain')) mode = 'rain';
+      else if (s.includes('fog')) mode = 'fog';
+      else if (s.startsWith('clearsky') || s.startsWith('fair')) mode = (isDark || s.includes('_night')) ? 'stars' : 'sun';
+      // sademete hulk määrab, kui tihe sadu on (0,2 … 1)
+      fxAmount = Math.max(0.2, Math.min(1, (Number(precip) || 0) / 2.5 + (s.includes('heavy') ? 0.5 : s.includes('light') ? 0 : 0.25)));
+      if (mode !== fxMode) { fxMode = mode; fxParts = []; }
+    }
+
+    function fxSpawn(w, h, kind, anywhere) {
+      const y = anywhere ? Math.random() * h : -10;
+      if (kind === 'snow') return { k: 'snow', x: Math.random() * w, y, r: 1.2 + Math.random() * 2.6, vy: 0.35 + Math.random() * 0.6, sw: Math.random() * 6.28, a: 0.35 + Math.random() * 0.45 };
+      if (kind === 'rain') return { k: 'rain', x: Math.random() * (w + 60), y, l: 10 + Math.random() * 12, vy: 7 + Math.random() * 5, a: 0.18 + Math.random() * 0.22 };
+      if (kind === 'star') return { k: 'star', x: Math.random() * w, y: Math.random() * h * 0.75, r: 0.6 + Math.random() * 1.4, ph: Math.random() * 6.28, sp: 0.6 + Math.random() * 1.6 };
+      return { k: 'cloud', x: Math.random() * w, y: h * (0.1 + Math.random() * 0.8), r: h * (0.25 + Math.random() * 0.25), vx: 0.08 + Math.random() * 0.15, a: 0.04 + Math.random() * 0.05 };
+    }
+
+    function drawWeatherFx(ts) {
+      requestAnimationFrame(drawWeatherFx);
+      if (document.hidden || ts - fxLast < 32) return;   // ~30 kaadrit sekundis on piisav
+      fxLast = ts;
+      const rect = fxCanvas.getBoundingClientRect();
+      const dpr = devicePixelRatio || 1;
+      if (fxCanvas.width !== Math.floor(rect.width * dpr) || fxCanvas.height !== Math.floor(rect.height * dpr)) {
+        fxCanvas.width = rect.width * dpr; fxCanvas.height = rect.height * dpr;
+      }
+      const w = rect.width, h = rect.height, x = fxCtx;
+      x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      x.clearRect(0, 0, w, h);
+      if (!w || !h) return;
+
+      const want = {
+        snow: Math.round(40 + fxAmount * 110), rain: Math.round(40 + fxAmount * 120),
+        sleet: Math.round(30 + fxAmount * 80), thunder: Math.round(60 + fxAmount * 100),
+        stars: 70, clouds: 6, fog: 9, sun: 0
+      }[fxMode] || 0;
+      while (fxParts.length < want) {
+        let kind = fxMode === 'stars' ? 'star' : fxMode === 'snow' ? 'snow' : (fxMode === 'rain' || fxMode === 'thunder') ? 'rain'
+          : fxMode === 'sleet' ? (fxParts.length % 2 ? 'snow' : 'rain') : 'cloud';
+        fxParts.push(fxSpawn(w, h, kind, true));
+      }
+      if (fxParts.length > want) fxParts.length = want;
+
+      if (fxMode === 'sun') {
+        const g = x.createRadialGradient(w * 0.2, h * 0.15, 0, w * 0.2, h * 0.15, h * 0.9);
+        g.addColorStop(0, 'rgba(251, 191, 36, 0.16)'); g.addColorStop(1, 'rgba(251, 191, 36, 0)');
+        x.fillStyle = g; x.fillRect(0, 0, w, h);
+        return;
+      }
+      if (fxMode === 'thunder') {
+        if (fxFlash <= 0 && Math.random() < 0.004) fxFlash = 1;
+        if (fxFlash > 0) { x.fillStyle = `rgba(226, 232, 240, ${fxFlash * 0.18})`; x.fillRect(0, 0, w, h); fxFlash -= 0.06; }
+      }
+
+      const t = ts / 1000;
+      for (const p of fxParts) {
+        if (p.k === 'snow') {
+          p.y += p.vy; p.x += Math.sin(t * 0.8 + p.sw) * 0.35;
+          if (p.y > h + 5) Object.assign(p, fxSpawn(w, h, 'snow', false));
+          x.fillStyle = `rgba(241, 245, 249, ${p.a})`;
+          x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI * 2); x.fill();
+        } else if (p.k === 'rain') {
+          p.y += p.vy; p.x -= p.vy * 0.18;
+          if (p.y > h + 10) Object.assign(p, fxSpawn(w, h, 'rain', false));
+          x.strokeStyle = `rgba(147, 197, 253, ${p.a})`; x.lineWidth = 1.2;
+          x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(p.x - p.l * 0.18, p.y + p.l); x.stroke();
+        } else if (p.k === 'star') {
+          const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(t * p.sp + p.ph));
+          x.fillStyle = `rgba(226, 232, 240, ${a})`;
+          x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI * 2); x.fill();
+        } else {
+          p.x += p.vx * (fxMode === 'fog' ? 1.5 : 1);
+          if (p.x - p.r > w) { p.x = -p.r; }
+          const g = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+          const c = fxMode === 'fog' ? '203, 213, 225' : '148, 163, 184';
+          g.addColorStop(0, `rgba(${c}, ${fxMode === 'fog' ? p.a * 1.6 : p.a})`); g.addColorStop(1, `rgba(${c}, 0)`);
+          x.fillStyle = g; x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI * 2); x.fill();
+        }
+      }
+    }
+    requestAnimationFrame(drawWeatherFx);
+
+    // --- 8. PÕLEMISKAITSE ---
+    // Iga 3 minuti järel liigub kogu sisu väga aeglaselt (40 s) uude kohta max 6 px kaugusel,
+    // et samad pikslid ei põleks teleri ekraanile sisse. Silmaga seda liikumist ei märka.
+    function shiftScreen() {
+      const dx = Math.round((Math.random() * 2 - 1) * 6);
+      const dy = Math.round((Math.random() * 2 - 1) * 4);
+      document.querySelector('.screen').style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+    setInterval(shiftScreen, 3 * 60 * 1000);
 
     // --- KÄIVITUS ---
     updateClock();

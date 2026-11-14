@@ -93,8 +93,10 @@
       padding: 2.6vh 3.2vw 2vh;
       display: grid;
       grid-template-rows: auto 1fr auto;
+      grid-template-columns: minmax(0, 1fr);
       gap: 1.8vh;
     }
+    .screen > * { min-width: 0; }
 
     header {
       display: flex;
@@ -518,6 +520,19 @@
     /* Põlemiskaitse: kogu ekraan nihkub väga aeglaselt mõne piksli võrra */
     .screen { transition: transform 40s ease-in-out; will-change: transform; }
 
+    /* Turuinfo riba jaluses */
+    .ticker { flex: 1 1 auto; min-width: 0; overflow: hidden; margin-right: 2vw; mask-image: linear-gradient(90deg, #000 92%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent); }
+    .ticker-track { display: inline-flex; align-items: baseline; gap: 1.5vw; white-space: nowrap; font-size: clamp(12px, 0.92vw, 17px); }
+    .ticker-track.scroll { animation: tickerMove var(--ticker-dur, 60s) linear infinite; }
+    @keyframes tickerMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .tk { display: inline-flex; align-items: baseline; gap: 0.4em; }
+    .tk-name { color: var(--muted); font-weight: 600; }
+    .tk-price { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .tk-chg { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .tk-up { color: #34d399; }
+    .tk-down { color: #fb7185; }
+    .tk-flat { color: var(--muted); }
+
     footer { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: clamp(10px, 0.82vw, 13px); font-weight: 500; padding: 0 0.2vw; }
     .theme-btn { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text); font-size: clamp(10px, 0.8vw, 12px); font-weight: 600; }
     .theme-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); }
@@ -922,8 +937,8 @@
     </main>
 
     <footer>
-      <span id="updated">Uuendatakse automaatselt • Allikad: Elering, Met.no & NOAA</span>
-      <div style="display:flex;align-items:center;gap:10px;">
+      <div id="ticker" class="ticker" aria-label="Turuinfo"><div id="ticker-track" class="ticker-track"><span class="tk"><span class="tk-name">Laen turuinfot…</span></span></div></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;white-space:nowrap;">
         <div class="theme-btn" title="Aktiivsed vaatajad hetkel lehel">
           <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;"></span>
           <span id="online-count">1 lehel</span>
@@ -2439,6 +2454,49 @@
     }
     setInterval(shiftScreen, 3 * 60 * 1000);
 
+    // --- 9. TURUINFO RIBA (bitcoin, nasdaq jne) ---
+    // Järjekorda ja valikut muudad failis api/markets.js (ITEMS).
+    function fmtMarket(it) {
+      const p = it.price;
+      if (p === null || p === undefined) return '--';
+      if (it.id === 'eurusd') return fmt(p, 4);
+      const cur = it.currency === 'EUR' ? ' €' : it.currency === 'USD' && !['nasdaq', 'sp500'].includes(it.id) ? ' $' : '';
+      const d = p >= 1000 ? 0 : 2;
+      return `${Number(p).toLocaleString('et-EE', { minimumFractionDigits: d, maximumFractionDigits: d })}${cur}`;
+    }
+
+    function tickerHtml(items) {
+      return items.map(it => {
+        const c = it.change;
+        const cls = c === null || c === undefined || Math.abs(c) < 0.05 ? 'tk-flat' : c > 0 ? 'tk-up' : 'tk-down';
+        const arrow = cls === 'tk-up' ? '▲' : cls === 'tk-down' ? '▼' : '';
+        const chg = c === null || c === undefined ? '' : `<span class="tk-chg ${cls}">${arrow} ${fmt(Math.abs(c), 1)}%</span>`;
+        return `<span class="tk"><span class="tk-name">${it.label}</span><span class="tk-price">${fmtMarket(it)}</span>${chg}</span>`;
+      }).join('');
+    }
+
+    async function loadMarkets() {
+      try {
+        const d = await fetchJson('/api/markets', 15000);
+        const items = (d?.items || []).filter(it => it.price !== null);
+        if (!items.length) throw new Error('tühi');
+        const track = $('ticker-track');
+        const html = tickerHtml(items);
+        track.classList.remove('scroll');
+        track.innerHTML = html;
+        // Kui kõik ei mahu ära, hakkab riba aeglaselt liikuma (sisu kahekordselt, et ring oleks sujuv)
+        requestAnimationFrame(() => {
+          if (track.scrollWidth > $('ticker').clientWidth) {
+            track.innerHTML = html + html;
+            track.style.setProperty('--ticker-dur', `${Math.round(track.scrollWidth / 2 / 50)}s`);
+            track.classList.add('scroll');
+          }
+        });
+      } catch (e) {
+        if ($('ticker-track').textContent.includes('Laen')) $('ticker-track').innerHTML = '<span class="tk"><span class="tk-name">Turuinfo pole hetkel saadaval</span></span>';
+      }
+    }
+
     // --- KÄIVITUS ---
     updateClock();
     setInterval(updateClock, 1000);
@@ -2447,6 +2505,8 @@
     loadElectricity();
     startLocation();
     initGlobeData();
+    loadMarkets();
+    setInterval(loadMarkets, 5 * 60 * 1000);
     setInterval(loadElectricity, 10 * 60 * 1000);
     setInterval(loadWeather, 30 * 60 * 1000);
     setInterval(loadAurora, 5 * 60 * 1000);

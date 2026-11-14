@@ -261,12 +261,16 @@
 
     .weather-middle {
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto minmax(0, 1fr);
       align-items: center;
       gap: 1.6vw;
       margin: 0.6vh 0;
       flex: 1;
     }
+    /* Kuu ilmakaardi taustal (nagu raadio lained): suur, poolläbipaistev, sisu jääb peale */
+    .moon-bg { position: absolute; right: 1%; top: 50%; transform: translateY(-54%); width: 40%; aspect-ratio: 1; z-index: 1; opacity: 0.32; pointer-events: none; }
+    .moon-label { font-size: clamp(10px, 0.8vw, 13px); font-weight: 600; color: var(--muted); white-space: nowrap; margin-left: auto; margin-right: 0.6vw; }
+    .moon-label b { color: #e2e8f0; font-weight: 700; }
     .weather-main-temp { display: flex; align-items: center; gap: 0.8vw; padding-right: 0.6vw; }
     #weather-temp { font-size: clamp(44px, 4.6vw, 72px); font-weight: 800; letter-spacing: -0.06em; line-height: 0.9; }
     .weather-icon { font-size: clamp(38px, 3.8vw, 60px); filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.35)); }
@@ -288,7 +292,7 @@
       justify-content: center;
       gap: 2px;
     }
-    .w-metric-label { font-size: clamp(8px, 0.68vw, 10px); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+    .w-metric-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(8px, 0.68vw, 10px); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
     .w-metric-val { font-size: clamp(11px, 0.92vw, 14px); font-weight: 750; color: var(--text); white-space: nowrap; display: flex; align-items: center; gap: 4px; }
     #yr-wind-arrow { display: inline-block; color: var(--cyan); font-weight: 800; transition: transform 0.3s ease; }
 
@@ -524,7 +528,7 @@
 
     /* Ilmakaardi taustaefektid (lumi, vihm, tähed jne) */
     .weather-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-    .weather-card > :not(.weather-fx) { position: relative; z-index: 2; }
+    .weather-card > :not(.weather-fx):not(.moon-bg) { position: relative; z-index: 2; }
 
     /* Põlemiskaitse: kogu ekraan nihkub väga aeglaselt mõne piksli võrra */
     .screen { transition: transform 40s ease-in-out; will-change: transform; }
@@ -742,8 +746,10 @@
       <!-- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) -->
       <section class="card weather-card">
         <canvas id="weather-fx" class="weather-fx" aria-hidden="true"></canvas>
+        <canvas id="moon-canvas" class="moon-bg" aria-hidden="true"></canvas>
         <div class="card-head">
           <span class="label">Ilm & Prognoos • <span id="location" class="location-badge">Tuvastan asukohta…</span></span>
+          <span class="moon-label" id="moon-label"></span>
           <div class="loc-controls">
             <select id="place-select" class="pill-btn place-select" aria-label="Vali asukoht"></select>
             <button id="location-button" class="pill-btn">📍 Uuenda</button>
@@ -782,6 +788,7 @@
               <span class="w-metric-val" id="yr-sun">↑ --:-- ↓ --:--</span>
             </div>
           </div>
+
         </div>
 
         <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
@@ -1640,8 +1647,7 @@
 
       const moon = moonInfo();
       const lightText = r.darkF >= 1 ? 'Pime' : r.darkF > 0 ? '🌆 Hämarik' : '☀️ Valge aeg';
-      $('au-darkness').textContent = `${lightText} • ${moon.emoji} kuu ${moon.illum}%`;
-      $('au-darkness').title = moon.name;
+      $('au-darkness').textContent = r.darkF >= 1 ? '🌙 Pime (sobiv)' : lightText;
       if (prob >= 10 && moon.illum >= 75 && r.darkF > 0) {
         $('aurora-subverdict').textContent = `${subverdict} • hele kuu segab`;
       }
@@ -2369,6 +2375,70 @@
       const [emoji, name] = names[Math.round(phase * 8) % 8];
       return { phase, illum, emoji, name, age };
     }
+
+    // Kuu joonistamine: valgustatud osa + terminaator (ellips), kraatrid, kerge kuma
+    function drawMoon() {
+      const cv = $('moon-canvas');
+      const rect = cv.getBoundingClientRect();
+      if (!rect.width) return;
+      const dpr = devicePixelRatio || 1;
+      cv.width = rect.width * dpr; cv.height = rect.height * dpr;
+      const x = cv.getContext('2d');
+      x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const w = rect.width, cx = w / 2, cy = w / 2, r = w * 0.36;
+      const m = moonInfo();
+      x.clearRect(0, 0, w, w);
+
+      // kuma (heledam täiskuu ajal)
+      const glow = x.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 1.38);
+      glow.addColorStop(0, `rgba(226, 232, 240, ${0.06 + m.illum / 100 * 0.22})`);
+      glow.addColorStop(1, 'rgba(226, 232, 240, 0)');
+      x.fillStyle = glow; x.beginPath(); x.arc(cx, cy, r * 1.4, 0, Math.PI * 2); x.fill();
+
+      // varjus pool
+      x.fillStyle = 'rgba(100, 116, 139, 0.16)';
+      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
+
+      // valgustatud osa (põhjapoolkeral: kasvav kuu paremalt, kahanev vasakult)
+      const waxing = m.phase < 0.5;
+      const k = Math.cos(2 * Math.PI * m.phase);         // 1 = noorkuu, -1 = täiskuu
+      x.save();
+      x.beginPath();
+      if (waxing) {
+        x.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
+        x.ellipse(cx, cy, r * Math.abs(k), r, 0, Math.PI / 2, -Math.PI / 2, k > 0);
+      } else {
+        x.arc(cx, cy, r, Math.PI / 2, Math.PI * 1.5, false);
+        x.ellipse(cx, cy, r * Math.abs(k), r, 0, -Math.PI / 2, Math.PI / 2, k > 0);
+      }
+      x.closePath();
+      const lit = x.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
+      lit.addColorStop(0, '#f8fafc'); lit.addColorStop(1, '#cbd5e1');
+      x.fillStyle = lit; x.fill();
+      x.clip();
+      // kraatrid
+      [[-0.32, -0.18, 0.2], [0.25, 0.3, 0.14], [0.1, -0.42, 0.1], [-0.15, 0.38, 0.12], [0.42, -0.05, 0.09], [-0.5, 0.15, 0.08]].forEach(([dx, dy, rr]) => {
+        x.fillStyle = 'rgba(100, 116, 139, 0.22)';
+        x.beginPath(); x.arc(cx + dx * r, cy + dy * r, rr * r, 0, Math.PI * 2); x.fill();
+      });
+      x.restore();
+
+      // ääris
+      x.strokeStyle = 'rgba(226, 232, 240, 0.25)'; x.lineWidth = 1;
+      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
+
+      // tekst: faas ja järgmine täiskuu / noorkuu
+      const SYN = 29.530588853;
+      const toFull = ((0.5 - m.phase + 1) % 1) * SYN;
+      const toNew = ((1 - m.phase) % 1) * SYN;
+      const fmtDay = d => new Date(Date.now() + d * 86400000).toLocaleDateString('et-EE', { day: 'numeric', month: 'short' }).replace('.', '');
+      const next = toFull < 1 ? 'täiskuu täna' : toNew < 1 ? 'noorkuu täna'
+        : toFull <= toNew ? `täiskuu ${fmtDay(toFull)}` : `noorkuu ${fmtDay(toNew)}`;
+      $('moon-label').innerHTML = `<b>${m.name}</b> ${m.illum}% • ${next}`;
+    }
+    drawMoon();
+    setInterval(drawMoon, 30 * 60 * 1000);
+    addEventListener('resize', drawMoon);
 
     // --- 6. HOIATUSBÄNNER ---
     let elecState = null;

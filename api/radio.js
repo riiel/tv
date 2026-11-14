@@ -86,7 +86,8 @@ function openStream(url, signal, redirects = 3) {
 // Võti = kanali nimi striimi aadressis (stream.sunshine-live.de/<NIMI>/...), väärtus = loverad station number.
 // Numbri leiad sunshine-live.de kanali lehelt: F12 → Network → flow.json?station=<NUMBER>
 const SUNSHINE_STATIONS = {
-  hardcore: 91,     // Sunshine Live Hardcore (kontrolli /api/radio?sunshine=list abil)
+  hardcore: 91,     // Sunshine Live Hardcore
+  hardstyle: null,  // TÄIDA: Hardstyle number (leia /api/radio?sunshine=list abil)
   dnb: 16           // Sunshine Live Drum 'n' Bass
 };
 

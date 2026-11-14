@@ -86,8 +86,8 @@ function openStream(url, signal, redirects = 3) {
 // Võti = kanali nimi striimi aadressis (stream.sunshine-live.de/<NIMI>/...), väärtus = loverad station number.
 // Numbri leiad sunshine-live.de kanali lehelt: F12 → Network → flow.json?station=<NUMBER>
 const SUNSHINE_STATIONS = {
-  hardcore: 91,     // Sunshine Live Hardcore
-  dnb: 71           // Sunshine Live Drum 'n' Bass
+  hardcore: 91,     // Sunshine Live Hardcore (kontrolli /api/radio?sunshine=list abil)
+  dnb: null         // TÄIDA: Drum 'n' Bass number (71 osutus Classics kanaliks)
 };
 
 async function sunshineTitle(streamUrl, signal) {
@@ -100,7 +100,12 @@ async function sunshineTitle(streamUrl, signal) {
   });
   if (!r.ok) return '';
   const d = await r.json();
-  const song = d?.result?.entry?.[0]?.song?.entry?.[0];
+  const entry = d?.result?.entry?.[0];
+  // Kui viimane teadaolev lugu on ammu lõppenud (nt reklaam, saade), ära näita vana nime
+  const start = Date.parse(entry?.airtime || '');
+  const dur = Number(entry?.duration) || 0;
+  if (Number.isFinite(start) && dur > 0 && Date.now() > start + (dur + 180) * 1000) return '';
+  const song = entry?.song?.entry?.[0];
   const title = String(song?.title || '').trim();
   const artists = (song?.artist?.entry || []).map(a => a?.name).filter(Boolean).join(', ');
   return title ? (artists ? `${artists} - ${title}` : title) : '';
@@ -170,6 +175,27 @@ async function icyTitle(streamUrl, signal) {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
+  // Abi: /api/radio?sunshine=list näitab kõigi Sunshine Live kanalite praegust lugu (station number: lugu)
+  if (req.query.sunshine === 'list') {
+    const ids = Array.from({ length: 150 }, (_, i) => i + 1);
+    const rows = await Promise.all(ids.map(async id => {
+      const c = new AbortController();
+      const t = setTimeout(() => c.abort(), 6000);
+      try {
+        const r = await fetch(`https://iris-sunshinelive.loverad.io/flow.json?station=${id}&offset=1&count=1`, { signal: c.signal, headers: { Accept: 'application/json' } });
+        if (!r.ok) return null;
+        const e = (await r.json())?.result?.entry?.[0];
+        const song = e?.song?.entry?.[0];
+        if (!song?.title) return null;
+        const artist = (song.artist?.entry || []).map(a => a?.name).filter(Boolean).join(', ');
+        const at = e.airtime ? new Date(e.airtime).toLocaleTimeString('et-EE', { timeZone: 'Europe/Tallinn', hour: '2-digit', minute: '2-digit' }) : '';
+        return `${String(id).padStart(3)}: ${artist ? artist + ' - ' : ''}${song.title}${at ? '   (algas ' + at + ')' : ''}`;
+      } catch (e) { return null; } finally { clearTimeout(t); }
+    }));
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.status(200).send(['Sunshine Live kanalid: station number: praegune lugu', '', ...rows.filter(Boolean)].join('\n'));
+  }
+
   const streamUrl = req.query.url;
   if (!streamUrl || !/^https?:\/\//i.test(streamUrl)) return res.status(400).json({ title: '' });
 

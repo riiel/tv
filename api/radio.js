@@ -87,7 +87,7 @@ function openStream(url, signal, redirects = 3) {
 // Numbri leiad sunshine-live.de kanali lehelt: F12 → Network → flow.json?station=<NUMBER>
 const SUNSHINE_STATIONS = {
   hardcore: 91,     // Sunshine Live Hardcore
-  hardstyle: null,  // TÄIDA: Hardstyle number (leia /api/radio?sunshine=list abil)
+  hardstyle: 88,    // Sunshine Live Hardstyle
   dnb: 16           // Sunshine Live Drum 'n' Bass
 };
 

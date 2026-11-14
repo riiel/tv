@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T22:58:08+02:00",
+ "updated": "2026-11-14T23:02:34+02:00",
  "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
  "teams": {
   "bcp": {
@@ -451,7 +451,7 @@
        "result": "L"
       },
       {
-       "date": "okt",
+       "date": "22.10",
        "title": "BC Pärnu – BC Vienna",
        "note": "3. voor, Pärnu",
        "score": "86:69",
@@ -1112,8 +1112,8 @@
   },
   {
    "team": "bcp",
-   "date": "2026-11-18",
-   "time": null,
+   "date": "2026-11-17",
+   "time": "21:00",
    "title": "SLUC Nancy – BC Pärnu",
    "comp": "FIBA Europe Cup, 7. voor",
    "place": "Nancy, Prantsusmaa"
@@ -1136,10 +1136,10 @@
   },
   {
    "team": "bcp",
-   "date": "2026-12-22",
-   "time": null,
+   "date": "2026-12-23",
+   "time": "20:00",
    "title": "King Szczecin – BC Pärnu",
-   "comp": "FIBA Europe Cup, 10. voor (22. või 23.12)",
+   "comp": "FIBA Europe Cup, 10. voor",
    "place": "Szczecin, Poola"
   },
   {
@@ -1198,7 +1198,7 @@
   {
    "team": "bcp",
    "date": "2026-10-13",
-   "time": null,
+   "time": "20:00",
    "title": "BC Pärnu – SLUC Nancy",
    "comp": "FIBA Europe Cup",
    "score": "61:84",
@@ -1563,9 +1563,8 @@
   },
   {
    "team": "bcp",
-   "date": "2026-10-20",
-   "dateLabel": "okt",
-   "time": null,
+   "date": "2026-10-22",
+   "time": "19:00",
    "title": "BC Pärnu – BC Vienna",
    "comp": "FIBA Europe Cup",
    "score": "86:69",
@@ -1574,7 +1573,7 @@
   {
    "team": "bcp",
    "date": "2026-10-28",
-   "time": null,
+   "time": "19:00",
    "title": "Nitra Blue Wings – BC Pärnu",
    "comp": "FIBA Europe Cup",
    "score": "82:80",
@@ -1582,18 +1581,18 @@
   },
   {
    "team": "bcp",
-   "date": "2026-12-09",
-   "time": null,
+   "date": "2026-12-08",
+   "time": "20:00",
    "title": "BC Vienna – BC Pärnu",
    "comp": "FIBA Europe Cup, 8. voor",
    "place": "Viin, Austria"
   },
   {
    "team": "bcp",
-   "date": "2026-12-15",
-   "time": null,
+   "date": "2026-12-16",
+   "time": "19:00",
    "title": "BC Pärnu – Nitra Blue Wings",
-   "comp": "FIBA Europe Cup, 9. voor (15. või 16.12)",
+   "comp": "FIBA Europe Cup, 9. voor",
    "place": "Pärnu Spordihall"
   },
   {

@@ -188,6 +188,7 @@ td{padding:4px 6px}
 .stack.w6{grid-column:span 6}.stack.w8{grid-column:span 8}
 .stack>.box{grid-column:auto}
 @media (max-width:900px){.stack,.stack.w6,.stack.w8{grid-column:span 12}}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 24px}
 .ldgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 24px}
 .ldg{margin:4px 0 2px}
 .ld{grid-template-columns:120px 1fr 40px;font-size:13px;margin:3px 0}
@@ -305,7 +306,10 @@ function panelHtml(p,k){
     b+=`<div class="tbl"><table><thead><tr>${p.columns.map((c,i)=>`<th class="${i>=2?"n":""}">${esc(c)}</th>`).join("")}</tr></thead><tbody>`+
       p.rows.map(r=>`<tr class="${r[1]===p.highlight?"me":""} ${p.cutAfter&&r[0]===p.cutAfter?"cut":""}">${r.map((v,i)=>`<td class="${i>=2?"n":""}">${i===1?team(v):esc(v)}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
   }else if(p.type==="list"){
-    b+=`<ul class="list"${(p.width===12||p.width===8)?' style="columns:2 300px;column-gap:24px"':""}>`+p.items.map(i=>`<li><span class="dt">${esc(i.date)}</span><span>${teamsTitle(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`).join("")+`</ul>`;
+    const li=i=>`<li><span class="dt">${esc(i.date)}</span><span>${teamsTitle(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`;
+    if((p.width===12||p.width===8)&&p.items.length>3){const h=Math.ceil(p.items.length/2);
+      b+=`<div class="cols2"><ul class="list">${p.items.slice(0,h).map(li).join("")}</ul><ul class="list">${p.items.slice(h).map(li).join("")}</ul></div>`;}
+    else b+=`<ul class="list">${p.items.map(li).join("")}</ul>`;
   }else if(p.type==="stats"){
     b+=`<div class="stats">${p.items.map(([v,l])=>`<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
   }else if(p.type==="leaders"){

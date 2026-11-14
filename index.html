@@ -1464,7 +1464,7 @@
       } else {
         $('multi-card-title').innerHTML = `Lähim rand • <span class="location-badge">${beachLabel(currentBeach())}</span>`;
         $('multi-footer-advice').textContent = beachAdviceText;
-        $('multi-footer-source').innerHTML = `Allikas: <strong>Open-Meteo Marine & Air</strong>`;
+        $('multi-footer-source').innerHTML = currentBeach().type === 'lake' ? `Allikas: <strong>SYKE & Open-Meteo</strong>` : `Allikas: <strong>Open-Meteo Marine & Air</strong>`;
       }
     }
 
@@ -1649,7 +1649,8 @@
       if (isLake && waterTemp !== null) {
         const when = mData.time ? new Date(mData.time) : null;
         const whenText = when && !isNaN(when) ? when.toLocaleDateString('et-EE', { day: 'numeric', month: 'numeric' }) : '';
-        lakeNote = `mõõtejaam ${mData.station || mData.lake || ''}${mData.km != null ? ` (${String(mData.km).replace('.', ',')} km)` : ''}${whenText ? ` • ${whenText}` : ''}`;
+        const otherLake = beach.lake && mData.lake && !String(mData.lake).toLowerCase().includes(beach.lake.toLowerCase());
+        lakeNote = `${otherLake ? beach.lake + ' mõõtmine puudub, ' : ''}mõõtejaam ${mData.station || mData.lake || ''}${mData.km != null ? ` (${String(mData.km).replace('.', ',')} km)` : ''}${whenText ? ` • ${whenText}` : ''}`;
       }
       const uvIndex = num(aqData?.current?.uv_index);
       const aqi = num(aqData?.current?.european_aqi);
@@ -1696,7 +1697,8 @@
       $('bc-cape').textContent = cape === null ? '--' : cape >= 800 ? '⚡ Suur oht' : cape >= 300 ? 'Mõõdukas' : 'Madal (Rahulik)';
       $('bc-cape').style.color = cape !== null && cape >= 500 ? '#fb7185' : '#f8fafc';
 
-      $('bc-water-label').textContent = isLake ? `Järvevesi${beach.lake ? ' • ' + beach.lake : ''}` : 'Merevesi';
+      const measuredLake = isLake ? (mData?.lake || String(mData?.station || '').split(',')[0] || beach.lake || '') : '';
+      $('bc-water-label').textContent = isLake ? `Järvevesi${measuredLake ? ' • ' + measuredLake : ''}` : 'Merevesi';
       $('bc-waves').textContent = isLake ? `Järv • tuul ${Math.round(wind)} m/s` : waveHeight !== null ? `${waveHeight.toFixed(2)} m` : '-- m';
       $('bc-aqi').textContent = aqi === null ? 'AQI --' : `${aqi <= 25 ? 'Väga hea' : aqi <= 50 ? 'Hea' : 'Mõõdukas'} (AQI ${Math.round(aqi)})`;
       $('bc-pollen').textContent = pollenLevel;

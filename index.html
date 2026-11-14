@@ -1475,15 +1475,22 @@
     }
 
     async function loadAurora() {
-      const [kpData, magData, plasmaData] = await Promise.all([
+      // Bz ja päikesetuul tulevad meie serveri kaudu (/api/solarwind), sest brauser ei saa neid NOAA-st otse
+      const [kpData, wind] = await Promise.all([
         fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', 5000).catch(() => null),
-        fetchFirst(['mag-5-minute', 'mag-2-hour']),
-        fetchFirst(['plasma-5-minute', 'plasma-2-hour'])
+        fetchJson('/api/solarwind', 15000).catch(() => null)
       ]);
+      let magData = null, plasmaData = null;
+      if (!wind || wind.bz === null || wind.speed === null) {
+        [magData, plasmaData] = await Promise.all([
+          wind?.bz == null ? fetchFirst(['mag-5-minute', 'mag-2-hour']) : null,
+          wind?.speed == null ? fetchFirst(['plasma-5-minute', 'plasma-2-hour']) : null
+        ]);
+      }
 
       const newKp = lastValue(kpData, 1, ['Kp', 'kp', 'kp_index', 'estimated_kp']);
-      const newBz = lastValue(magData, 3, ['bz_gsm', 'bz']);
-      const newSpeed = lastValue(plasmaData, 2, ['speed']);
+      const newBz = Number.isFinite(wind?.bz) ? wind.bz : lastValue(magData, 3, ['bz_gsm', 'bz']);
+      const newSpeed = Number.isFinite(wind?.speed) ? wind.speed : lastValue(plasmaData, 2, ['speed']);
       if (newKp !== null) { liveKp = newKp; kpLoaded = true; }
       if (newBz !== null) { liveBz = newBz; bzLoaded = true; }
       if (newSpeed !== null) { liveSpeed = Math.round(newSpeed); speedLoaded = true; }

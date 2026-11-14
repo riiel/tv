@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T22:00:00+02:00",
+ "updated": "2026-11-14T22:40:00+02:00",
  "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
  "teams": {
   "bcp": {
@@ -397,14 +397,14 @@
       {
        "date": "23.09",
        "title": "Neftçi – BC Pärnu",
-       "note": "Eelringi 1. mäng, Bakuu",
-       "score": "K",
+       "note": "Eelring, 1. mäng, Bakuu",
+       "score": "80:67",
        "result": "L"
       },
       {
        "date": "30.09",
        "title": "BC Pärnu – Neftçi",
-       "note": "Eelringi 2. mäng · mõlemad pääsesid põhiturniirile",
+       "note": "Eelring, 2. mäng · mõlemad pääsesid alagruppi",
        "score": "73:61",
        "result": "W"
       },
@@ -418,15 +418,23 @@
       {
        "date": "13.10",
        "title": "BC Pärnu – SLUC Nancy",
-       "note": "2. voor",
+       "note": "2. voor, Pärnu",
        "score": "61:84",
        "result": "L"
       },
       {
-       "date": "20.–28.10",
-       "title": "BC Vienna ja Nitra Blue Wings",
-       "note": "3. ja 4. voor: üks võit, üks kaotus",
-       "score": "1–1"
+       "date": "okt",
+       "title": "BC Pärnu – BC Vienna",
+       "note": "3. voor, Pärnu",
+       "score": "86:69",
+       "result": "W"
+      },
+      {
+       "date": "28.10",
+       "title": "Nitra Blue Wings – BC Pärnu",
+       "note": "4. voor, Nitra",
+       "score": "82:80",
+       "result": "L"
       },
       {
        "date": "04.11",
@@ -1086,22 +1094,6 @@
   },
   {
    "team": "bcp",
-   "date": "2026-12-09",
-   "time": null,
-   "title": "BC Pärnu vs BC Vienna",
-   "comp": "FIBA Europe Cup, 8. voor",
-   "place": "koht täpsustamisel"
-  },
-  {
-   "team": "bcp",
-   "date": "2026-12-15",
-   "time": null,
-   "title": "BC Pärnu vs Nitra Blue Wings",
-   "comp": "FIBA Europe Cup, 9. voor (15. või 16.12)",
-   "place": "koht täpsustamisel"
-  },
-  {
-   "team": "bcp",
    "date": "2026-12-22",
    "time": null,
    "title": "King Szczecin – BC Pärnu",
@@ -1517,6 +1509,50 @@
    "title": "Rīgas Ekselences Juniori – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "Riia"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-09-23",
+   "time": null,
+   "title": "Neftçi – BC Pärnu",
+   "comp": "Europe Cup eelring",
+   "score": "80:67",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-10-20",
+   "dateLabel": "okt",
+   "time": null,
+   "title": "BC Pärnu – BC Vienna",
+   "comp": "FIBA Europe Cup",
+   "score": "86:69",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-10-28",
+   "time": null,
+   "title": "Nitra Blue Wings – BC Pärnu",
+   "comp": "FIBA Europe Cup",
+   "score": "82:80",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-09",
+   "time": null,
+   "title": "BC Vienna – BC Pärnu",
+   "comp": "FIBA Europe Cup, 8. voor",
+   "place": "Viin, Austria"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-15",
+   "time": null,
+   "title": "BC Pärnu – Nitra Blue Wings",
+   "comp": "FIBA Europe Cup, 9. voor (15. või 16.12)",
+   "place": "Pärnu Spordihall"
   }
  ],
  "sources": [

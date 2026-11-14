@@ -1,95 +1,127 @@
 // Faili asukoht projektis: /api/sport.js
-// BC Pärnu Eesti-Läti liiga tulemused, tabel ja mängukava otse korvpalliliidu (basket.ee) ajakavalehelt.
-// Kui basket.ee ei vasta või blokeerib päringu, tagastab { ok:false } ja spordileht kasutab sport/data.json andmeid.
+// Spordilehe (/sport/) otseandmed. Kõik loetakse otse alaliitude avalikelt lehtedelt, ilma Claude'i abita:
+//   - basket.ee        BC Pärnu Eesti-Läti liiga (tabel, tulemused, kava, ülekanded) ja korvpallikoondise kava
+//   - fiba.basketball  FIBA Europe Cup (BC Pärnu) ja MM-valiksari (Eesti koondis)
+//   - jalgpall.ee      Pärnu JK Vaprus (Premium liiga, karikas) ja Eesti jalgpallikoondis
+// Iga allikas on eraldi: kui üks ei vasta, tulevad teised ikka ja leht kasutab puuduva osa jaoks faili sport/data.json.
 
-const BASE = 'https://www.basket.ee/et/ajakava-ja-tulemused';
-const LEAGUE = 'g23'; // Estonian-Latvian League
+const UA = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml',
+  'Accept-Language': 'et-EE,et;q=0.9,en;q=0.5',
+};
 const ME = 'BC Pärnu';
-const NAMES = { 'BK Liepaja': 'BK Liepāja', 'Rigas Ekselences Juniori': 'Rīgas Ekselences Juniori', 'Transcom Pärnu': ME, 'Pärnu Sadam': ME };
-const EST_CLUBS = ['Tartu Ülikool Maks & Moorits', 'TalTech/ALEXELA', 'BC Pärnu', 'Bigbank/Kalev', 'Keila KK', 'Viimsi', 'Keila Basket'];
 
 export default async function handler(req, res) {
-  res.setHeader('Cache-Control', 's-maxage=180, stale-while-revalidate=900');
-  try {
-    const t = tallinnToday();
-    const seasonYear = t.m >= 8 ? t.y : t.y - 1;
-    const today = `${pad(t.d)}.${pad(t.m)}.${t.y}`;
-    const [resHtml, schHtml] = await Promise.all([
-      get(`${BASE}?action=results&chid=${LEAGUE}&start_date=01.08.${seasonYear}&end_date=${today}`),
-      get(`${BASE}?action=schedule&chid=${LEAGUE}&team=${encodeURIComponent('Pärnu')}&start_date=${today}&end_date=30.06.${seasonYear + 1}`),
-    ]);
-    const played = parseGames(resHtml).filter(g => /^\d+:\d+$/.test(g.score));
-    if (!played.length) throw new Error('tulemusi ei leitud');
-    const upcoming = parseGames(schHtml).filter(g => !/^\d+:\d+$/.test(g.score) && (g.home === ME || g.away === ME));
-
-    // Tabel
-    const st = {};
-    const row = n => (st[n] = st[n] || { w: 0, l: 0, pf: 0, pa: 0 });
-    for (const g of played) {
-      const [x, y] = g.score.split(':').map(Number);
-      const h = row(g.home), a = row(g.away);
-      h.pf += x; h.pa += y; a.pf += y; a.pa += x;
-      if (x > y) { h.w++; a.l++; } else { a.w++; h.l++; }
+  const t = tallinnToday();
+  const names = ['league', 'ec', 'ekk', 'vap', 'ejk'];
+  const settled = await Promise.allSettled([league(t), fibaEC(t), natBasket(t), vaprus(t), koondis(t)]);
+  const out = { ok: false, updated: new Date().toISOString(), src: {}, panels: {}, summaries: {}, eventSets: [], logos: {} };
+  settled.forEach((r, i) => {
+    if (r.status === 'fulfilled' && r.value) {
+      out.src[names[i]] = true;
+      Object.assign(out.panels, r.value.panels);
+      Object.assign(out.summaries, r.value.summaries);
+      Object.assign(out.logos, r.value.logos);
+      out.eventSets.push(...(r.value.eventSets || []));
+    } else {
+      out.src[names[i]] = String((r.reason && r.reason.message) || r.reason || 'viga');
     }
-    const pct = v => v.w / (v.w + v.l);
-    const sorted = Object.entries(st).sort((p, q) => pct(q[1]) - pct(p[1]) || (q[1].pf - q[1].pa) - (p[1].pf - p[1].pa));
-    const fmtPct = v => pct(v).toFixed(3).replace(/^0/, '');
-    const fmtDiff = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
-    const table = sorted.map(([n, v], i) => [i + 1, n, v.w + v.l, v.w, v.l, fmtPct(v), fmtDiff(v.pf - v.pa)]);
-    const kml = sorted.filter(([n]) => EST_CLUBS.includes(n)).map(([n, v], i) => [i + 1, n, v.w + v.l, v.w, v.l, fmtPct(v)]);
-
-    // BC Pärnu mängud
-    const mine = played.filter(g => g.home === ME || g.away === ME).sort((a, b) => a.sort.localeCompare(b.sort));
-    const results = mine.map(g => {
-      const [x, y] = g.score.split(':').map(Number);
-      const home = g.home === ME;
-      return { date: g.date, time: g.time, title: `${g.home} – ${g.away}`, score: g.score, result: (home ? x > y : y > x) ? 'W' : 'L', place: g.place, home };
-    });
-    const cnt = (arr, r) => arr.filter(g => g.result === r).length;
-    const homeG = results.filter(g => g.home), awayG = results.filter(g => !g.home);
-    let streak = 0;
-    for (let i = results.length - 1; i >= 0 && results[i].result === results[results.length - 1].result; i--) streak++;
-    const me = st[ME] || { w: 0, l: 0, pf: 0, pa: 0 };
-    const n = me.w + me.l || 1;
-    const pos = (table.find(r => r[1] === ME) || [null])[0];
-
-    res.status(200).json({
-      ok: true,
-      source: 'basket.ee',
-      updated: new Date().toISOString(),
-      games: played.length,
-      table,
-      kml,
-      results,
-      upcoming: upcoming.sort((a, b) => a.sort.localeCompare(b.sort)).map(g => ({ date: g.date, time: g.time, title: `${g.home} – ${g.away}`, place: g.place, tv: g.tv })),
-      summary: {
-        pos, w: me.w, l: me.l,
-        home: [cnt(homeG, 'W'), cnt(homeG, 'L')],
-        away: [cnt(awayG, 'W'), cnt(awayG, 'L')],
-        ppg: +(me.pf / n).toFixed(1), oppg: +(me.pa / n).toFixed(1),
-        streak, streakType: results.length ? results[results.length - 1].result : null,
-      },
-    });
-  } catch (e) {
-    res.status(200).json({ ok: false, error: String(e && e.message || e) });
-  }
+  });
+  out.ok = Object.values(out.src).some(v => v === true);
+  res.setHeader('Cache-Control', `s-maxage=${cacheSeconds(out)}, stale-while-revalidate=900`);
+  res.status(200).json(out);
 }
 
-async function get(url) {
-  const r = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml',
-      'Accept-Language': 'et-EE,et;q=0.9,en;q=0.5',
-    },
+// Mängu ajal ja kohe pärast seda küsitakse allikaid tihedamini, muul ajal harva.
+function cacheSeconds(out) {
+  if (!out.ok) return 60;
+  const now = Date.now();
+  let s = 900;
+  for (const set of out.eventSets) for (const e of set.events) {
+    if (e.score) continue;
+    const start = Date.parse(`${e.date}T${e.time || '12:00'}:00${tzOff(e.date)}`);
+    if (now > start - 15 * 60e3 && now < start + 4 * 3600e3) return 120;
+    if (Math.abs(start - now) < 12 * 3600e3) s = 300;
+  }
+  return s;
+}
+
+// ───────────────────────── BC Pärnu: Eesti-Läti liiga (basket.ee) ─────────────────────────
+
+const BASKET = 'https://www.basket.ee/et/ajakava-ja-tulemused';
+const LG = 'Eesti-Läti liiga';
+const BASKET_NAMES = { 'BK Liepaja': 'BK Liepāja', 'Rigas Ekselences Juniori': 'Rīgas Ekselences Juniori', 'Transcom Pärnu': ME, 'Pärnu Sadam': ME };
+const EST_CLUBS = ['Tartu Ülikool Maks & Moorits', 'TalTech/ALEXELA', 'BC Pärnu', 'Bigbank/Kalev', 'Keila KK', 'Viimsi', 'Keila Basket'];
+
+async function league(t) {
+  const seasonYear = t.m >= 8 ? t.y : t.y - 1;
+  const today = `${pad(t.d)}.${pad(t.m)}.${t.y}`;
+  const [resHtml, schHtml] = await Promise.all([
+    getBasket(`${BASKET}?action=results&chid=g23&start_date=01.08.${seasonYear}&end_date=${today}`),
+    getBasket(`${BASKET}?action=schedule&chid=g23&team=${encodeURIComponent('Pärnu')}&start_date=${today}&end_date=30.06.${seasonYear + 1}`),
+  ]);
+  const played = parseBasket(resHtml).filter(g => /^\d+:\d+$/.test(g.score));
+  if (!played.length) throw new Error('basket.ee: tulemusi ei leitud');
+  const upcoming = parseBasket(schHtml).filter(g => !/^\d+:\d+$/.test(g.score) && (g.home === ME || g.away === ME)).sort(bySort);
+
+  const st = {};
+  const row = n => (st[n] = st[n] || { w: 0, l: 0, pf: 0, pa: 0 });
+  for (const g of played) {
+    const [x, y] = g.score.split(':').map(Number);
+    const h = row(g.home), a = row(g.away);
+    h.pf += x; h.pa += y; a.pf += y; a.pa += x;
+    if (x > y) { h.w++; a.l++; } else { a.w++; h.l++; }
+  }
+  const pct = v => v.w / (v.w + v.l);
+  const sorted = Object.entries(st).sort((p, q) => pct(q[1]) - pct(p[1]) || (q[1].pf - q[1].pa) - (p[1].pf - p[1].pa));
+  const fmtPct = v => pct(v).toFixed(3).replace(/^0/, '');
+  const table = sorted.map(([n, v], i) => [i + 1, n, v.w + v.l, v.w, v.l, fmtPct(v), signed(v.pf - v.pa)]);
+  const kml = sorted.filter(([n]) => EST_CLUBS.includes(n)).map(([n, v], i) => [i + 1, n, v.w + v.l, v.w, v.l, fmtPct(v)]);
+
+  const mine = played.filter(g => g.home === ME || g.away === ME).sort(bySort).map(g => {
+    const [x, y] = g.score.split(':').map(Number);
+    const home = g.home === ME;
+    return { ...g, isHome: home, result: (home ? x > y : y > x) ? 'W' : 'L' };
   });
-  if (!r.ok) throw new Error('basket.ee vastas ' + r.status);
-  const html = await r.text();
+  const cnt = (arr, r) => arr.filter(g => g.result === r).length;
+  const homeG = mine.filter(g => g.isHome), awayG = mine.filter(g => !g.isHome);
+  let streak = 0;
+  for (let i = mine.length - 1; i >= 0 && mine[i].result === mine[mine.length - 1].result; i--) streak++;
+  const me = st[ME] || { w: 0, l: 0, pf: 0, pa: 0 };
+  const n = me.w + me.l || 1;
+  const pos = (table.find(r => r[1] === ME) || [null])[0];
+  const c1 = x => x.toFixed(1).replace('.', ',');
+
+  const panels = {
+    'lg-table': { columns: ['#', 'Meeskond', 'M', 'V', 'K', '%', '+/−'], rows: table },
+    'lg-kml': { columns: ['#', 'Meeskond', 'M', 'V', 'K', '%'], rows: kml },
+    'lg-results': { items: mine.map(g => ({ date: dm(g.date), title: `${g.home} – ${g.away}`, note: g.place, score: g.score, result: g.result })) },
+  };
+  if (mine.length) panels['lg-stats'] = { items: [
+    [`${me.w}–${me.l}`, 'võidud–kaotused'],
+    [`${cnt(homeG, 'W')}–${cnt(homeG, 'L')}`, 'kodus'],
+    [`${cnt(awayG, 'W')}–${cnt(awayG, 'L')}`, 'võõrsil'],
+    [c1(me.pf / n), 'visatud punkte mängus'],
+    [c1(me.pa / n), 'lastud punkte mängus'],
+    [String(streak), mine[mine.length - 1].result === 'W' ? 'võitu järjest' : 'kaotust järjest'],
+  ] };
+  const events = mine.map(g => ({ team: 'bcp', date: g.date, time: g.time, title: `${g.home} – ${g.away}`, comp: LG, place: g.place, score: g.score, result: g.result }))
+    .concat(upcoming.map(g => ({ team: 'bcp', date: g.date, time: g.time, title: `${g.home} – ${g.away}`, comp: LG, place: g.place, tv: g.tv })));
+  return {
+    panels,
+    summaries: pos ? { bcp: { headline: `${pos}. koht`, sub: `${me.w} V · ${me.l} K` } } : {},
+    eventSets: [{ team: 'bcp', re: '^Eesti-Läti liiga$', events }],
+  };
+}
+
+async function getBasket(url) {
+  const html = await get(url);
   if (html.includes('turnstile-guard-form')) throw new Error('basket.ee turvakontroll');
   return html;
 }
 
-function parseGames(html) {
+function parseBasket(html) {
   const out = [];
   for (const chunk of html.split('<tr').slice(1)) {
     const d = chunk.match(/class="dateAndTime">\s*[^\d<]*(\d\d)\.(\d\d)\.(\d{4})(?:,\s*(\d\d:\d\d))?/);
@@ -98,25 +130,480 @@ function parseGames(html) {
     if (!d || !h || !a) continue;
     const sc = chunk.match(/class="center result">\s*([^<]*?)\s*</);
     const ar = chunk.match(/class="arena">\s*([^<]*?)\s*</);
+    const cp = chunk.match(/class="competition">\s*([^<]*?)\s*</);
     const bc = chunk.split('class="center broadcast"')[1] || '';
     const tv = [...new Set([...bc.matchAll(/title="([^"]+)"/g)].map(m => dec(m[1])))];
     const date = `${d[3]}-${d[2]}-${d[1]}`;
+    const nm = s => { const x = dec(s); return BASKET_NAMES[x] || x; };
     out.push({
       date, time: d[4] || null, sort: `${date}T${d[4] || '00:00'}`,
-      home: name(h[1]), away: name(a[1]),
+      home: nm(h[1]), away: nm(a[1]),
       score: sc ? sc[1].replace(/\s+/g, '') : '',
       place: ar ? dec(ar[1]) : '',
+      comp: cp ? dec(cp[1]) : '',
       tv: tv.join(', '),
     });
   }
   return out;
 }
 
-function dec(s) {
-  return String(s).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, ' ').trim();
+// ───────────────────────── FIBA (fiba.basketball) ─────────────────────────
+
+const FIBA = 'https://www.fiba.basketball/en/events/';
+const PARNU_ORG = 58616;
+const CLUBS = { 58616: ME, 1129: 'SLUC Nancy', 66528: 'King Szczecin', 729: 'Keravnos', 73436: 'BC Vienna', 89491: 'Nitra Blue Wings', 81526: 'Neftçi', 2710: 'Tartu Ülikool Maks & Moorits', 8015: 'Bigbank/Kalev' };
+const PLAYER_FIX = { 'Klavs Dubults': 'Klāvs Dubults', 'Renars Birkans': 'Renārs Birkāns', 'Hendrik Eelmae': 'Hendrik Eelmäe', 'Illia Sidorov': 'Illja Sidorov' };
+const CITY = { Vienna: 'Viin', Nicosia: 'Nikosia', Baku: 'Bakuu', Warsaw: 'Varssavi', Prague: 'Praha', Athens: 'Ateena', Brussels: 'Brüssel', Lisbon: 'Lissabon', Bucharest: 'Bukarest', Copenhagen: 'Kopenhaagen', Rome: 'Rooma', Belgrade: 'Belgrad', Cologne: 'Köln', Munich: 'München', Geneva: 'Genf', Riga: 'Riia', Helsinki: 'Helsingi', Stockholm: 'Stockholm' };
+// FIBA riigikood → [eestikeelne nimi, lipu kood]
+const COUNTRY = {
+  EST: ['Eesti', 'ee'], FRA: ['Prantsusmaa', 'fr'], FIN: ['Soome', 'fi'], SLO: ['Sloveenia', 'si'], SWE: ['Rootsi', 'se'], HUN: ['Ungari', 'hu'],
+  CZE: ['Tšehhi', 'cz'], LAT: ['Läti', 'lv'], LTU: ['Leedu', 'lt'], GER: ['Saksamaa', 'de'], ESP: ['Hispaania', 'es'], ITA: ['Itaalia', 'it'],
+  SRB: ['Serbia', 'rs'], CRO: ['Horvaatia', 'hr'], POL: ['Poola', 'pl'], GRE: ['Kreeka', 'gr'], TUR: ['Türgi', 'tr'], ISR: ['Iisrael', 'il'],
+  UKR: ['Ukraina', 'ua'], GEO: ['Gruusia', 'ge'], POR: ['Portugal', 'pt'], MNE: ['Montenegro', 'me'], BIH: ['Bosnia ja Hertsegoviina', 'ba'],
+  ISL: ['Island', 'is'], NED: ['Holland', 'nl'], BEL: ['Belgia', 'be'], DEN: ['Taani', 'dk'], NOR: ['Norra', 'no'], GBR: ['Suurbritannia', 'gb'],
+  SUI: ['Šveits', 'ch'], AUT: ['Austria', 'at'], BUL: ['Bulgaaria', 'bg'], ROU: ['Rumeenia', 'ro'], MKD: ['Põhja-Makedoonia', 'mk'],
+  SVK: ['Slovakkia', 'sk'], CYP: ['Küpros', 'cy'], KOS: ['Kosovo', 'xk'], IRL: ['Iirimaa', 'ie'], LUX: ['Luksemburg', 'lu'], ARM: ['Armeenia', 'am'],
+  AZE: ['Aserbaidžaan', 'az'], ALB: ['Albaania', 'al'], USA: ['USA', 'us'],
+};
+// Eestikeelne riiginimi → lipu kood (jalgpall.ee ja basket.ee kasutavad eestikeelseid nimesid)
+const FLAGS = Object.fromEntries(Object.values(COUNTRY).map(([n, c]) => [n, c]));
+Object.assign(FLAGS, { 'Fääri saared': 'fo', Malta: 'mt', 'San Marino': 'sm', Andorra: 'ad', Gibraltar: 'gi', Liechtenstein: 'li', Moldova: 'md', Kasahstan: 'kz', Valgevene: 'by', Wales: 'gb-wls', Šotimaa: 'gb-sct', Inglismaa: 'gb-eng', 'Põhja-Iirimaa': 'gb-nir', Venemaa: 'ru', 'Põhja-Makedoonia': 'mk', Madalmaad: 'nl' });
+
+// Next.js lehe sisse kirjutatud andmed (self.__next_f) üheks tekstiks
+function flight(html) {
+  let s = '';
+  const re = /self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)/g;
+  let m;
+  while ((m = re.exec(html))) { try { s += JSON.parse(m[1]); } catch (_) { /* vigane tükk jääb vahele */ } }
+  return s;
 }
-function name(s) { const n = dec(s); return NAMES[n] || n; }
+// Kõik JSON-massiivid, mis järgnevad võtmele (nt '"games":[')
+function arraysAfter(s, key) {
+  const out = [];
+  let from = 0;
+  for (;;) {
+    const k = s.indexOf(key, from);
+    if (k < 0) break;
+    const i = k + key.length - 1;
+    let d = 0, inS = false, esc = false, j = i;
+    for (; j < s.length; j++) {
+      const c = s[j];
+      if (inS) { if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') inS = false; }
+      else if (c === '"') inS = true;
+      else if (c === '[' || c === '{') d++;
+      else if (c === ']' || c === '}') { d--; if (d === 0) break; }
+    }
+    try { const v = JSON.parse(s.slice(i, j + 1)); if (Array.isArray(v)) out.push(v); } catch (_) { /* jätame vahele */ }
+    from = j;
+  }
+  return out;
+}
+const longest = arrs => arrs.sort((a, b) => b.length - a.length)[0] || [];
+function fibaGames(html) {
+  return longest(arraysAfter(flight(html), '"games":[')).filter(g => g && g.teamA && g.teamB && g.gameDateTimeUTC);
+}
+// Ametlik alagrupitabel lehe HTML-ist: tabel, kus on link antud meeskonnale
+function fibaTable(html, slug) {
+  for (const t of html.split('<table').slice(1)) {
+    const body = t.split('</table>')[0];
+    if (!body.includes(`/teams/${slug}"`)) continue;
+    const rows = body.split('<tr').slice(1)
+      .map(r => r.replace(/<!-- -->/g, '').split(/<td[^>]*>/).slice(1).map(c => c.replace(/<[^>]+>/g, '').trim()))
+      .filter(c => c.length >= 4 && /^\d+\/\d+$/.test(c[2]));
+    if (rows.length) return rows.map(c => {
+      const [w, l] = c[2].split('/').map(Number);
+      return { pos: parseInt(c[0], 10), code: c[1].replace(/\s*\(.*$/, ''), w, l, pts: Number(c[3]) };
+    });
+  }
+  return null;
+}
+function fibaWhen(g) {
+  const d = new Date(g.gameDateTimeUTC + 'Z');
+  const p = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Tallinn', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(d);
+  const [date, time] = p.split(' ');
+  return { date, time: g.hasTimeGameDateTime ? time.slice(0, 5) : null };
+}
+const fibaDone = g => !g.isLive && (g.teamAScore + g.teamBScore > 0) && (g.statusCode === 'VALID' || g.liveGameStatus === 999);
+const city = c => CITY[c] || c || '';
+
+async function fibaEC(t) {
+  const y = (t.m >= 8 ? t.y : t.y - 1) % 100;
+  const slug = `fiba-europe-cup-${pad(y)}-${pad(y + 1)}`;
+  const [html, teamHtml] = await Promise.all([
+    get(`${FIBA}${slug}/standings`, 9000),
+    get(`${FIBA}${slug}/teams/bc-parnu`, 9000).catch(() => ''),
+  ]);
+  const games = fibaGames(html);
+  const isMe = x => x.organisationId === PARNU_ORG;
+  const mine = games.filter(g => isMe(g.teamA) || isMe(g.teamB)).sort((a, b) => a.gameDateTimeUTC.localeCompare(b.gameDateTimeUTC));
+  if (!mine.length) throw new Error('FIBA: BC Pärnu mänge ei leitud');
+  const club = x => CLUBS[x.organisationId] || x.shortName || x.officialName;
+  const ROUND = { Q: 'eelring', RS: 'alagrupp', SR: '2. ring', QF: 'veerandfinaal', SF: 'poolfinaal', F: 'finaal' };
+  const logos = {};
+  const compId = mine[0].competition && mine[0].competition.competitionId;
+
+  const events = mine.map(g => {
+    const w = fibaWhen(g), home = isMe(g.teamA), rc = g.round && g.round.roundCode;
+    for (const x of [g.teamA, g.teamB]) if (compId) logos[club(x)] = `https://assets.fiba.basketball/image/upload/d_.logoflag--light--organisation_${x.organisationId}.webp/w_200/f_auto/q_auto/.logoflag--light--organisation_${x.organisationId}--competition_${compId}`;
+    const e = {
+      team: 'bcp', date: w.date, time: w.time, title: `${club(g.teamA)} – ${club(g.teamB)}`,
+      comp: 'FIBA Europe Cup' + (rc && rc !== 'RS' && ROUND[rc] ? ` · ${ROUND[rc]}` : ''),
+      place: home ? 'Pärnu Spordihall' : [city(g.hostCity), (COUNTRY[g.hostCountryCode] || [g.hostCountry])[0]].filter(Boolean).join(', '),
+      _round: ROUND[rc] || '', _city: home ? 'Pärnu' : city(g.hostCity),
+    };
+    if (fibaDone(g)) { e.score = `${g.teamAScore}:${g.teamBScore}`; e.result = (home ? g.teamAScore > g.teamBScore : g.teamBScore > g.teamAScore) ? 'W' : 'L'; }
+    return e;
+  });
+
+  const panels = {
+    'ec-results': { title: 'Europe Cup tulemused', items: events.filter(e => e.score).map(e => ({ date: dm(e.date), title: e.title, note: cap([e._round, e._city].filter(Boolean).join(', ')), score: e.score, result: e.result })) },
+  };
+
+  // Alagrupitabel: viimane alagrupiring, kus BC Pärnu mängib
+  const lastGroup = [...mine].reverse().find(g => g.round && g.round.roundType === 'G');
+  if (lastGroup) {
+    const inGroup = games.filter(g => g.groupId === lastGroup.groupId);
+    const byCode = {};
+    for (const g of inGroup) for (const x of [g.teamA, g.teamB]) byCode[x.code] = club(x);
+    let rows = null;
+    const official = fibaTable(html, 'bc-parnu');
+    if (official && official.every(r => byCode[r.code])) rows = official.map(r => [r.pos, byCode[r.code], r.w + r.l, r.w, r.l, r.pts]);
+    else rows = computeTable(inGroup.filter(fibaDone), club);
+    const left = inGroup.filter(g => !fibaDone(g) && (isMe(g.teamA) || isMe(g.teamB))).length;
+    const rs = lastGroup.round.roundCode === 'RS';
+    panels['ec-table'] = {
+      title: `Europe Cup · ${lastGroup.groupPairingCode}-alagrupp`, columns: ['#', 'Meeskond', 'M', 'V', 'K', 'P'], rows, highlight: ME,
+      cutAfter: rs ? 2 : null,
+      note: (rs ? 'Kaks parimat pääsevad edasi. ' : '') + (left ? `BC Pärnul on jäänud ${left} ${left === 1 ? 'mäng' : 'mängu'}.` : 'Alagrupimängud on mängitud.'),
+    };
+  }
+
+  // Statistika liidrid meeskonna lehelt
+  const stats = teamHtml ? longest(arraysAfter(flight(teamHtml), '"playerInCompetitionTeamStatistics":[')) : [];
+  if (stats.length >= 3) {
+    const nm = p => { const n = `${p.firstName} ${p.lastName}`.trim(); return PLAYER_FIX[n] || n; };
+    const top = k => stats.filter(p => typeof p[k] === 'number').sort((a, b) => b[k] - a[k]).slice(0, 3).map(p => [nm(p), Math.round(p[k] * 10) / 10]);
+    panels['ec-leaders'] = { groups: [
+      { label: 'Punktid', rows: top('pointsPerGame') },
+      { label: 'Lauapallid', rows: top('reboundsPerGame') },
+      { label: 'Resultatiivsed söödud', rows: top('assistsPerGame') },
+    ] };
+  }
+  return { panels, logos, eventSets: [{ team: 'bcp', re: '^(FIBA )?Europe Cup', events: events.map(clean) }] };
+}
+
+// Tabel mängudest, kui ametlikku tabelit lehelt ei leia (2 p võit, 1 p kaotus)
+function computeTable(done, nameOf) {
+  const st = {};
+  const row = n => (st[n] = st[n] || { w: 0, l: 0, d: 0 });
+  for (const g of done) {
+    const a = row(nameOf(g.teamA)), b = row(nameOf(g.teamB));
+    a.d += g.teamAScore - g.teamBScore; b.d += g.teamBScore - g.teamAScore;
+    if (g.teamAScore > g.teamBScore) { a.w++; b.l++; } else { b.w++; a.l++; }
+  }
+  return Object.entries(st).sort((p, q) => (2 * q[1].w + q[1].l) - (2 * p[1].w + p[1].l) || q[1].d - p[1].d)
+    .map(([n, v], i) => [i + 1, n, v.w + v.l, v.w, v.l, 2 * v.w + v.l]);
+}
+
+// ───────────────────────── Eesti korvpallikoondis (FIBA + basket.ee) ─────────────────────────
+
+const WCQ = 'fiba-basketball-world-cup-2027-european-qualifiers';
+const WC_COMP = 'MM 2027 valiksari';
+
+async function natBasket(t) {
+  const today = `${pad(t.d)}.${pad(t.m)}.${t.y}`;
+  const seasonYear = t.m >= 8 ? t.y : t.y - 1;
+  const [fr, sr, rr] = await Promise.allSettled([
+    get(`${FIBA}${WCQ}/standings`, 9000),
+    getBasket(`${BASKET}?action=schedule&chid=g12&start_date=${today}&end_date=31.12.${t.y + 1}`),
+    getBasket(`${BASKET}?action=results&chid=g12&start_date=01.08.${seasonYear}&end_date=${today}`),
+  ]);
+  const panels = {}, summaries = {}, logos = {};
+  let events = [], fibaOk = false;
+  const nat = x => { const c = COUNTRY[x.code]; if (c) logos[c[0]] = `flag:${c[1]}`; return c ? c[0] : x.shortName; };
+
+  if (fr.status === 'fulfilled') {
+    const html = fr.value;
+    const games = fibaGames(html);
+    const isMe = x => x.code === 'EST';
+    const mine = games.filter(g => isMe(g.teamA) || isMe(g.teamB)).sort((a, b) => a.gameDateTimeUTC.localeCompare(b.gameDateTimeUTC));
+    if (mine.length) {
+      fibaOk = true;
+      events = mine.map(g => {
+        const w = fibaWhen(g), home = isMe(g.teamA);
+        const e = { team: 'ekk', date: w.date, time: w.time, title: `${nat(g.teamA)} – ${nat(g.teamB)}`, comp: WC_COMP, place: [g.venueName, city(g.hostCity)].filter(Boolean).join(', '), _round: g.round && g.round.roundCode === 'GR1' ? '1. ring' : '2. ring', _city: city(g.hostCity) };
+        if (fibaDone(g)) { e.score = `${g.teamAScore}:${g.teamBScore}`; e.result = (home ? g.teamAScore > g.teamBScore : g.teamBScore > g.teamAScore) ? 'W' : 'L'; }
+        return e;
+      });
+      const last = mine[mine.length - 1];
+      const inGroup = games.filter(g => g.groupId === last.groupId);
+      const byCode = {};
+      for (const g of games) for (const x of [g.teamA, g.teamB]) byCode[x.code] = nat(x);
+      const official = fibaTable(html, 'estonia');
+      const rows = official && official.every(r => byCode[r.code])
+        ? official.map(r => [r.pos, byCode[r.code], r.w + r.l, r.w, r.l, r.pts])
+        : computeTable(inGroup.filter(fibaDone), nat);
+      const left = inGroup.filter(g => !fibaDone(g) && (isMe(g.teamA) || isMe(g.teamB))).length;
+      const gr2 = last.round && last.round.roundCode === 'GR2';
+      panels['ekk-table'] = {
+        title: `MM-valiksari · ${last.groupPairingCode}-alagrupp`, columns: ['#', 'Koondis', 'M', 'V', 'K', 'P'], rows, highlight: 'Eesti',
+        cutAfter: gr2 ? 3 : null,
+        note: (gr2 ? 'Kolm paremat pääsevad 2027. aasta MM-ile Katari. ' : '') + (left ? `Eestil on jäänud ${left} ${left === 1 ? 'mäng' : 'mängu'}.` : 'Kõik mängud on mängitud.'),
+      };
+      const me = rows.find(r => r[1] === 'Eesti');
+      if (me) summaries.ekk = { competition: `${WC_COMP} · ${last.groupPairingCode}-alagrupp`, headline: `${me[0]}. koht`, sub: `${me[3]} V · ${me[4]} K` };
+    }
+  }
+
+  // basket.ee: koondise mängud mis tahes sarjas (kellaaeg Eesti aja järgi, ülekanne)
+  const extra = [];
+  for (const r of [sr, rr]) if (r.status === 'fulfilled') {
+    for (const g of parseBasket(r.value)) {
+      if (g.home !== 'EESTI' && g.away !== 'EESTI') continue;
+      const nm = s => { const n = titleCase(s); if (FLAGS[n]) logos[n] = `flag:${FLAGS[n]}`; return n; };
+      const e = { team: 'ekk', date: g.date, time: g.time, title: `${nm(g.home)} – ${nm(g.away)}`, comp: /MM 2027/.test(g.comp) ? WC_COMP : g.comp, place: g.place.startsWith('*') ? '' : g.place, tv: g.tv };
+      if (/^\d+:\d+$/.test(g.score)) { const [x, y] = g.score.split(':').map(Number); e.score = g.score; e.result = (g.home === 'EESTI' ? x > y : y > x) ? 'W' : 'L'; }
+      extra.push(e);
+    }
+  }
+  if (!fibaOk && !extra.length) throw new Error('korvpallikoondise andmeid ei leitud');
+  for (const x of extra) {
+    const e = events.find(v => v.date === x.date);
+    if (!e) { events.push(x); continue; }
+    if (!e.time && x.time) e.time = x.time;
+    if (!e.place && x.place) e.place = x.place;
+    if (x.tv) e.tv = x.tv;
+  }
+  events.sort((a, b) => a.date.localeCompare(b.date));
+
+  const done = events.filter(e => e.score);
+  if (done.length) {
+    const years = new Set(done.map(e => e.date.slice(0, 4)));
+    const fmt = e => years.size > 1 ? `${dm(e.date)}.${e.date.slice(2, 4)}` : dm(e.date);
+    panels['ekk-results'] = { title: fibaOk ? 'Valikmängude tulemused' : 'Tulemused', items: done.slice(-10).map(e => ({ date: fmt(e), title: e.title, note: [e._round, e._city || e.place].filter(Boolean).join(', '), score: e.score, result: e.result })) };
+  }
+  return { panels, summaries, logos, eventSets: [{ team: 'ekk', re: fibaOk ? '.' : null, events: events.map(clean) }] };
+}
+
+// ───────────────────────── Pärnu JK Vaprus (jalgpall.ee) ─────────────────────────
+
+const JP = 'https://jalgpall.ee';
+const VAPRUS = 'Pärnu JK Vaprus';
+const VAP_TEAM = 5387, VAP_LEAGUE = 52;
+const FB_SHORT = { 'Tallinna FCI Levadia': 'FCI Levadia', 'Tallinna FC Flora': 'FC Flora', 'Nõmme Kalju FC': 'Nõmme Kalju', 'Tartu JK Tammeka': 'Tartu Tammeka', 'FC Nõmme United': 'Nõmme United', 'JK Narva Trans': 'Narva Trans', 'Tabasalu Ulasabat C.F.': 'Tabasalu' };
+const FB_COMP = { PL: 'Premium liiga', KV: 'Tipneri karikas' };
+
+function parseVaprus(html) {
+  const i = html.indexOf('table-01 small events');
+  if (i < 0) return [];
+  const out = [], seen = new Set();
+  for (const row of html.slice(i).split('</table>')[0].split('<tr').slice(1)) {
+    const dc = row.match(/class="date">([\s\S]*?)<\/td>/);
+    if (!dc) continue;
+    const m = strip(dc[1]).match(/^(.*?)\s*(\d\d)\.(\d\d)\.(\d{4})(?:\s*Kell\s*(\d\d:\d\d))?/);
+    if (!m) continue;
+    const side = cls => {
+      const cell = (row.split(`class="team ${cls}"`)[1] || '').split('</td>')[0];
+      const a = cell.match(/<a[^>]*>([^<]+)<\/a>/), alt = cell.match(/alt="([^"]+)"/), img = cell.match(/<img[^>]*src="([^"]+)"/);
+      return { name: dec((a && a[1]) || (alt && alt[1]) || ''), logo: img ? img[1] : null };
+    };
+    const h = side('left'), a = side('right');
+    if (!h.name || !a.name) continue;
+    const sc = strip((row.match(/class="vs">([\s\S]*?)<\/td>/) || [])[1] || '').match(/(\d+)\s*-\s*(\d+)/);
+    const date = `${m[4]}-${m[3]}-${m[2]}`;
+    const key = date + h.name + a.name;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ code: m[1].trim(), date, time: m[5] && m[5] !== '00:00' ? m[5] : null, home: h, away: a, score: sc ? [Number(sc[1]), Number(sc[2])] : null });
+  }
+  return out.sort((x, y) => (x.date + (x.time || '')).localeCompare(y.date + (y.time || '')));
+}
+
+async function vaprus(t) {
+  const seasons = [t.y - 1, t.y].concat(t.m >= 11 ? [t.y + 1] : []);
+  const pages = await Promise.all(seasons.map(s => get(`${JP}/voistlused/${VAP_LEAGUE}/team/${VAP_TEAM}?season=${s}`).then(parseVaprus).catch(() => null)));
+  if (pages.every(p => !p)) throw new Error('jalgpall.ee: Vapruse lehte ei saanud kätte');
+  const logos = {};
+  const short = x => { const n = x.name === VAPRUS ? 'Vaprus' : (FB_SHORT[x.name] || x.name); if (x.logo && x.name !== VAPRUS) logos[n] = x.logo; return n; };
+  const bySeason = {};
+  const events = [];
+  seasons.forEach((s, i) => {
+    bySeason[s] = pages[i] || [];
+    for (const g of bySeason[s]) {
+      const home = g.home.name === VAPRUS;
+      const e = { team: 'vap', date: g.date, time: g.time, title: `${short(g.home)} – ${short(g.away)}`, comp: FB_COMP[g.code] || g.code || 'Jalgpall' };
+      if (g.score) { const [x, y] = g.score; e.score = `${x}:${y}`; e.result = x === y ? 'D' : ((home ? x > y : y > x) ? 'W' : 'L'); }
+      events.push(e);
+    }
+  });
+  if (!events.length) throw new Error('jalgpall.ee: Vapruse mänge ei leitud');
+
+  // Hooaeg, mille kohta tabelit ja numbreid näidata: viimane, kus liigamänge on juba mängitud
+  const S = [...seasons].reverse().find(s => bySeason[s].some(g => g.code === 'PL' && g.score)) || [...seasons].reverse().find(s => bySeason[s].length);
+  const pl = bySeason[S].filter(g => g.code === 'PL'), plDone = pl.filter(g => g.score);
+  const finished = plDone.length > 0 && plDone.length === pl.length;
+  const hasNext = events.some(e => !e.score);
+  const panels = {}, summaries = {};
+
+  const rec = arr => { let w = 0, d = 0, l = 0, gf = 0, ga = 0; for (const g of arr) { const home = g.home.name === VAPRUS; const [x, y] = home ? g.score : [g.score[1], g.score[0]]; gf += x; ga += y; if (x > y) w++; else if (x === y) d++; else l++; } return { w, d, l, gf, ga, n: arr.length }; };
+  const item = g => { const home = g.home.name === VAPRUS; const [x, y] = g.score || []; return { date: dm(g.date), title: `${short(g.home)} – ${short(g.away)}`, note: home ? 'kodus' : 'võõrsil', score: g.score ? `${x}:${y}` : (g.time || ''), result: g.score ? (x === y ? 'D' : ((home ? x > y : y > x) ? 'W' : 'L')) : '' }; };
+  if (plDone.length) {
+    const all = rec(plDone), hm = rec(plDone.filter(g => g.home.name === VAPRUS)), aw = rec(plDone.filter(g => g.home.name !== VAPRUS));
+    const c2 = x => x.toFixed(2).replace('.', ',');
+    panels['vap-stats'] = { title: `Hooaeg ${S} numbrites`, callout: '', items: [
+      [`${all.w}–${all.d}–${all.l}`, 'võidud–viigid–kaotused'], [`${hm.w}–${hm.d}–${hm.l}`, 'kodus'], [`${aw.w}–${aw.d}–${aw.l}`, 'võõrsil'],
+      [`${all.gf}:${all.ga}`, 'väravad'], [c2(all.gf / all.n), 'löödud väravat mängus'], [c2((3 * all.w + all.d) / all.n), 'punkti mängus'],
+    ] };
+    panels['vap-last'] = { title: `Premium liiga · viimased ${Math.min(10, plDone.length)} mängu`, items: plDone.slice(-10).map(item) };
+  }
+  panels['vap-cup'] = { title: `Tipneri karikas ${S}`, items: bySeason[S].filter(g => g.code === 'KV').map(item) };
+
+  try {
+    const html = await get(`${JP}/voistlused/${VAP_LEAGUE}/liigad?season=${S}`);
+    const i = html.indexOf('game-stats');
+    const rows = [];
+    for (const row of (i < 0 ? '' : html.slice(i).split('</table>')[0]).split('<tr').slice(1)) {
+      const c = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(m => strip(m[1]));
+      if (c.length < 9 || !/^\d+$/.test(c[0])) continue;
+      const img = row.match(/<img[^>]*src="([^"]+)"/);
+      const full = dec(c[2]), name = full === VAPRUS ? VAPRUS : (FB_SHORT[full] || full);
+      if (img && full !== VAPRUS) logos[name] = img[1];
+      const [gf, ga] = c[7].split(':').map(Number);
+      rows.push([Number(c[0]), name, Number(c[3]), Number(c[4]), Number(c[5]), Number(c[6]), c[7], signed(gf - ga), Number(c[8])]);
+    }
+    if (rows.length) {
+      panels['vap-table'] = { title: `Premium liiga ${S} · ${finished ? 'lõplik tabel' : 'tabel'}`, columns: ['#', 'Meeskond', 'M', 'V', 'Vi', 'K', 'Väravad', '+/−', 'P'], rows, highlight: VAPRUS };
+      const me = rows.find(r => r[1] === VAPRUS);
+      if (me) summaries.vap = { competition: `Premium liiga ${S}${finished ? ' · hooaeg lõppenud' : ''}`, headline: `${me[0]}. koht`, sub: `${me[8]} punkti`, nextText: hasNext ? '' : 'Uue hooaja mängukava pole veel avaldatud' };
+    }
+  } catch (_) { /* tabel jääb varuandmetest */ }
+
+  return { panels, summaries, logos, eventSets: [{ team: 'vap', re: '.', events }] };
+}
+
+// ───────────────────────── Eesti jalgpallikoondis (jalgpall.ee) ─────────────────────────
+
+// Turniirid, mille kohta jalgpall.ee ei ütle liigat ega alagruppi
+const NAT_KNOWN = { 597: { comp: 'Rahvuste liiga C', title: 'Rahvuste liiga C · 4. alagrupp', cutAfter: 2 } };
+
+function parseNat(html) {
+  return html.split('class="event-single"').slice(1).map(raw => {
+    const b = raw.split('class="actions"')[0];
+    const [info, teamsPart = ''] = b.split('class="teams"');
+    const ps = [...info.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)].map(m => m[1]);
+    const d = strip(ps[1] || '').match(/(\d\d)\.(\d\d)\.(\d{4})(?:\s*(?:kell|aeg)\s*(\d\d:\d\d))?/i);
+    const names = [...teamsPart.matchAll(/class="team">[\s\S]*?<p>([^<]*)<\/p>/g)].map(m => dec(m[1]));
+    const flags = [...teamsPart.matchAll(/class="flag">\s*<img[^>]*src="([^"]+)"/g)].map(m => m[1]);
+    const sc = strip((teamsPart.match(/class="result">([\s\S]*?)<\/div>/) || [])[1] || '').match(/(\d+)\s*-\s*(\d+)/);
+    if (!d || names.length < 2) return null;
+    return {
+      tname: strip(ps[0] || ''), tid: ((ps[0] || '').match(/tournament\/(\d+)/) || [])[1] || null,
+      date: `${d[3]}-${d[2]}-${d[1]}`, time: d[4] && d[4] !== '00:00' ? d[4] : null, place: strip(ps[2] || ''),
+      home: names[0], away: names[1], flags, score: sc ? [Number(sc[1]), Number(sc[2])] : null,
+    };
+  }).filter(Boolean);
+}
+
+async function koondis() {
+  const list = parseNat(await get(`${JP}/koondis/1/mangud`));
+  if (!list.length) throw new Error('jalgpall.ee: koondise mänge ei leitud');
+  const logos = {}, panels = {}, summaries = {};
+  const flag = (n, src) => { if (FLAGS[n]) logos[n] = `flag:${FLAGS[n]}`; else if (src) logos[n] = src; };
+  const compName = g => (NAT_KNOWN[g.tid] && NAT_KNOWN[g.tid].comp) || g.tname.replace(/^UEFA\s+/, '').replace(/^Maavõistlused.*/, 'Maavõistlus') || 'Koondisemäng';
+
+  // Turniir: esimene (tulevastest, siis viimastest mängudest), mille lehel on tabel Eestiga
+  const tids = [...new Set(list.map(g => g.tid).filter(Boolean))].slice(0, 2);
+  let all = list.slice(), tour = null;
+  for (const tid of tids) {
+    let html;
+    try { html = await get(`${JP}/koondis/1/tournament/${tid}`); } catch (_) { continue; }
+    const name = strip((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || '');
+    const games = parseNat(html).map(g => ({ ...g, tid, tname: g.tname || name }));
+    all = all.concat(games.filter(g => g.home === 'Eesti' || g.away === 'Eesti'));
+    if (tour) continue;
+    for (const t of html.split('<table').slice(1)) {
+      if (!/points/.test(t.slice(0, 120))) continue;
+      const rows = [];
+      for (const row of t.split('</table>')[0].split('<tr').slice(1)) {
+        const c = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(m => strip(m[1]));
+        if (c.length < 10 || !/^\d+$/.test(c[0])) continue;
+        flag(c[1], (row.match(/<img[^>]*src="([^"]+)"/) || [])[1]);
+        rows.push([Number(c[0]), c[1], Number(c[2]), Number(c[3]), Number(c[4]), Number(c[5]), signed(Number(c[8])), Number(c[9])]);
+      }
+      if (rows.some(r => r[1] === 'Eesti')) {
+        const players = [];
+        const pt = html.split('table-01 bold small')[1];
+        if (pt) for (const row of pt.split('</table>')[0].split('<tr').slice(1)) {
+          const c = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(m => strip(m[1]));
+          if (c.length >= 3 && Number(c[2]) > 0) players.push([c[0], Number(c[2])]);
+        }
+        tour = { tid, name, rows, players, games: games.filter(g => g.home === 'Eesti' || g.away === 'Eesti') };
+        break;
+      }
+    }
+  }
+
+  // Sama mäng võib olla mõlemas loendis
+  const seen = new Set();
+  const events = [];
+  for (const g of all.sort((a, b) => a.date.localeCompare(b.date))) {
+    const key = g.date + g.home + g.away;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    flag(g.home, g.flags[0]); flag(g.away, g.flags[1]);
+    const home = g.home === 'Eesti';
+    const e = { team: 'ejk', date: g.date, time: g.time, title: `${g.home} – ${g.away}`, comp: compName(g), place: g.place };
+    if (g.score) { const [x, y] = g.score; e.score = `${x}:${y}`; e.result = x === y ? 'D' : ((home ? x > y : y > x) ? 'W' : 'L'); }
+    events.push(e);
+  }
+
+  const done = events.filter(e => e.score);
+  if (done.length) panels['ejk-results'] = { title: 'Tulemused', items: done.slice(-8).map(e => ({ date: dm(e.date), title: e.title, note: [e.comp, e.place].filter(Boolean).join(' · '), score: e.score, result: e.result })) };
+
+  if (tour) {
+    const known = NAT_KNOWN[tour.tid] || {};
+    const title = known.title || tour.name.replace(/^UEFA\s+/, '');
+    panels['ejk-table'] = { title, columns: ['#', 'Koondis', 'M', 'V', 'Vi', 'K', '+/−', 'P'], rows: tour.rows, highlight: 'Eesti', cutAfter: known.cutAfter || null, callout: '' };
+    const me = tour.rows.find(r => r[1] === 'Eesti');
+    if (me) summaries.ejk = { competition: title, headline: `${me[0]}. koht`, sub: `${me[7]} punkti` };
+    const tg = tour.games.filter(g => g.score);
+    if (tg.length) {
+      let w = 0, d = 0, l = 0, gf = 0, ga = 0, cs = 0;
+      for (const g of tg) { const [x, y] = g.home === 'Eesti' ? g.score : [g.score[1], g.score[0]]; gf += x; ga += y; if (y === 0) cs++; if (x > y) w++; else if (x === y) d++; else l++; }
+      panels['ejk-stats'] = { title: `${(known.comp || title)} · statistika`, items: [
+        [`${w}–${d}–${l}`, 'võidud–viigid–kaotused'], [`${gf}:${ga}`, 'väravad'], [String(cs), cs === 1 ? 'kuiv mäng' : 'kuiva mängu'],
+        ...tour.players.sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, g]) => [String(g), `${g === 1 ? 'värav' : 'väravat'}: ${n}`]),
+      ] };
+    }
+  }
+  return { panels, summaries, logos, eventSets: [{ team: 'ejk', re: '.', events }] };
+}
+
+// ───────────────────────── Abifunktsioonid ─────────────────────────
+
+async function get(url, ms = 8000) {
+  const r = await fetch(url, { headers: UA, signal: AbortSignal.timeout(ms) });
+  if (!r.ok) throw new Error(`${new URL(url).hostname} vastas ${r.status}`);
+  return r.text();
+}
+function dec(s) {
+  return String(s).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function strip(s) { return dec(String(s).replace(/<[^>]+>/g, ' ')); }
 function pad(n) { return String(n).padStart(2, '0'); }
+function dm(date) { const [, m, d] = date.split('-'); return `${d}.${m}`; }
+function signed(n) { return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n); }
+function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+function bySort(a, b) { return a.sort.localeCompare(b.sort); }
+function clean(e) { const o = {}; for (const k in e) if (k[0] !== '_') o[k] = e[k]; return o; }
+function titleCase(s) {
+  return String(s).toLocaleLowerCase('et').split(' ').map(w => (w === 'ja' ? w : w.split('-').map(p => p.charAt(0).toLocaleUpperCase('et') + p.slice(1)).join('-'))).join(' ');
+}
+function tzOff(d) {
+  const [y, m, day] = d.split('-').map(Number);
+  const lastSun = mo => { const x = new Date(Date.UTC(y, mo, 0)); return x.getUTCDate() - x.getUTCDay(); };
+  return ((m > 3 && m < 10) || (m === 3 && day >= lastSun(3)) || (m === 10 && day < lastSun(10))) ? '+03:00' : '+02:00';
+}
 function tallinnToday() {
   const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Tallinn', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
   const v = k => +p.find(x => x.type === k).value;

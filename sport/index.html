@@ -271,7 +271,7 @@ const FLAG='<svg class="flag" viewBox="0 0 33 21" aria-label="Eesti" role="img">
 const SPORT={bcp:"basket",vap:"football",ejk:"football",ekk:"basket"};
 const NATIONAL={ejk:true,ekk:true};
 const tIco=k=>`<span class="tico" style="--c:${COLORS[k]}" title="${SPORT[k]==="basket"?"Korvpall":"Jalgpall"}${NATIONAL[k]?" · koondis":""}">${ico(SPORT[k])}${NATIONAL[k]?FLAG:""}</span>`;
-let DATA=null, SIG="", LIVE_OK=false, sel="bcp", auto=false, autoTimer=null;
+let DATA=null, SIG="", LIVE=null, sel="bcp", auto=false, autoTimer=null;
 try{const s=localStorage.getItem("sk-team"); if(s) sel=s; auto=localStorage.getItem("sk-auto")==="1";}catch(_){}
 
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -302,22 +302,18 @@ const upcoming=now=>DATA.events.filter(e=>isUp(e,now)).sort((a,b)=>startOf(a)-st
 const played=k=>DATA.events.filter(e=>e.team===k&&e.score).sort((a,b)=>startOf(b)-startOf(a));
 function* walk(ps){for(const p of ps||[]){if(p.type==="stack") yield* walk(p.panels); else yield p;}}
 
-// Otseandmed korvpalliliidu lehelt (/api/sport) kirjutavad üle BC Pärnu liigaosa
+// Otseandmed (/api/sport) loetakse alaliitude lehtedelt ja kirjutatakse varuandmete (data.json) peale
 function applyLive(d,L){
-  const b=d.teams&&d.teams.bcp; if(!b||!L||!L.ok||!L.table||!L.table.length) return false;
-  const P={}; for(const p of walk(b.panels)) if(p.key) P[p.key]=p;
-  const dm=s=>{const [y,m,dd]=s.split("-");return `${dd}.${m}`;}, c1=x=>Number(x).toFixed(1).replace(".",",");
-  if(P["lg-table"]){P["lg-table"].columns=["#","Meeskond","M","V","K","%","+/−"];P["lg-table"].rows=L.table;}
-  if(P["lg-kml"]){P["lg-kml"].columns=["#","Meeskond","M","V","K","%"];P["lg-kml"].rows=L.kml;}
-  if(P["lg-results"]) P["lg-results"].items=L.results.map(g=>({date:dm(g.date),title:g.title,note:g.place||"",score:g.score,result:g.result}));
-  const s=L.summary||{};
-  if(P["lg-stats"]&&s.home) P["lg-stats"].items=[[`${s.w}–${s.l}`,"võidud–kaotused"],[`${s.home[0]}–${s.home[1]}`,"kodus"],[`${s.away[0]}–${s.away[1]}`,"võõrsil"],
-    [c1(s.ppg),"visatud punkte mängus"],[c1(s.oppg),"lastud punkte mängus"],[String(s.streak),s.streakType==="W"?"võitu järjest":"kaotust järjest"]];
-  if(s.pos) b.summary=Object.assign({},b.summary,{competition:b.summary.competition,headline:`${s.pos}. koht`,sub:`${s.w} V · ${s.l} K`});
-  const LG="Eesti-Läti liiga";
-  d.events=d.events.filter(e=>!(e.team==="bcp"&&e.comp===LG))
-    .concat(L.results.map(g=>({team:"bcp",date:g.date,time:g.time,title:g.title,comp:LG,place:g.place,score:g.score,result:g.result})),
-            L.upcoming.map(g=>({team:"bcp",date:g.date,time:g.time,title:g.title,comp:LG,place:g.place,tv:g.tv||""})));
+  if(!L||!L.ok) return false;
+  const P={}; for(const t of Object.values(d.teams||{})) for(const p of walk(t.panels)) if(p.key) P[p.key]=p;
+  for(const [k,patch] of Object.entries(L.panels||{})) if(P[k]) Object.assign(P[k],patch);
+  for(const [k,s] of Object.entries(L.summaries||{})) if(d.teams[k]) d.teams[k].summary=Object.assign({},d.teams[k].summary,s);
+  for(const g of L.eventSets||[]){
+    if(!g.events||!g.events.length) continue;
+    const re=g.re?new RegExp(g.re):null, dates=new Set(g.events.map(e=>e.date));
+    d.events=d.events.filter(e=>!(e.team===g.team&&(re?re.test(e.comp||""):dates.has(e.date)))).concat(g.events);
+  }
+  d.logos=Object.assign({},L.logos||{},d.logos||{});
   return true;
 }
 
@@ -362,6 +358,7 @@ function panelHtml(p,k){
     const li=i=>`<li><span class="dt">${esc(i.date)}</span><span>${teamsTitle(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`;
     if((p.width===12||p.width===8)&&p.items.length>3){const h=Math.ceil(p.items.length/2);
       b+=`<div class="cols2"><ul class="list">${p.items.slice(0,h).map(li).join("")}</ul><ul class="list">${p.items.slice(h).map(li).join("")}</ul></div>`;}
+    else if(!p.items.length) b+=`<p class="note2" style="margin-top:0">Mänge pole veel.</p>`;
     else b+=`<ul class="list">${p.items.map(li).join("")}</ul>`;
   }else if(p.type==="stats"){
     b+=`<div class="stats">${p.items.map(([v,l])=>`<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
@@ -418,9 +415,13 @@ function tick(){
   const ms=Math.max(0,startOf(n)-now), d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60;
   C.innerHTML=`<div><b>${d}</b><span>päeva</span></div><div><b>${String(h).padStart(2,"0")}</b><span>tundi</span></div><div><b>${String(m).padStart(2,"0")}</b><span>minutit</span></div>`;
 }
+function renderStamp(){
+  const hm=x=>new Date(x).toLocaleString("et-EE",{day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Tallinn"});
+  const miss=LIVE?Object.values(LIVE.src||{}).filter(v=>v!==true).length:0;
+  document.getElementById("stamp").textContent=LIVE?`Andmed otse alaliitude lehtedelt · ${hm(LIVE.updated)}`+(miss?" · osa allikaid ei vastanud":""):`Varuandmed · ${hm(DATA.updated)}`;
+}
 function renderAll(){
-  const tm=new Date(DATA.updated).toLocaleString("et-EE",{day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Tallinn"});
-  document.getElementById("stamp").textContent=`Andmed uuendatud ${tm}`+(LIVE_OK?" · korvpalliliiga otse":"");
+  renderStamp();
   document.getElementById("nextTeams").dataset.k="";
   renderCards(); renderUpcoming(); select(sel); tick();
   document.getElementById("srcNote").textContent=(DATA.note||"")+" Kellaajad on Eesti aja järgi.";
@@ -428,7 +429,7 @@ function renderAll(){
 }
 async function getLive(){
   try{
-    const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),9000);
+    const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),20000);
     const r=await fetch("/api/sport",{signal:ctl.signal}); clearTimeout(t);
     if(!r.ok) return null; const j=await r.json(); return j&&j.ok?j:null;
   }catch(_){return null;}
@@ -439,8 +440,9 @@ async function load(first){
     if(!r.ok) throw new Error(r.status);
     const d=await r.json();
     const ok=applyLive(d,L);
-    const sig=d.updated+"|"+(ok?JSON.stringify([L.table,L.results.length,L.upcoming]):"-");
-    if(first||sig!==SIG){DATA=d;SIG=sig;LIVE_OK=ok;renderAll();} else {renderCards();renderUpcoming();tick();}
+    const sig=d.updated+"|"+(ok?JSON.stringify([L.src,L.panels,L.summaries,L.eventSets]):"-");
+    if(first||sig!==SIG){DATA=d;SIG=sig;LIVE=ok?L:null;renderAll();}
+    else {if(ok) LIVE=L; renderStamp();renderCards();renderUpcoming();tick();}
   }catch(e){ if(!DATA) document.getElementById("main").insertAdjacentHTML("afterbegin",'<div class="err">Andmeid ei saanud laadida. Proovi lehte värskendada.</div>'); }
 }
 load(true).then(()=>{if(auto) setAuto(true);});

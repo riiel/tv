@@ -33,10 +33,17 @@ h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
 .tn{font-variant-numeric:tabular-nums}
 
 /* Päis nagu koduvaates: bränd vasakul, uuendusaeg paremal */
-header{padding:22px 0 8px}
-.hrow{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-header h1{display:flex;align-items:center;gap:12px;font-size:clamp(16px,1.55vw,24px);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
-header h1::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--accent)}
+header{padding:0 0 8px}
+/* Ülemine riba: täpselt sama koht ja suurus nagu koduvaate päises, et lehtede lüliti ei hüppaks */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:2.6vh 3.4vw 0}
+@media (max-aspect-ratio:1/1){.topbar{padding:16px 16px 0}}
+.brand{display:flex;align-items:center;gap:12px;font-size:clamp(16px,1.55vw,24px);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.brand-mark{width:14px;height:14px;border-radius:50%;background:var(--accent);flex:none}
+.pagesw{display:flex;gap:.9em}
+.pagesw a{color:var(--muted);text-decoration:none;font:inherit;letter-spacing:inherit}
+.pagesw a[aria-current="page"]{color:var(--ink)}
+.pagesw a:hover,.pagesw a:focus-visible{color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .stamp{font-size:clamp(13px,1vw,16px);color:var(--muted);font-weight:500}
 .next{margin-top:18px;display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between;
   background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:22px 26px;
@@ -143,9 +150,6 @@ html,body{overflow-x:hidden}
 .lg.fl{background:none;padding:0;border-radius:2px;width:1.3em;height:.9em;vertical-align:-0.1em;object-fit:cover;box-shadow:0 0 0 1px rgba(240,246,252,.25)}
 .tn-team{white-space:nowrap}
 /* Uued osad: tagasilink, vorm, mängupäev, omavahelised mängud, telekarežiim */
-.hright{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.navlink{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
-.navlink:hover,.navlink:focus-visible{color:var(--ink);border-color:rgba(240,246,252,.3)}
 .form{display:inline-flex;gap:3px;margin-left:auto;padding-left:8px}
 .form i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:0;width:17px;height:17px;border-radius:4px;display:grid;place-items:center;color:#0d1117}
 .next.today{border-color:var(--accent-strong);box-shadow:0 0 0 1px var(--accent-strong),0 8px 24px rgba(0,0,0,.35)}
@@ -166,7 +170,7 @@ html,body{overflow-x:hidden}
 /* Kompaktne paigutus */
 body{font-size:16px}
 @media (min-width:1600px){body{font-size:18px}}
-header{padding:14px 0 4px}
+header{padding:0 0 4px}
 .next{margin-top:10px;padding:12px 18px;gap:10px 24px}
 .next .teams{font-size:clamp(22px,2.4vw,34px);margin-top:2px}
 .next .meta{font-size:clamp(13px,1vw,16px);margin-top:2px}
@@ -221,8 +225,12 @@ footer{padding:14px 0 24px;font-size:12px}
 </head>
 <body>
 <header>
+  <div class="topbar">
+    <div class="brand"><span class="brand-mark"></span><nav class="pagesw" aria-label="Lehed"><a href="/">Koduvaade</a><a href="/sport/" aria-current="page">Sport</a></nav></div>
+    <span class="stamp" id="stamp">Laen andmeid…</span>
+  </div>
   <div class="wrap">
-    <div class="hrow"><h1>Pärnu ja Eesti spordikeskus</h1><span class="hright"><span class="stamp" id="stamp">Laen andmeid…</span><a class="navlink" href="/">Koduvaade</a></span></div>
+    <h1 class="sr">Pärnu ja Eesti spordikeskus</h1>
     <div class="next" id="next" aria-live="polite">
       <div>
         <div class="lbl" id="nextLbl">Järgmine mäng</div>

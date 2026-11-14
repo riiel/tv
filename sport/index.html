@@ -3,113 +3,125 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d1117">
 <title>Pärnu ja Eesti spordikeskus</title>
 <link rel="icon" href="/koduvaade-favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* Paigutus: 1) järgmine mäng suurelt, 2) neli meeskonnakaarti, 3) lühike kalender, 4) ühe meeskonna detailid vahelehel. */
+/* Kujundus: Grafiit Pro (sama mis koduvaate teema "pro") – rahulik, tasane, üks sinine aktsent. */
 :root{
-  --bg:#eef2f5; --surface:#fff; --ink:#0f1a24; --muted:#5b6b7a; --line:#d5dde4; --accent:#0a6aa8; --hi:#e6f1f9;
-  --t-bcp:#e07b12; --t-vap:#1d8a4e; --t-ejk:#0072ce; --t-ekk:#2b3440;
-  --win:#1f8a4c; --draw:#8a96a3; --loss:#c23b2e;
-  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
-  color-scheme:light;
+  color-scheme: only dark;
+  --bg:#0d1117; --glow-1:rgba(56,139,253,.05); --glow-2:rgba(255,255,255,.025);
+  --card:#161b22; --card2:#12171e;
+  --ink:#e6edf3; --muted:#8b949e; --label:#cbd5e1;
+  --line:rgba(240,246,252,.10); --line-soft:rgba(240,246,252,.07);
+  --accent:#58a6ff; --accent-strong:#1f6feb; --hi:rgba(56,139,253,.12);
+  --win:#3fb950; --draw:#8b949e; --loss:#f85149;
+  /* meeskonnamärgid teema enda toonidest */
+  --t-bcp:#d29922; --t-vap:#3fb950; --t-ejk:#58a6ff; --t-ekk:#a5b4c3;
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-@media (prefers-color-scheme:dark){:root{
-  --bg:#0b131b; --surface:#121e29; --ink:#e8eef3; --muted:#93a4b4; --line:#233444; --accent:#4fb0ee; --hi:#16304a;
-  --t-ekk:#9fb0c2; --t-ejk:#4fa3ff; --win:#3fbf76; --draw:#7d8b99; --loss:#ef6a5c; color-scheme:dark;}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 18px/1.45 var(--body)}
-@media (min-width:1600px){body{font-size:21px}}
+body{margin:0;color:var(--ink);font:400 17px/1.45 var(--font);
+  background:radial-gradient(900px 500px at 20% 0%,var(--glow-2),transparent 70%),radial-gradient(900px 550px at 85% 15%,var(--glow-1),transparent 70%),var(--bg);
+  background-attachment:fixed;min-height:100vh}
+@media (min-width:1600px){body{font-size:20px}}
 a{color:var(--accent)}
 button{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
-h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
-.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
+.wrap{max-width:1320px;margin:0 auto;padding:0 24px}
 .tn{font-variant-numeric:tabular-nums}
 
-header{background:#0f1a24;color:#e8eef3;padding:18px 0 22px;border-bottom:4px solid var(--accent)}
-.hrow{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
-header h1{font-size:clamp(24px,2.6vw,32px);font-weight:600;color:#b8c6d3;letter-spacing:.02em}
-.stamp{font-size:14px;color:#93a4b4}
-.next{margin-top:14px;display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
-.next .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:16px;color:#4fb0ee}
-.next .teams{font-family:var(--display);font-size:clamp(32px,4.4vw,56px);font-weight:700;line-height:1.05}
-.next .meta{color:#b8c6d3;font-size:20px;margin-top:4px}
+/* Päis nagu koduvaates: bränd vasakul, uuendusaeg paremal */
+header{padding:22px 0 8px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{display:flex;align-items:center;gap:12px;font-size:clamp(16px,1.55vw,24px);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+header h1::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--accent)}
+.stamp{font-size:clamp(13px,1vw,16px);color:var(--muted);font-weight:500}
+.next{margin-top:18px;display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between;
+  background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:22px 26px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 8px 24px rgba(0,0,0,.35)}
+.next .lbl{color:var(--label);font-weight:700;font-size:clamp(11px,.95vw,15px);text-transform:uppercase;letter-spacing:.08em}
+.next .teams{font-size:clamp(30px,3.6vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:6px}
+.next .meta{color:var(--muted);font-size:clamp(15px,1.25vw,20px);margin-top:6px}
 .cd{display:flex;gap:10px}
-.cd div{background:#16232f;border:1px solid #233444;border-radius:8px;min-width:78px;padding:10px;text-align:center}
-.cd b{display:block;font-family:var(--display);font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
-.cd span{font-size:12px;color:#93a4b4;text-transform:uppercase;letter-spacing:.06em}
+.cd div{background:rgba(240,246,252,.04);border:1px solid var(--line);border-radius:12px;min-width:80px;padding:10px 12px;text-align:center}
+.cd b{display:block;font-size:38px;font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.cd span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
 
-main{display:grid;gap:34px;padding:26px 0 48px}
-h2{font-size:clamp(24px,2.4vw,30px);margin-bottom:12px}
+main{display:grid;gap:30px;padding:22px 0 48px}
+h2{color:var(--label);font-weight:700;font-size:clamp(12px,1vw,16px);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
 
-/* Meeskonnakaardid */
+/* Kaardid */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
-.card{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:12px;padding:16px 18px;display:grid;gap:12px;align-content:start}
-.card:hover{border-color:var(--c)}
-.card[aria-selected="true"]{box-shadow:0 0 0 3px var(--c)}
-.card h3{font-size:26px}
-.card .status{font-family:var(--display);font-size:22px;font-weight:600}
-.card .status small{display:block;font-family:var(--body);font-size:14px;font-weight:400;color:var(--muted)}
-.row{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:baseline;border-top:1px solid var(--line);padding-top:10px;font-size:16px}
-.row .k{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.card{all:unset;box-sizing:border-box;cursor:pointer;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:18px 20px 18px 24px;
+  display:grid;gap:12px;align-content:start;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 8px 24px rgba(0,0,0,.35)}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.card:hover{border-color:rgba(240,246,252,.22)}
+.card[aria-selected="true"]{border-color:var(--accent-strong);box-shadow:0 0 0 1px var(--accent-strong),0 8px 24px rgba(0,0,0,.35)}
+.card h3{font-size:clamp(18px,1.5vw,24px);font-weight:800;letter-spacing:-.02em}
+.card .status{font-size:clamp(20px,1.7vw,28px);font-weight:800;letter-spacing:-.03em}
+.card .status small{display:block;font-size:14px;font-weight:500;letter-spacing:0;color:var(--muted);margin-top:2px}
+.row{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:baseline;border-top:1px solid var(--line-soft);padding-top:10px;font-size:16px}
+.row .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
 .row .v b{font-weight:700}
 .row .v small{display:block;color:var(--muted);font-size:14px}
-.pill{display:inline-block;font-family:var(--display);font-weight:700;color:#fff;border-radius:4px;padding:0 6px;margin-right:6px;font-size:15px}
+.pill{display:inline-block;font-weight:800;font-size:13px;border-radius:6px;padding:1px 7px;margin-right:6px;color:#0d1117}
 .W{background:var(--win)} .D{background:var(--draw)} .L{background:var(--loss)}
 
 /* Kalender */
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 18px}
-.ev{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.panel{background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:6px 22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 8px 24px rgba(0,0,0,.35)}
+.ev{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line-soft)}
 .ev:first-child{border-top:0}
-.ev .when{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.1}
-.ev .when small{display:block;font-family:var(--body);font-size:14px;font-weight:400;color:var(--muted)}
-.ev .what{font-weight:700;font-size:19px}
+.ev .when{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.ev .when small{display:block;font-size:14px;font-weight:500;letter-spacing:0;color:var(--muted)}
+.ev .what{font-weight:700;font-size:18px}
 .ev .what small{display:block;font-weight:400;font-size:14px;color:var(--muted)}
-.tag{font-size:13px;font-weight:700;color:var(--c);border:1.5px solid var(--c);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tag{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 8px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.tag::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
 @media (max-width:560px){.ev{grid-template-columns:84px 1fr}.ev .tag{grid-column:2;justify-self:start}}
 
 /* Detailid */
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.tab{cursor:pointer;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:700;display:inline-flex;gap:8px;align-items:center}
-.tab .dot{width:10px;height:10px;border-radius:50%;background:var(--c)}
-.tab[aria-selected="true"]{border-color:var(--c);background:var(--hi)}
+.tab{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 16px;font-weight:700;display:inline-flex;gap:8px;align-items:center}
+.tab .dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff}
 .facts{color:var(--muted);font-size:15px;margin:0 0 14px;display:flex;flex-wrap:wrap;gap:6px 20px}
 .facts b{color:var(--ink);font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-.box{grid-column:span 6;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.box{grid-column:span 6;background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 8px 24px rgba(0,0,0,.35)}
 .box.w12{grid-column:span 12}.box.w8{grid-column:span 8}.box.w4{grid-column:span 4}
 @media (max-width:900px){.box,.box.w8,.box.w4{grid-column:span 12}}
-.box h3{font-size:22px;margin-bottom:10px}
+.box h3{color:var(--label);font-weight:700;font-size:clamp(11px,.95vw,15px);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
 .tbl{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:16px;font-variant-numeric:tabular-nums}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:2px solid var(--line)}
-td{padding:7px 8px;border-bottom:1px solid var(--line)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-weight:700}
+td{padding:8px;border-bottom:1px solid var(--line-soft)}
 th.n,td.n{text-align:right}
-tr.me td{background:var(--hi);font-weight:700}
-tr.cut td{border-bottom:2px dashed var(--muted)}
+tr.me td{background:var(--hi);font-weight:700;color:#fff}
+tr.me td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+tr.cut td{border-bottom:1px dashed rgba(240,246,252,.25)}
 .list{list-style:none;margin:0;padding:0}
-.list li{display:grid;grid-template-columns:76px 1fr auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:baseline}
+.list li{display:grid;grid-template-columns:76px 1fr auto;gap:10px;padding:9px 0;border-top:1px solid var(--line-soft);align-items:baseline;break-inside:avoid}
 .list li:first-child{border-top:0}
 .list .dt{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
 .list .note{display:block;font-size:13px;color:var(--muted)}
-.list .sc{font-family:var(--display);font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+.list .sc{font-size:19px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .sc.W{background:none;color:var(--win)}.sc.L{background:none;color:var(--loss)}.sc.D{background:none;color:var(--draw)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
-.stat{background:var(--bg);border-radius:8px;padding:10px 12px}
-.stat b{display:block;font-family:var(--display);font-size:30px;line-height:1.05}
-.stat span{font-size:13px;color:var(--muted)}
-.ldg{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin:10px 0 4px}
-.ld{display:grid;grid-template-columns:150px 1fr 50px;gap:10px;align-items:center;font-size:15px;margin:4px 0}
-.track{height:10px;background:var(--bg);border-radius:5px;overflow:hidden}
-.fill{height:100%;background:var(--c);border-radius:5px}
-.ld .v{font-family:var(--display);font-size:19px;font-weight:700;text-align:right}
-.note2{font-size:14px;color:var(--muted);margin:10px 0 0}
-.callout{border-left:4px solid var(--c);background:var(--hi);padding:10px 14px;border-radius:0 8px 8px 0;font-size:15px;margin-top:12px}
-.err{background:#fdecea;color:#7a1f16;border-radius:8px;padding:12px 16px}
+.stat{background:rgba(240,246,252,.03);border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:30px;font-weight:800;letter-spacing:-.04em;line-height:1.05}
+.stat span{font-size:12px;color:var(--muted)}
+.ldg{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:12px 0 4px}
+.ld{display:grid;grid-template-columns:150px 1fr 50px;gap:10px;align-items:center;font-size:15px;margin:5px 0}
+.track{height:8px;background:rgba(240,246,252,.06);border-radius:4px;overflow:hidden}
+.fill{height:100%;background:var(--accent);border-radius:4px}
+.ld .v{font-size:18px;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.note2{font-size:13px;color:var(--muted);margin:10px 0 0}
+.callout{border-left:3px solid var(--accent);background:rgba(56,139,253,.08);padding:10px 14px;border-radius:0 10px 10px 0;font-size:15px;margin-top:12px}
+.err{background:rgba(248,81,73,.12);color:#ffb3ae;border:1px solid rgba(248,81,73,.4);border-radius:10px;padding:12px 16px}
 footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);font-size:14px}
 footer a{margin-right:14px;display:inline-block}
 html,body{overflow-x:hidden}
@@ -198,7 +210,7 @@ function renderUpcoming(){
     return `<div class="ev" style="--c:${COLORS[e.team]}">
       <div class="when">${rel?rel[0].toUpperCase()+rel.slice(1):dateTxt(e,false)}<small>${e.time?"kell "+e.time:(rel?dateTxt(e,false):"")}</small></div>
       <div class="what">${esc(e.title)}<small>${esc(e.comp)}${e.place?" · "+esc(e.place):""}</small></div>
-      <span class="tag">${SHORT[e.team]}</span></div>`;}).join("")
+      <span class="tag" style="--c:${COLORS[e.team]}">${SHORT[e.team]}</span></div>`;}).join("")
     :'<div class="ev"><div></div><div class="what">Kalendris pole praegu tulevaid mänge.</div></div>';
 }
 function panelHtml(p,k){

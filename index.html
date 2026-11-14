@@ -1648,42 +1648,73 @@
     let dragStart = [0, 0];
     let rotStart = [0, 0];
 
-    async function initGlobeData() {
-      // 1. Laeme maailmakaardi kontuurid
-      try {
-        const topo = await fetchJson('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json', 6000);
-        if (window.topojson && topo) {
-          worldLand = topojson.feature(topo, topo.objects.land);
-        }
-      } catch(e) {}
+    let ovationLoadedAt = 0;
 
-      // 2. Laeme NOAA OVATION reaalajas virmaliste koordinaadid
+    async function initGlobeData() {
+      // 1. Maailmakaardi kontuurid (ainult üks kord)
+      if (!worldLand) {
+        try {
+          const topo = await fetchJson('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json', 6000);
+          if (window.topojson && topo) worldLand = topojson.feature(topo, topo.objects.land);
+        } catch(e) {}
+      }
+      // 2. NOAA OVATION prognoos: kõigepealt meie serveri kaudu (väiksem ja töötab ka telekas), siis otse
+      if (Date.now() - ovationLoadedAt < 10 * 60 * 1000) return;
+      let pts = null, forecast = null;
       try {
-        const ov = await fetchJson('https://services.swpc.noaa.gov/json/ovation_aurora_latest.json', 7000);
-        if (Array.isArray(ov?.coordinates)) {
-          // Filtreerime põhjapoolkera punktid, kus tõenäosus >= 6%
-          ovationPoints = ov.coordinates.filter(pt => pt[1] >= 42 && pt[2] >= 6 && (pt[0] % 2 === 0) && (pt[1] % 2 === 0));
-          $('globe-data-status').textContent = `NOAA OVATION Live (${ovationPoints.length} aktiivset punkti)`;
-        }
+        const d = await fetchJson('/api/ovation', 15000);
+        if (Array.isArray(d?.points) && d.points.length) { pts = d.points; forecast = d.forecast; }
       } catch(e) {}
+      if (!pts) {
+        try {
+          const ov = await fetchJson('https://services.swpc.noaa.gov/json/ovation_aurora_latest.json', 15000);
+          if (Array.isArray(ov?.coordinates)) {
+            pts = ov.coordinates
+              .filter(p => p[1] >= 40 && p[2] >= 3 && p[0] % 2 === 0 && p[1] % 2 === 0)
+              .map(p => [p[0] > 180 ? p[0] - 360 : p[0], p[1], p[2]]);
+            forecast = ov['Forecast Time'] || null;
+          }
+        } catch(e) {}
+      }
+      if (pts) {
+        ovationPoints = pts;
+        ovationLoadedAt = Date.now();
+        const tm = forecast ? new Date(forecast) : null;
+        const tmText = tm && !isNaN(tm) ? ` • prognoos kl ${tm.toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' })}` : '';
+        $('globe-data-status').textContent = `NOAA OVATION (${pts.filter(p => p[2] >= 6).length} punkti)${tmText}`;
+      } else {
+        $('globe-data-status').textContent = 'NOAA OVATION ei vasta • näidatud on ainult Kp-põhine hinnang';
+      }
     }
 
+    // Kp-põhine hinnanguline virmaliste vöönd. Päris vöönd ei ole ring ümber magnetpooluse:
+    // öö poolel ulatub see kaugemale lõunasse, päeva poolel jääb põhja. Seepärast nihutame keskpunkti ööpoole.
     function generateGeomagneticOvalRing(kpVal) {
-      // Geomagnetiline põhjapoolus ~80.6°N, -72.6°W
-      const magPoleLat = 80.6;
-      const magPoleLon = -72.6;
-      const ovalRadiusDeg = 18 + Math.min(7, Math.max(1.5, kpVal)) * 2.35; // Mida suurem Kp, seda lõuna poole ulatub
-      const ring = [];
       const rad = Math.PI / 180;
-      const lat0 = magPoleLat * rad;
-      const lon0 = magPoleLon * rad;
-      const d = ovalRadiusDeg * rad;
+      const kp = Math.min(9, Math.max(0, kpVal));
+      // Sama valem mis virmaliste protsendil: öise poole lõunaserv ≈ 66,5° − 2×Kp (geomagn.).
+      // Vööndi keskjoon on öö poolel ~3° serva kohal; ring nihutatakse allpool 4° ööpoole, seega keskpunkt +7°.
+      const ovalRadiusDeg = 90 - (66.5 - 2.05 * kp + 7);
+      // Ööpoolne meridiaan: päike on otse pea kohal pikkusel −(UTC − 12)×15, kesköö on 180° sellest
+      const now = new Date();
+      const utcH = now.getUTCHours() + now.getUTCMinutes() / 60;
+      const midnightLon = -(utcH - 12) * 15 + 180;
+      // Magnetpoolusest 4° ööpoole
+      const pLat = 80.6 * rad, pLon = -72.6 * rad, shift = 4 * rad;
+      const bearing = Math.atan2(
+        Math.sin((midnightLon * rad) - pLon) * Math.cos(0),
+        Math.cos(pLat) * Math.sin(0) - Math.sin(pLat) * Math.cos(0) * Math.cos((midnightLon * rad) - pLon)
+      );
+      const lat0 = Math.asin(Math.sin(pLat) * Math.cos(shift) + Math.cos(pLat) * Math.sin(shift) * Math.cos(bearing));
+      const lon0 = pLon + Math.atan2(Math.sin(bearing) * Math.sin(shift) * Math.cos(pLat), Math.cos(shift) - Math.sin(pLat) * Math.sin(lat0));
 
+      const d = ovalRadiusDeg * rad;
+      const ring = [];
       for (let brng = 0; brng <= 360; brng += 4) {
         const b = brng * rad;
         const lat2 = Math.asin(Math.sin(lat0) * Math.cos(d) + Math.cos(lat0) * Math.sin(d) * Math.cos(b));
         const lon2 = lon0 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(lat0), Math.cos(d) - Math.sin(lat0) * Math.sin(lat2));
-        ring.push([lon2 / rad, lat2 / rad]);
+        ring.push([((lon2 / rad + 540) % 360) - 180, lat2 / rad]);
       }
       return { ring, ovalRadiusDeg };
     }
@@ -1783,16 +1814,8 @@
         bandWidths.forEach((bw, idx) => {
           gCtx.save();
           gCtx.beginPath();
-          let started = false;
-          ring.forEach(coord => {
-            const pt = projection(coord);
-            if (pt) {
-              if (!started) { gCtx.moveTo(pt[0], pt[1]); started = true; }
-              else gCtx.lineTo(pt[0], pt[1]);
-            } else {
-              started = false;
-            }
-          });
+          // d3 geoPath lõikab ära maakera tagumisele poolele jääva osa (enne joonistati see läbi maakera)
+          path({ type: 'LineString', coordinates: ring });
           gCtx.strokeStyle = idx === 0
             ? 'rgba(16, 185, 129, 0.18)'
             : idx === 1
@@ -1810,8 +1833,9 @@
         // NOAA OVATION reaalajas täppide kiht
         if (ovationPoints.length) {
           gCtx.save();
-          for (let i = 0; i < ovationPoints.length; i += 2) {
+          for (let i = 0; i < ovationPoints.length; i++) {
             const p = ovationPoints[i];
+            if (p[2] < 6) continue;
             const lon = p[0] > 180 ? p[0] - 360 : p[0];
             const lat = p[1];
             const val = p[2];
@@ -1883,7 +1907,7 @@
     $('btn-open-globe').addEventListener('click', () => {
       globeOpen = true;
       $('globe-modal').classList.add('open');
-      if (!worldLand) initGlobeData();
+      initGlobeData();
       requestAnimationFrame(render3DGlobe);
     });
 

@@ -849,7 +849,7 @@
 
           <div class="aurora-metrics-grid">
             <div class="a-metric">
-              <span class="a-metric-label">Merevesi</span>
+              <span class="a-metric-label" id="bc-water-label">Merevesi</span>
               <span class="a-metric-val" id="bc-water">--.-°C</span>
             </div>
             <div class="a-metric">
@@ -1420,19 +1420,21 @@
     let beachAdviceText = 'Lähima ranna vee-, UV- ja ilmainfo';
 
     // Rannad, mille seast valitakse asukohale lähim. Lisa ridu juurde, kui vaja.
+    // type: 'sea' = merevee andmed Open-Meteost, 'lake' = järve veetemperatuur SYKE mõõtejaamast (ainult Soome)
     const BEACHES = [
-      { name: 'Pärnu',        lat: 58.370, lon: 24.490 },
-      { name: 'Haapsalu',     lat: 58.935, lon: 23.515 },
-      { name: 'Kuressaare',   lat: 58.243, lon: 22.480 },
-      { name: 'Pirita',       lat: 59.470, lon: 24.830 },
-      { name: 'Narva-Jõesuu', lat: 59.465, lon: 28.035 },
-      { name: 'Helsinki',     lat: 60.172, lon: 24.905 },
-      { name: 'Hanko',        lat: 59.820, lon: 22.960 },
-      { name: 'Kotka',        lat: 60.450, lon: 26.950 },
-      { name: 'Turku',        lat: 60.425, lon: 22.100 },
-      { name: 'Yyteri',       lat: 61.565, lon: 21.525 },
-      { name: 'Vaasa',        lat: 63.090, lon: 21.570 },
-      { name: 'Oulu',         lat: 65.030, lon: 25.410 }
+      { name: 'Pärnu',        lat: 58.370, lon: 24.490, type: 'sea' },
+      { name: 'Haapsalu',     lat: 58.935, lon: 23.515, type: 'sea' },
+      { name: 'Kuressaare',   lat: 58.243, lon: 22.480, type: 'sea' },
+      { name: 'Pirita',       lat: 59.470, lon: 24.830, type: 'sea' },
+      { name: 'Narva-Jõesuu', lat: 59.465, lon: 28.035, type: 'sea' },
+      { name: 'Helsinki',     lat: 60.172, lon: 24.905, type: 'sea' },
+      { name: 'Hanko',        lat: 59.820, lon: 22.960, type: 'sea' },
+      { name: 'Kotka',        lat: 60.450, lon: 26.950, type: 'sea' },
+      { name: 'Turku',        lat: 60.425, lon: 22.100, type: 'sea' },
+      { name: 'Yyteri',       lat: 61.565, lon: 21.525, type: 'sea' },
+      { name: 'Vaasa',        lat: 63.090, lon: 21.570, type: 'sea' },
+      { name: 'Oulu',         lat: 65.030, lon: 25.410, type: 'sea' },
+      { name: 'Kalmarinranta', lat: 61.168, lon: 25.552, type: 'lake', lake: 'Vesijärvi' }
     ];
 
     function currentBeach() {
@@ -1444,7 +1446,7 @@
       return best;
     }
 
-    const beachLabel = b => b.km < 3 ? `${b.name} rand` : `${b.name} · ${Math.round(b.km)} km`;
+    const beachLabel = b => b.km < 3 ? (/rand|ranta/i.test(b.name) ? b.name : `${b.name} rand`) : `${b.name} · ${Math.round(b.km)} km`;
 
     function switchMode(mode) {
       activeMode = mode;
@@ -1630,15 +1632,25 @@
       const beach = currentBeach();
       const q = `latitude=${beach.lat}&longitude=${beach.lon}`;
 
+      const isLake = beach.type === 'lake';
       const [mData, aqData, fData] = await Promise.all([
-        fetchJson(`https://marine-api.open-meteo.com/v1/marine?${q}&current=wave_height,sea_surface_temperature`, 5000).catch(() => null),
+        isLake
+          ? fetchJson(`/api/laketemp?lat=${beach.lat}&lon=${beach.lon}${beach.lake ? '&lake=' + encodeURIComponent(beach.lake) : ''}`, 15000).catch(() => null)
+          : fetchJson(`https://marine-api.open-meteo.com/v1/marine?${q}&current=wave_height,sea_surface_temperature`, 5000).catch(() => null),
         fetchJson(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}&current=european_aqi,uv_index,birch_pollen,grass_pollen`, 5000).catch(() => null),
         fetchJson(`https://api.open-meteo.com/v1/forecast?${q}&current=cape,temperature_2m,cloud_cover,wind_speed_10m&wind_speed_unit=ms`, 5000).catch(() => null)
       ]);
       const num = v => Number.isFinite(v) ? v : null;
 
-      const waterTemp = num(mData?.current?.sea_surface_temperature);
-      const waveHeight = num(mData?.current?.wave_height);
+      // Järvel: SYKE mõõtejaama viimane mõõtmine; laineid järvedel ei mõõdeta
+      const waterTemp = isLake ? num(mData?.temp) : num(mData?.current?.sea_surface_temperature);
+      const waveHeight = isLake ? null : num(mData?.current?.wave_height);
+      let lakeNote = '';
+      if (isLake && waterTemp !== null) {
+        const when = mData.time ? new Date(mData.time) : null;
+        const whenText = when && !isNaN(when) ? when.toLocaleDateString('et-EE', { day: 'numeric', month: 'numeric' }) : '';
+        lakeNote = `mõõtejaam ${mData.station || mData.lake || ''}${mData.km != null ? ` (${String(mData.km).replace('.', ',')} km)` : ''}${whenText ? ` • ${whenText}` : ''}`;
+      }
       const uvIndex = num(aqData?.current?.uv_index);
       const aqi = num(aqData?.current?.european_aqi);
       const cape = num(fData?.current?.cape);
@@ -1684,12 +1696,15 @@
       $('bc-cape').textContent = cape === null ? '--' : cape >= 800 ? '⚡ Suur oht' : cape >= 300 ? 'Mõõdukas' : 'Madal (Rahulik)';
       $('bc-cape').style.color = cape !== null && cape >= 500 ? '#fb7185' : '#f8fafc';
 
-      $('bc-waves').textContent = waveHeight !== null ? `${waveHeight.toFixed(2)} m` : '-- m';
+      $('bc-water-label').textContent = isLake ? `Järvevesi${beach.lake ? ' • ' + beach.lake : ''}` : 'Merevesi';
+      $('bc-waves').textContent = isLake ? `Järv • tuul ${Math.round(wind)} m/s` : waveHeight !== null ? `${waveHeight.toFixed(2)} m` : '-- m';
       $('bc-aqi').textContent = aqi === null ? 'AQI --' : `${aqi <= 25 ? 'Väga hea' : aqi <= 50 ? 'Hea' : 'Mõõdukas'} (AQI ${Math.round(aqi)})`;
       $('bc-pollen').textContent = pollenLevel;
 
-      const where = beach.km < 3 ? `${beach.name} rand` : `Lähim rand ${beach.name} (${Math.round(beach.km)} km)`;
-      beachAdviceText = `${where} • vesi ${waterText} • laine ${waveHeight !== null ? waveHeight.toFixed(1) + ' m' : '--'} • UV ${uvIndex !== null ? uvIndex.toFixed(1) : '--'}`;
+      const where = beach.km < 3 ? beachLabel(beach) : `Lähim rand ${beach.name} (${Math.round(beach.km)} km)`;
+      beachAdviceText = isLake
+        ? `${where} • vesi ${waterText}${lakeNote ? ' (' + lakeNote + ')' : ''} • UV ${uvIndex !== null ? uvIndex.toFixed(1) : '--'}`
+        : `${where} • vesi ${waterText} • laine ${waveHeight !== null ? waveHeight.toFixed(1) + ' m' : '--'} • UV ${uvIndex !== null ? uvIndex.toFixed(1) : '--'}`;
       if (activeMode === 'beach') {
         $('multi-footer-advice').textContent = beachAdviceText;
         $('multi-card-title').innerHTML = `Lähim rand • <span class="location-badge">${beachLabel(beach)}</span>`;

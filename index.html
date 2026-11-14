@@ -861,7 +861,7 @@
               <span class="a-metric-val" id="bc-cape">Madal</span>
             </div>
             <div class="a-metric">
-              <span class="a-metric-label">Lainekõrgus</span>
+              <span class="a-metric-label" id="bc-waves-label">Lainekõrgus</span>
               <span class="a-metric-val" id="bc-waves">-- m</span>
             </div>
             <div class="a-metric">
@@ -1650,7 +1650,8 @@
         const when = mData.time ? new Date(mData.time) : null;
         const whenText = when && !isNaN(when) ? when.toLocaleDateString('et-EE', { day: 'numeric', month: 'numeric' }) : '';
         const otherLake = beach.lake && mData.lake && !String(mData.lake).toLowerCase().includes(beach.lake.toLowerCase());
-        lakeNote = `${otherLake ? beach.lake + ' mõõtmine puudub, ' : ''}mõõtejaam ${mData.station || mData.lake || ''}${mData.km != null ? ` (${String(mData.km).replace('.', ',')} km)` : ''}${whenText ? ` • ${whenText}` : ''}`;
+        const src = otherLake ? `jaam: ${mData.lake}` : 'mõõtejaam';
+        lakeNote = `${src}${mData.km != null ? `, ${Math.round(mData.km)} km` : ''}${whenText ? `, ${whenText}` : ''}`;
       }
       const uvIndex = num(aqData?.current?.uv_index);
       const aqi = num(aqData?.current?.european_aqi);
@@ -1678,7 +1679,7 @@
       else if (finalScore >= 50) { bVerdict = 'SOE SUVEPÄEV'; bColor = '#fbbf24'; }
       else if (finalScore >= 30) { bVerdict = 'MÕÕDUKAS / JAHEDAM'; bColor = '#a855f7'; }
 
-      const waterText = waterTemp !== null ? `${waterTemp.toFixed(1)}°C` : '--';
+      const waterText = waterTemp !== null ? `${fmt(waterTemp, 1)}°C` : '--';
       $('beach-gauge-arc').style.strokeDashoffset = (251.2 - (finalScore / 100) * 251.2).toFixed(1);
       $('beach-score').textContent = `${finalScore}%`;
       $('beach-verdict').textContent = bVerdict;
@@ -1699,13 +1700,14 @@
 
       const measuredLake = isLake ? (mData?.lake || String(mData?.station || '').split(',')[0] || beach.lake || '') : '';
       $('bc-water-label').textContent = isLake ? `Järvevesi${measuredLake ? ' • ' + measuredLake : ''}` : 'Merevesi';
-      $('bc-waves').textContent = isLake ? `Järv • tuul ${Math.round(wind)} m/s` : waveHeight !== null ? `${waveHeight.toFixed(2)} m` : '-- m';
+      $('bc-waves-label').textContent = isLake ? 'Tuul rannas' : 'Lainekõrgus';
+      $('bc-waves').textContent = isLake ? `${Math.round(wind)} m/s` : waveHeight !== null ? `${waveHeight.toFixed(2)} m` : '-- m';
       $('bc-aqi').textContent = aqi === null ? 'AQI --' : `${aqi <= 25 ? 'Väga hea' : aqi <= 50 ? 'Hea' : 'Mõõdukas'} (AQI ${Math.round(aqi)})`;
       $('bc-pollen').textContent = pollenLevel;
 
       const where = beach.km < 3 ? beachLabel(beach) : `Lähim rand ${beach.name} (${Math.round(beach.km)} km)`;
       beachAdviceText = isLake
-        ? `${where} • vesi ${waterText}${lakeNote ? ' (' + lakeNote + ')' : ''} • UV ${uvIndex !== null ? uvIndex.toFixed(1) : '--'}`
+        ? `${where} • vesi ${waterText}${lakeNote ? ' (' + lakeNote + ')' : ''} • UV ${uvIndex !== null ? fmt(uvIndex, 1) : '--'}`
         : `${where} • vesi ${waterText} • laine ${waveHeight !== null ? waveHeight.toFixed(1) + ' m' : '--'} • UV ${uvIndex !== null ? uvIndex.toFixed(1) : '--'}`;
       if (activeMode === 'beach') {
         $('multi-footer-advice').textContent = beachAdviceText;

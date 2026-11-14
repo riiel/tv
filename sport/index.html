@@ -254,7 +254,7 @@ function logoUrl(n){
   const k=(DATA.logoAliases&&DATA.logoAliases[n])||n; const u=DATA.logos[k];
   if(!u) return null; return u.startsWith("flag:")?{u:`https://flagcdn.com/w40/${u.slice(5)}.png`,f:true}:{u,f:false};
 }
-function team(n){const l=logoUrl(String(n).trim());return l?`<span class="tn-team"><img class="lg${l.f?" fl":""}" src="${l.u}" alt="" loading="lazy" onerror="this.remove()">${esc(n)}</span>`:esc(n);}
+function team(n){const l=logoUrl(String(n).trim());return l?`<span class="tn-team"><img class="lg${l.f?" fl":""}" src="${l.u}" alt="" onerror="this.remove()">${esc(n)}</span>`:esc(n);}
 function teamsTitle(t){const m=String(t).split(/( – | vs )/);return m.map((x,i)=>i%2?esc(x):team(x)).join("");}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function tzOff(d){const [y,m,day]=d.split("-").map(Number);

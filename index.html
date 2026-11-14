@@ -268,6 +268,2740 @@
       flex: 1;
     }
     /* Kuu ilmakaardi taustal (nagu raadio lained): suur, poolläbipaistev, sisu jääb peale */
+    .moon-bg { position: absolute; right: 1%; top: 50%; transform: translateY(-54%); width: 40%; aspect-ratio: 1; z-index: 1; opacity: 0.15; pointer-events: none; }
+    .moon-label { font-size: clamp(10px, 0.8vw, 13px); font-weight: 600; color: var(--muted); white-space: nowrap; margin-left: auto; margin-right: 0.6vw; }
+    .moon-label b { color: #e2e8f0; font-weight: 700; }
+    .weather-main-temp { display: flex; align-items: center; gap: 0.8vw; padding-right: 0.6vw; }
+    #weather-temp { font-size: clamp(44px, 4.6vw, 72px); font-weight: 800; letter-spacing: -0.06em; line-height: 0.9; }
+    .weather-icon { font-size: clamp(38px, 3.8vw, 60px); filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.35)); }
+
+    .weather-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, auto);
+      gap: 0.7vh 0.7vw;
+      width: 100%;
+    }
+    .w-metric {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      padding: 0.65vh 0.75vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+    .w-metric-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(8px, 0.68vw, 10px); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+    .w-metric-val { font-size: clamp(11px, 0.92vw, 14px); font-weight: 750; color: var(--text); white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+    #yr-wind-arrow { display: inline-block; color: var(--cyan); font-weight: 800; transition: transform 0.3s ease; }
+
+    .forecast { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line-soft); padding-top: 1vh; }
+    .forecast-day { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; border-right: 1px solid var(--line-soft); padding: 0 4px; }
+    .forecast-day:last-child { border-right: none; }
+    .forecast-name { color: var(--muted); font-size: clamp(9px, 0.75vw, 12px); font-weight: 700; text-transform: uppercase; }
+    .forecast-icon { font-size: clamp(16px, 1.35vw, 22px); margin: 1px 0; }
+    .forecast-temp { color: var(--text); font-size: clamp(10px, 0.85vw, 13px); font-weight: 750; }
+
+    /* --- 3. VIRMALISED & RANNAINFO + 3D KAARDI NUPP --- */
+    .multi-card { border-color: rgba(52, 211, 153, 0.28); }
+    .multi-bg-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.4; }
+
+    .mode-tabs { display: flex; align-items: center; gap: 6px; }
+    .mode-tab, .map-open-btn {
+      padding: 4px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--line-soft);
+      background: rgba(15, 20, 41, 0.55);
+      color: var(--muted);
+      font-size: clamp(9px, 0.76vw, 12px);
+      font-weight: 750;
+      transition: all 0.16s ease;
+      backdrop-filter: blur(6px);
+    }
+    .mode-tab.active {
+      background: var(--accent-grad);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 0 14px var(--accent-shadow);
+    }
+    .map-open-btn {
+      border-color: rgba(34, 211, 238, 0.5);
+      background: rgba(34, 211, 238, 0.14);
+      color: var(--cyan);
+    }
+    .mode-tab:hover, .mode-tab:focus, .map-open-btn:hover, .map-open-btn:focus {
+      outline: 2px solid #fff;
+      color: #fff;
+    }
+
+    .multi-panel {
+      position: relative;
+      z-index: 2;
+      display: none;
+      flex: 1;
+      min-height: 0;
+    }
+    .multi-panel.active { display: grid; }
+
+    .gauge-panel-layout {
+      grid-template-columns: 0.92fr 1.28fr;
+      align-items: center;
+      gap: 1.4vw;
+      margin: 0.4vh 0;
+    }
+
+    .gauge-wrap { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .gauge-svg { width: clamp(135px, 13.5vw, 210px); height: auto; overflow: visible; }
+    .gauge-track { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 12; stroke-linecap: round; }
+    .gauge-fill {
+      fill: none;
+      stroke: url(#auroraGaugeGrad);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 251.2;
+      stroke-dashoffset: 251.2;
+      filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.65));
+      transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .gauge-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 1.2vh;
+      text-align: center;
+    }
+    .gauge-big-num {
+      font-size: clamp(28px, 3.1vw, 48px);
+      font-weight: 850;
+      letter-spacing: -0.05em;
+      line-height: 0.95;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(52, 211, 153, 0.45);
+    }
+    .gauge-verdict {
+      margin-top: 4px;
+      font-size: clamp(10px, 0.88vw, 13.5px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #34d399;
+    }
+    .gauge-subverdict { font-size: clamp(8.5px, 0.72vw, 11px); color: var(--muted); font-weight: 600; margin-top: 1px; }
+
+    .aurora-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, auto);
+      gap: 0.7vh 0.7vw;
+      width: 100%;
+    }
+    .a-metric {
+      background: rgba(11, 15, 36, 0.58);
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      padding: 0.65vh 0.8vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      backdrop-filter: blur(8px);
+    }
+    .a-metric-label { font-size: clamp(8px, 0.66vw, 10px); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+    .a-metric-val { font-size: clamp(11px, 0.92vw, 14px); font-weight: 750; color: var(--text); white-space: nowrap; }
+
+    .multi-footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 0.9vh;
+      font-size: clamp(9.5px, 0.8vw, 12.5px);
+      color: var(--muted);
+      font-weight: 600;
+      gap: 8px;
+    }
+    .multi-footer strong { color: #e2e8f0; }
+    /* Virmaliste ööprognoos (järgmised 3 ööd) */
+    .aur-nights { display: inline-flex; align-items: center; gap: 8px; flex-wrap: nowrap; min-width: 0; overflow: hidden; }
+    .aur-nights-title { color: var(--muted); white-space: nowrap; }
+    .aur-night { display: inline-flex; align-items: baseline; gap: 6px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line-soft); background: rgba(255,255,255,0.03); white-space: nowrap; color: var(--muted); }
+    .aur-night b { color: #e2e8f0; font-weight: 700; }
+    .aur-night .pct { font-weight: 800; }
+    .aur-night.lv1 { border-color: rgba(56,189,248,0.45); } .aur-night.lv1 .pct { color: #38bdf8; }
+    .aur-night.lv2 { border-color: rgba(168,85,247,0.6); background: rgba(168,85,247,0.12); } .aur-night.lv2 .pct { color: #c084fc; }
+    .aur-night.lv3 { border-color: rgba(52,211,153,0.7); background: rgba(52,211,153,0.14); box-shadow: 0 0 14px rgba(52,211,153,0.35); } .aur-night.lv3 .pct { color: #34d399; }
+
+    /* --- 4. RAADIO & STRIIMID --- */
+    .radio-bg-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.22; transition: opacity 0.5s ease; }
+    .playing .radio-bg-canvas { opacity: 0.58; }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: clamp(9px, 0.75vw, 11px);
+      font-weight: 750;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(15, 20, 41, 0.65);
+      border: 1px solid var(--line-soft);
+      color: var(--muted);
+      backdrop-filter: blur(6px);
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .playing .live-indicator { color: #fff; border-color: rgba(236, 72, 153, 0.55); background: rgba(236, 72, 153, 0.2); }
+    .playing .live-dot { background: var(--pink); box-shadow: 0 0 10px var(--pink); animation: pulseDot 1.2s infinite ease-in-out; }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.55; }
+    }
+
+    .radio-body { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 1.5vw; margin: auto 0; padding: 1vh 0; }
+    .radio-title-wrap { min-width: 0; flex: 1; }
+    .radio-name { font-size: clamp(26px, 2.8vw, 44px); font-weight: 850; letter-spacing: -0.04em; margin: 0; color: #fff; line-height: 1.05; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .now-playing-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; min-width: 0; }
+    .music-note { color: var(--cyan); font-size: clamp(13px, 1.05vw, 17px); flex-shrink: 0; }
+    #radio-status { color: #f1f5f9; font-size: clamp(12px, 1.05vw, 16px); font-weight: 650; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .play {
+      width: clamp(60px, 5.6vw, 84px);
+      height: clamp(60px, 5.6vw, 84px);
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(236, 72, 153, 0.42), rgba(15, 20, 41, 0.85));
+      border: 2.5px solid var(--pink);
+      color: #f472b6;
+      box-shadow: 0 0 28px rgba(236, 72, 153, 0.6), inset 0 0 15px rgba(236, 72, 153, 0.35);
+      display: grid;
+      place-items: center;
+      transition: transform 0.16s, box-shadow 0.16s;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+    .play:hover, .play:focus { outline: 2px solid #fff; outline-offset: 4px; transform: scale(1.06); box-shadow: 0 0 38px rgba(236, 72, 153, 0.9), inset 0 0 18px rgba(236, 72, 153, 0.5); }
+    .play svg { width: 42%; height: 42%; fill: currentColor; filter: drop-shadow(0 0 6px var(--pink)); }
+
+    .radio-stations { position: relative; z-index: 2; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .station-btn { padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: clamp(10px, 0.85vw, 13px); border: 1px solid rgba(255, 255, 255, 0.16); background: rgba(13, 17, 38, 0.65); backdrop-filter: blur(8px); color: #e2e8f0; transition: all 0.16s; }
+    .station-btn.active { background: var(--accent-grad); color: #fff; border-color: #f472b6; box-shadow: 0 0 18px var(--accent-shadow); }
+    .station-btn:hover, .station-btn:focus { outline: 2px solid #fff; }
+
+    /* Hoiatusbänner päises */
+    .alert-banner {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: center;
+      min-width: 0;
+      margin: 0 2vw;
+    }
+    .alert-banner[hidden] { display: none; }
+    .alert-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 100%;
+      padding: 0.8vh 1.4vw;
+      border-radius: 999px;
+      font-size: clamp(13px, 1.15vw, 19px);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: 1px solid var(--alert-c, #22d3ee);
+      color: #f8fafc;
+      background: color-mix(in srgb, var(--alert-c, #22d3ee) 22%, rgba(11, 15, 36, 0.85));
+      box-shadow: 0 0 22px color-mix(in srgb, var(--alert-c, #22d3ee) 45%, transparent);
+      animation: alertPulse 2.4s ease-in-out infinite;
+      transition: opacity 0.6s ease;
+    }
+    .alert-pill.fade { opacity: 0; }
+    .alert-count { font-size: 0.75em; opacity: 0.7; font-weight: 600; }
+    @keyframes alertPulse {
+      0%, 100% { box-shadow: 0 0 14px color-mix(in srgb, var(--alert-c, #22d3ee) 35%, transparent); }
+      50% { box-shadow: 0 0 30px color-mix(in srgb, var(--alert-c, #22d3ee) 70%, transparent); }
+    }
+
+    /* Ilmakaardi taustaefektid (lumi, vihm, tähed jne) */
+    .weather-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    .weather-card > :not(.weather-fx):not(.moon-bg) { position: relative; z-index: 2; }
+
+    /* Põlemiskaitse: kogu ekraan nihkub väga aeglaselt mõne piksli võrra */
+    .screen { transition: transform 40s ease-in-out; will-change: transform; }
+
+    /* Turuinfo riba jaluses */
+    .ticker { flex: 1 1 auto; min-width: 0; overflow: hidden; margin-right: 2vw; mask-image: linear-gradient(90deg, #000 92%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent); }
+    .ticker-track { display: inline-flex; align-items: baseline; gap: 1.5vw; white-space: nowrap; font-size: clamp(12px, 0.92vw, 17px); }
+    .ticker-track.scroll { animation: tickerMove var(--ticker-dur, 60s) linear infinite; }
+    @keyframes tickerMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .tk { display: inline-flex; align-items: baseline; gap: 0.4em; }
+    .tk-name { color: var(--muted); font-weight: 600; }
+    .tk-price { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .tk-chg { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .tk-up { color: #34d399; }
+    .tk-down { color: #fb7185; }
+    .tk-flat { color: var(--muted); }
+
+    footer { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: clamp(10px, 0.82vw, 13px); font-weight: 500; padding: 0 0.2vw; }
+    .theme-btn { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text); font-size: clamp(10px, 0.8vw, 12px); font-weight: 600; }
+    .theme-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); }
+
+    /* --- 3D VIRMALISTE MAAKERA MODAL --- */
+    .globe-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(6, 9, 25, 0.84);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      place-items: center;
+      padding: 2vh 2vw;
+    }
+    .globe-modal-backdrop.open { display: grid; }
+
+    .globe-modal-card {
+      width: min(860px, 94vw);
+      height: min(640px, 90vh);
+      border-radius: 26px;
+      border: 1px solid rgba(139, 92, 246, 0.38);
+      background:
+        radial-gradient(circle at 50% 48%, rgba(56, 189, 248, 0.12), rgba(15, 20, 44, 0.96) 70%),
+        #0b0f24;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(139, 92, 246, 0.22);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 20px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .globe-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 2;
+    }
+    .globe-title-box h3 {
+      margin: 0;
+      font-size: clamp(16px, 1.5vw, 22px);
+      font-weight: 850;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .globe-title-box p {
+      margin: 3px 0 0;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .globe-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .globe-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.16s;
+    }
+    .globe-btn.active {
+      background: var(--accent-grad);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent-shadow);
+    }
+    .globe-btn:hover, .globe-btn:focus {
+      outline: 2px solid var(--cyan);
+      color: #fff;
+    }
+
+    .globe-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      cursor: grab;
+    }
+    .globe-stage:active { cursor: grabbing; }
+    canvas#globe-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .globe-hud-left {
+      position: absolute;
+      left: 4px;
+      bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(11, 15, 36, 0.75);
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+      font-size: 12px;
+    }
+    .globe-hud-left strong { color: var(--cyan); }
+
+    .globe-modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      z-index: 2;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .aurora-scale {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 650;
+    }
+    .scale-bar {
+      width: 110px;
+      height: 8px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(16,185,129,0.25), #10b981, #a855f7, #ec4899);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    @media (max-aspect-ratio: 1/1) {
+      body { overflow: auto; min-width: 0; }
+      .screen { height: auto; min-height: 100vh; padding: 16px; }
+      main { grid-template-columns: 1fr; grid-template-rows: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <header>
+      <div class="brand"><span class="brand-mark"></span>KODUVAADE</div>
+      <div id="alert-banner" class="alert-banner" hidden>
+        <div id="alert-pill" class="alert-pill"><span id="alert-text"></span><span id="alert-count" class="alert-count"></span></div>
+      </div>
+      <div class="now">
+        <span id="clock">--:--</span>
+        <span class="now-sep">•</span>
+        <span id="date">--</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1. ELEKTRI BÖRSIHIND (ÜLEVAL VASAKUL) -->
+      <section class="card">
+        <div class="card-head">
+          <span class="label">Elektri börsihind • Eesti</span>
+          <span id="price-status" class="status-pill">VÄRSKE</span>
+        </div>
+
+        <div class="elec-body">
+          <div class="elec-left">
+            <div class="price-line">
+              <span id="price">--,--</span>
+              <span class="unit">s/kWh</span>
+            </div>
+            <div id="price-caption" class="price-caption">Laen elektrihinda…</div>
+          </div>
+
+          <div class="chart-wrap">
+            <canvas id="price-chart" aria-label="Elektrihinna graafik"></canvas>
+          </div>
+        </div>
+
+        <div class="elec-footer">
+          <div class="chart-legend">
+            <span><i style="background:var(--cyan)"></i>soodne</span>
+            <span><i style="background:var(--purple)"></i>keskmine</span>
+            <span><i style="background:var(--pink)"></i>kallis</span>
+          </div>
+          <div class="elec-stats-inline">
+            <span>Keskm: <strong id="average">-- s</strong></span>
+            <span>Järgm: <strong id="next-price">-- s</strong></span>
+            <span>Max: <strong id="lowest">-- s</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. ILM & PROGNOOS (ÜLEVAL PAREMAL) -->
+      <section class="card weather-card">
+        <canvas id="weather-fx" class="weather-fx" aria-hidden="true"></canvas>
+        <canvas id="moon-canvas" class="moon-bg" aria-hidden="true"></canvas>
+        <div class="card-head">
+          <span class="label">Ilm & Prognoos • <span id="location" class="location-badge">Tuvastan asukohta…</span></span>
+          <span class="moon-label" id="moon-label"></span>
+          <div class="loc-controls">
+            <select id="place-select" class="pill-btn place-select" aria-label="Vali asukoht"></select>
+            <button id="location-button" class="pill-btn">📍 Uuenda</button>
+          </div>
+        </div>
+
+        <div class="weather-middle">
+          <div class="weather-main-temp">
+            <div id="weather-temp">--°</div>
+            <div id="weather-icon" class="weather-icon">☀️</div>
+          </div>
+
+          <div class="weather-metrics-grid">
+            <div class="w-metric">
+              <span class="w-metric-label">Tajutav</span>
+              <span class="w-metric-val" id="yr-feels">--°C</span>
+            </div>
+            <div class="w-metric">
+              <span class="w-metric-label">Tuul (puhang)</span>
+              <span class="w-metric-val"><span id="yr-wind">-- m/s</span> <span id="yr-wind-arrow">↗</span></span>
+            </div>
+            <div class="w-metric">
+              <span class="w-metric-label">Sademed (1h)</span>
+              <span class="w-metric-val" id="yr-precip">0.0 mm</span>
+            </div>
+            <div class="w-metric">
+              <span class="w-metric-label">Õhuniiskus</span>
+              <span class="w-metric-val" id="yr-humidity">--%</span>
+            </div>
+            <div class="w-metric">
+              <span class="w-metric-label">Õhurõhk</span>
+              <span class="w-metric-val" id="yr-pressure">---- hPa</span>
+            </div>
+            <div class="w-metric">
+              <span class="w-metric-label">Päike täna</span>
+              <span class="w-metric-val" id="yr-sun">↑ --:-- ↓ --:--</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="forecast" class="forecast" aria-label="Viie päeva ilmaennustus"></div>
+      </section>
+
+      <!-- 3. VIRMALISED & RANNAINFO + 3D KAART (ALL VASAKUL) -->
+      <section class="card multi-card" id="multi-card">
+        <canvas id="aurora-canvas" class="multi-bg-canvas" aria-hidden="true"></canvas>
+
+        <div class="card-head">
+          <span class="label" id="multi-card-title">Virmaliste Radar • <span id="aurora-loc-label" class="location-badge">Pärnu</span></span>
+          <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="aurora" id="tab-mode-aurora">🌌 Virmalised</button>
+            <button class="mode-tab" data-mode="beach" id="tab-mode-beach">🏖️ Rannainfo</button>
+            <button class="map-open-btn" id="btn-open-globe" title="Ava 3D virmaliste maakera">🌍 Kaart</button>
+          </div>
+        </div>
+
+        <!-- VAADE 1: VIRMALISED -->
+        <div class="multi-panel gauge-panel-layout active" id="panel-aurora">
+          <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 200 135">
+              <defs>
+                <linearGradient id="auroraGaugeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#22d3ee" />
+                  <stop offset="45%" stop-color="#10b981" />
+                  <stop offset="75%" stop-color="#a855f7" />
+                  <stop offset="100%" stop-color="#ec4899" />
+                </linearGradient>
+              </defs>
+              <path class="gauge-track" d="M 20 110 A 80 80 0 0 1 180 110" />
+              <path id="aurora-gauge-arc" class="gauge-fill" d="M 20 110 A 80 80 0 0 1 180 110" />
+            </svg>
+            <div class="gauge-center">
+              <div id="aurora-prob" class="gauge-big-num">--%</div>
+              <div id="aurora-verdict" class="gauge-verdict">LAEN ANDMEID</div>
+              <div id="aurora-subverdict" class="gauge-subverdict">Vaatlusvõimalus praegu</div>
+            </div>
+          </div>
+
+          <div class="aurora-metrics-grid">
+            <div class="a-metric">
+              <span class="a-metric-label">Kp-indeks (0–9)</span>
+              <span class="a-metric-val" id="au-kp">Kp --</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Magnetväli (Bz)</span>
+              <span class="a-metric-val" id="au-bz">-- nT</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Päikesetuul</span>
+              <span class="a-metric-val" id="au-speed">--- km/s</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Kohalik pilvisus</span>
+              <span class="a-metric-val" id="au-clouds">--%</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Valgusolud</span>
+              <span class="a-metric-val" id="au-darkness">Kontrollin…</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Vaatluslaius</span>
+              <span class="a-metric-val" id="au-lat">--.-° N</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VAADE 2: RANNAINFO & SUVI -->
+        <div class="multi-panel gauge-panel-layout" id="panel-beach">
+          <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 200 135">
+              <defs>
+                <linearGradient id="beachGaugeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="50%" stop-color="#fbbf24" />
+                  <stop offset="100%" stop-color="#ec4899" />
+                </linearGradient>
+              </defs>
+              <path class="gauge-track" d="M 20 110 A 80 80 0 0 1 180 110" />
+              <path id="beach-gauge-arc" class="gauge-fill" style="stroke:url(#beachGaugeGrad)" d="M 20 110 A 80 80 0 0 1 180 110" />
+            </svg>
+            <div class="gauge-center">
+              <div id="beach-score" class="gauge-big-num">--%</div>
+              <div id="beach-verdict" class="gauge-verdict">LAEN ANDMEID</div>
+              <div id="beach-subverdict" class="gauge-subverdict">Rannailma indeks</div>
+            </div>
+          </div>
+
+          <div class="aurora-metrics-grid">
+            <div class="a-metric">
+              <span class="a-metric-label" id="bc-water-label">Merevesi</span>
+              <span class="a-metric-val" id="bc-water">--.-°C</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">UV-indeks</span>
+              <span class="a-metric-val" id="bc-uv">UV --</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Äikeseoht (CAPE)</span>
+              <span class="a-metric-val" id="bc-cape">Madal</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label" id="bc-waves-label">Lainekõrgus</span>
+              <span class="a-metric-val" id="bc-waves">-- m</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Õhukvaliteet</span>
+              <span class="a-metric-val" id="bc-aqi">Hea (AQI --)</span>
+            </div>
+            <div class="a-metric">
+              <span class="a-metric-label">Õietolm</span>
+              <span class="a-metric-val" id="bc-pollen">Madal</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="multi-footer">
+          <span id="multi-footer-advice">Vajuta "🌍 Kaart", et näha virmaliste reaalajas asukohta 3D maakeral</span>
+          <span id="multi-footer-source" style="white-space:nowrap"><strong>NOAA & Yr.no</strong></span>
+        </div>
+      </section>
+
+      <!-- 4. RAADIO & STRIIMID (ALL PAREMAL) -->
+      <section id="radio-card" class="card radio">
+        <canvas id="radio-visualizer" class="radio-bg-canvas" aria-hidden="true"></canvas>
+
+        <div class="card-head">
+          <span class="label">Raadio & Striimid</span>
+          <div class="live-indicator">
+            <span class="live-dot"></span>
+            <span id="live-badge-text">OOTEL</span>
+          </div>
+        </div>
+
+        <div class="radio-body">
+          <div class="radio-title-wrap">
+            <h2 id="current-station-name" class="radio-name">SKY PLUS</h2>
+            <div class="now-playing-row">
+              <span class="music-note">🎵</span>
+              <span id="radio-status">Vali jaam ja vajuta Play</span>
+            </div>
+          </div>
+
+          <button id="play-button" class="play" aria-label="Mängi raadiot">
+            <svg id="play-icon" viewBox="0 0 24 24">
+              <path d="M8 5.14v14l11-7-11-7z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="radio-stations">
+          <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">Sky Plus</button>
+          <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">WKNDMX</button>
+          <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">Q-Dance</button>
+          <button id="btn-station-hardcore" class="station-btn" data-name="SUNSHINE HARDCORE" data-url="https://stream.sunshine-live.de/Hardcore/mp3-192/stream.sunshine-live.de/">Hardcore</button>
+          <button id="btn-station-dnb" class="station-btn" data-name="SUNSHINE LIVE DNB" data-url="https://stream.sunshine-live.de/dnb/mp3-192/stream.sunshine-live.de/">DnB</button>
+        </div>
+
+        <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
+      </section>
+    </main>
+
+    <footer>
+      <div id="ticker" class="ticker" aria-label="Turuinfo"><div id="ticker-track" class="ticker-track"><span class="tk"><span class="tk-name">Laen turuinfot…</span></span></div></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;white-space:nowrap;">
+        <div class="theme-btn" title="Aktiivsed vaatajad hetkel lehel">
+          <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;"></span>
+          <span id="online-count">1 lehel</span>
+        </div>
+        <button id="theme-button" class="theme-btn">
+          <span class="theme-dot"></span>
+          <span>Teema: <strong id="theme-name">Midnight Indigo</strong></span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 3D VIRMALISTE MAAKERA MODAL -->
+  <div class="globe-modal-backdrop" id="globe-modal" role="dialog" aria-modal="true" aria-label="3D Virmaliste Maakera">
+    <div class="globe-modal-card">
+      <div class="globe-modal-head">
+        <div class="globe-title-box">
+          <h3>🌍 Reaalajas 3D Virmaliste Maakera</h3>
+          <p>Lohista hiire või sõrmega pööramiseks • Helendav vöönd näitab virmaliste hetkeasukohta</p>
+        </div>
+        <div class="globe-controls">
+          <button class="globe-btn active" id="btn-globe-spin">🔄 Pöörlemine</button>
+          <button class="globe-btn" id="btn-globe-estonia">📍 Keskenda minule</button>
+          <button class="globe-btn" id="btn-globe-close" style="border-color:rgba(244,63,94,0.5);color:#fda4af;">✕ Sulge</button>
+        </div>
+      </div>
+
+      <div class="globe-stage" id="globe-stage">
+        <canvas id="globe-canvas"></canvas>
+        <div class="globe-hud-left">
+          <div>Kp-indeks: <strong id="globe-hud-kp">Kp --</strong></div>
+          <div>Magnetväli Bz: <strong id="globe-hud-bz">-- nT</strong></div>
+          <div>Päikesetuul: <strong id="globe-hud-speed">--- km/s</strong></div>
+          <div>Asukoht: <strong id="globe-hud-loc">Pärnu</strong></div>
+        </div>
+      </div>
+
+      <div class="globe-modal-foot">
+        <div class="aurora-scale">
+          <span>Virmaliste intensiivsus:</span>
+          <div class="scale-bar"></div>
+          <span>Nõrk (Roheline) → Torm (Lilla / Roosa)</span>
+        </div>
+        <span id="globe-data-status">NOAA OVATION & Geomagnetic Oval</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const fmt = (value, d = 2) => Number(value).toLocaleString('et-EE', {minimumFractionDigits: d, maximumFractionDigits: d});
+    let prices = [];
+
+    // --- TEEMADE VAHETUS ---
+    const themes = [
+      { id: 'indigo', name: 'Midnight Indigo', color: '#0b0f24' },
+      { id: 'ocean',  name: 'Ookean',          color: '#07121f' },
+      { id: 'oled',   name: 'OLED Kuld',       color: '#050508' }
+    ];
+
+    function applyTheme(themeId) {
+      const theme = themes.find(t => t.id === themeId) || themes[0];
+      document.documentElement.setAttribute('data-theme', theme.id);
+      $('theme-name').textContent = theme.name;
+      try { localStorage.setItem('koduvaade_theme', theme.id); } catch(e) {}
+      if (prices.length) {
+        const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000);
+        drawChart(prices.filter(p => p.time >= (current?.time ?? now)).slice(0, 18));
+      }
+    }
+
+    $('theme-button').addEventListener('click', () => {
+      const currentId = document.documentElement.getAttribute('data-theme') || 'indigo';
+      const nextIndex = (themes.findIndex(t => t.id === currentId) + 1) % themes.length;
+      applyTheme(themes[nextIndex].id);
+    });
+
+    try {
+      const savedTheme = localStorage.getItem('koduvaade_theme');
+      if (savedTheme) applyTheme(savedTheme);
+    } catch(e) {}
+
+    // --- KELL JA KUUPÄEV ---
+    function updateClock(){
+      const d = new Date();
+      $('clock').textContent = d.toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'});
+      $('date').textContent = d.toLocaleDateString('et-EE', {weekday:'long', day:'numeric', month:'long'});
+    }
+
+    async function fetchJson(endpoint, timeoutMs = 5500){
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(endpoint, {cache:'no-store', signal:controller.signal});
+        if(!response.ok) throw Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        return typeof json === 'string' ? JSON.parse(json) : json;
+      } finally { clearTimeout(timer); }
+    }
+
+    // --- 1. ELEKTRIHIND JA GRAAFIK ---
+    function drawChart(data){
+      const canvas = $('price-chart');
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d'), rect = canvas.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+      canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr);
+      const w = rect.width, h = rect.height;
+      if(data.length < 2) return;
+
+      const styles = getComputedStyle(document.documentElement);
+      const colCyan = styles.getPropertyValue('--cyan').trim() || '#22d3ee';
+      const colPurple = styles.getPropertyValue('--purple').trim() || '#a855f7';
+      const colPink = styles.getPropertyValue('--pink').trim() || '#ec4899';
+
+      const values = data.map(x => x.price), max = Math.max(...values, 1), average = values.reduce((s, v) => s + v, 0) / values.length;
+      const left = 4, right = 4, top = 20, bottom = 18, chartHeight = h - top - bottom;
+      const slot = (w - left - right) / data.length, barWidth = Math.max(4, slot - 5), now = Date.now();
+
+      data.forEach((point, index) => {
+        const x = left + index * slot + (slot - barWidth) / 2;
+        const barHeight = Math.max(4, (Math.max(0, point.price) / max) * chartHeight);
+        const y = top + chartHeight - barHeight;
+
+        const color = point.price <= average * 0.8 ? colCyan : point.price <= average * 1.25 ? colPurple : colPink;
+
+        ctx.shadowColor = color;
+        ctx.shadowBlur = point.price > average * 1.25 ? 8 : 0;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, barHeight, 3);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        if(point.time <= now && now < point.time + 3600000){
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(x - 1, y - 1, barWidth + 2, barHeight + 2);
+        }
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '700 9.5px system-ui';
+        ctx.textAlign = 'center';
+        const priceLabel = point.price >= 100 ? Math.round(point.price).toString() : point.price.toFixed(1);
+        ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '600 9px system-ui';
+        ctx.fillText(new Date(point.time).toLocaleTimeString('et-EE', {hour:'2-digit'}), x + barWidth / 2, h - 3);
+      });
+    }
+
+    async function loadElectricity(){
+      const start = new Date(); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 2);
+      try {
+        const params = `start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`;
+        const endpoints = [`/api/elering?${params}`, `https://dashboard.elering.ee/api/nps/price?${params}`];
+
+        let json = null;
+        for (const ep of endpoints) {
+          try { json = await fetchJson(ep); if (json?.data?.ee?.length) break; } catch(e) {}
+        }
+
+        const raw = json?.data?.ee || [];
+        const quarterPrices = raw.map(v => {
+          const time = Number(v.timestamp ?? v[0]);
+          return {time: time < 20000000000 ? time * 1000 : time, price: Number(v.price ?? v[1]) / 10};
+        }).filter(v => Number.isFinite(v.time) && Number.isFinite(v.price));
+
+        const byHour = new Map();
+        for(const entry of quarterPrices){
+          const hour = new Date(entry.time); hour.setMinutes(0,0,0);
+          const key = hour.getTime();
+          const bucket = byHour.get(key) || {time: key, sum: 0, count: 0};
+          bucket.sum += entry.price; bucket.count++;
+          byHour.set(key, bucket);
+        }
+
+        const rangeStart = new Date(); rangeStart.setHours(0,0,0,0);
+        const rangeEnd = new Date(rangeStart); rangeEnd.setDate(rangeEnd.getDate() + 2);
+
+        prices = [...byHour.values()]
+          .map(item => ({time: item.time, price: (item.sum / item.count) * 1.24}))
+          .filter(item => item.time >= rangeStart.getTime() && item.time < rangeEnd.getTime())
+          .sort((a, b) => a.time - b.time);
+
+        if(!prices.length) throw Error('Hinnakirjeid ei leitud');
+
+        const now = Date.now();
+        const current = prices.find(p => p.time <= now && now < p.time + 3600000) || prices[0];
+        const upcoming = prices.find(p => p.time > current.time) || current;
+        elecState = { now: current, prices };
+        updateAlerts();
+
+        $('price').textContent = fmt(current.price);
+        $('price-caption').textContent = `Praegu ${new Date(current.time).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})}–${new Date(current.time+3600000).toLocaleTimeString('et-EE', {hour:'2-digit', minute:'2-digit'})} • km-ga`;
+        $('average').textContent = `${fmt(prices.reduce((s, p) => s + p.price, 0) / prices.length)} s`;
+        $('next-price').textContent = `${fmt(upcoming.price)} s`;
+        const high = prices.reduce((a, b) => a.price > b.price ? a : b);
+        $('lowest').textContent = `${fmt(high.price)} s`;
+        $('price-status').textContent = 'VÄRSKE';
+        $('price-status').className = 'status-pill';
+
+        drawChart(prices.filter(p => p.time >= current.time).slice(0, 18));
+      } catch(e) {
+        $('price-status').textContent = 'TÕRGE';
+        $('price-status').className = 'status-pill error';
+      }
+    }
+
+    // --- 2. AUTOMAATNE ASUKOHT + YR.NO ILM ---
+    let weatherPlace = { name: 'Pärnu', lat: 58.3859, lon: 24.4971, source: 'default' };
+    let localCloudCover = 35;
+    let currentAirTemp = 15;
+    let currentWindSpeed = 4;
+
+    // Käsitsi valitavad kohad. Uue koha lisamiseks kopeeri rida ja muuda nimi + koordinaadid.
+    const PLACE_PRESETS = [
+      { name: 'Pärnu',     lat: 58.3859, lon: 24.4971 },
+      { name: 'Vändra',    lat: 58.6481, lon: 25.0361 },
+      { name: 'Tallinn',   lat: 59.4370, lon: 24.7536 },
+      { name: 'Tartu',     lat: 58.3780, lon: 26.7290 },
+      { name: 'Helsinki',  lat: 60.1699, lon: 24.9384 },
+      { name: 'Turku',     lat: 60.4518, lon: 22.2666 },
+      { name: 'Tampere',   lat: 61.4978, lon: 23.7610 },
+      { name: 'Oulu',      lat: 65.0121, lon: 25.4651 },
+      { name: 'Rovaniemi', lat: 66.5039, lon: 25.7294 }
+    ];
+
+    // source: 'gps' (seadme asukoht), 'ip' (ligikaudne), 'manual' (ise valitud), 'default'
+    try {
+      const parsed = JSON.parse(localStorage.getItem('koduvaade_place') || 'null');
+      if (parsed && parsed.name && Number.isFinite(Number(parsed.lat)) && Number.isFinite(Number(parsed.lon))) {
+        weatherPlace = { name: parsed.name, lat: Number(parsed.lat), lon: Number(parsed.lon), source: parsed.source || 'ip' };
+      }
+    } catch(e) {}
+
+    function savePlace() {
+      try { localStorage.setItem('koduvaade_place', JSON.stringify(weatherPlace)); } catch(e) {}
+    }
+
+    function distanceKm(lat1, lon1, lat2, lon2) {
+      const rad = Math.PI / 180;
+      const a = Math.sin((lat2 - lat1) * rad / 2) ** 2 +
+                Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin((lon2 - lon1) * rad / 2) ** 2;
+      return 12742 * Math.asin(Math.sqrt(a));
+    }
+
+    async function placeNameFromCoordinates(lat, lon) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=10&accept-language=et`;
+        const response = await fetchJson(url, 4000);
+        const addr = response?.address || {};
+        const name = addr.city || addr.town || addr.village || addr.municipality || addr.county || response?.name;
+        if (name) return name.replace(/ linn$| vald$| maakond$/i, '');
+      } catch(e) {}
+      try {
+        const url2 = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&localityLanguage=et`;
+        const response2 = await fetchJson(url2, 4000);
+        const name2 = response2?.city || response2?.locality || response2?.principalSubdivision;
+        if (name2) return name2.replace(/ linn$| vald$| maakond$/i, '');
+      } catch(e) {}
+      return weatherPlace.name || 'Pärnu';
+    }
+
+    function fillPlaceSelect() {
+      $('place-select').innerHTML = '<option value="auto">📍 Automaatne</option>' +
+        PLACE_PRESETS.map((p, i) => `<option value="${i}">${p.name}</option>`).join('');
+      syncPlaceSelect();
+    }
+
+    function syncPlaceSelect() {
+      const idx = weatherPlace.source === 'manual' ? PLACE_PRESETS.findIndex(p => p.name === weatherPlace.name) : -1;
+      $('place-select').value = idx >= 0 ? String(idx) : 'auto';
+    }
+
+    // Laeb kõik asukohast sõltuva uuesti: ilm, virmalised, lähim rand
+    async function refreshForPlace() {
+      syncPlaceSelect();
+      $('globe-hud-loc').textContent = `${weatherPlace.name} (${Number(weatherPlace.lat).toFixed(1)}°N)`;
+      switchMode(activeMode);
+      await loadWeather();
+      await Promise.all([loadAurora(), loadBeachInfo()]);
+    }
+
+    async function autoDetectLocation(forceGps = false) {
+      // Ise valitud kohta automaatika üle ei kirjuta (v.a "Uuenda" nupp)
+      if (weatherPlace.source === 'manual' && !forceGps) return;
+
+      const btn = $('location-button');
+      btn.textContent = '📍 Tuvastan…';
+
+      let coords = await new Promise(resolve => {
+        if (!navigator.geolocation) return resolve(null);
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({ lat: Number(pos.coords.latitude.toFixed(4)), lon: Number(pos.coords.longitude.toFixed(4)) }),
+          () => resolve(null),
+          { enableHighAccuracy: false, timeout: forceGps ? 8000 : 3500, maximumAge: 600000 }
+        );
+      });
+      let source = 'gps';
+
+      // GPS puudub (nt telekas). Kui koht on varem GPS-iga leitud, jääb see kehtima;
+      // IP-põhist (ebatäpset) asukohta kasutame ainult siis, kui paremat pole.
+      if (!coords && (forceGps || weatherPlace.source !== 'gps')) {
+        source = 'ip';
+        for (const api of ['https://ipwho.is/', 'https://ipapi.co/json/']) {
+          try {
+            const d = await fetchJson(api, 3500);
+            const lat = Number(d?.latitude ?? d?.lat);
+            const lon = Number(d?.longitude ?? d?.lon);
+            if (Number.isFinite(lat) && Number.isFinite(lon)) {
+              coords = { lat: Number(lat.toFixed(4)), lon: Number(lon.toFixed(4)), cityHint: d.city };
+              break;
+            }
+          } catch(e) {}
+        }
+      }
+
+      btn.textContent = '📍 Uuenda';
+      if (!coords) { syncPlaceSelect(); return; }
+
+      const moved = distanceKm(weatherPlace.lat, weatherPlace.lon, coords.lat, coords.lon) > 2;
+      const wasManual = weatherPlace.source === 'manual';
+      if (moved || wasManual) {
+        const cityName = await placeNameFromCoordinates(coords.lat, coords.lon) || coords.cityHint || 'Pärnu';
+        weatherPlace = { name: cityName, lat: coords.lat, lon: coords.lon, source };
+      } else {
+        weatherPlace.source = source;
+      }
+      savePlace();
+
+      if (moved || wasManual || forceGps) await refreshForPlace();
+      else syncPlaceSelect();
+    }
+
+    // Avamisel: näita kohe viimast teadaolevat kohta, seejärel täpsusta asukohta taustal
+    async function startLocation() {
+      await refreshForPlace();
+      await autoDetectLocation(false);
+    }
+
+    $('location-button').addEventListener('click', () => autoDetectLocation(true));
+
+    $('place-select').addEventListener('change', e => {
+      if (e.target.value === 'auto') {
+        weatherPlace.source = 'default';
+        savePlace();
+        autoDetectLocation(true);
+        return;
+      }
+      const preset = PLACE_PRESETS[Number(e.target.value)];
+      if (!preset) return;
+      weatherPlace = { ...preset, source: 'manual' };
+      savePlace();
+      refreshForPlace();
+    });
+
+    // Yr.no sümbolikoodid: https://api.met.no/weatherapi/weathericon/2.0/documentation
+    // Kontrollime märksõnu, et kõik variandid (light/heavy, showers, andthunder) saaksid õige ikooni.
+    function getWeatherIcon(symbol) {
+      if (!symbol) return '☁️';
+      const isNight = symbol.includes('_night');
+      const base = symbol.replace(/_(day|night|polartwilight)$/, '');
+      if (base.includes('thunder')) return '⛈️';
+      if (base.includes('snow')) return base.includes('showers') && !isNight ? '🌨️' : '❄️';
+      if (base.includes('sleet')) return '🌨️';
+      if (base.includes('rain')) return base.includes('showers') && !isNight ? '🌦️' : '🌧️';
+      switch (base) {
+        case 'clearsky': return isNight ? '🌙' : '☀️';
+        case 'fair': return isNight ? '🌙' : '🌤️';
+        case 'partlycloudy': return isNight ? '☁️' : '⛅';
+        case 'cloudy': return '☁️';
+        case 'fog': return '🌫️';
+        default: return '☁️';
+      }
+    }
+
+    function getSunTimes(lat, lon) {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const dayOfYear = Math.floor((now - start) / 86400000);
+      const rad = Math.PI / 180;
+      const decl = 23.45 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+      const cosH = -Math.tan(lat * rad) * Math.tan(decl * rad);
+      if (cosH < -1) return { rise: 'Polaarpäev', set: '', isDark: false };
+      if (cosH > 1) return { rise: 'Polaaröö', set: '', isDark: true };
+      const H = Math.acos(cosH) / rad / 15;
+      const tzOffset = -now.getTimezoneOffset() / 60;
+      const solarNoon = 12 - (lon / 15) + tzOffset;
+      const riseH = (solarNoon - H + 24) % 24;
+      const setH = (solarNoon + H + 24) % 24;
+      const currentH = now.getHours() + now.getMinutes() / 60;
+      const isDark = currentH >= (setH + 0.7) || currentH <= (riseH - 0.7);
+
+      const fmtHr = h => {
+        const norm = (h + 24) % 24;
+        const hh = Math.floor(norm);
+        const mm = Math.round((norm - hh) * 60);
+        return `${String(hh).padStart(2,'0')}:${String(mm === 60 ? 59 : mm).padStart(2,'0')}`;
+      };
+      return { rise: fmtHr(riseH), set: fmtHr(setH), isDark };
+    }
+
+    // Päikese kõrgus horisondist kraadides (miinus = horisondi all). Töötab ka valgete ööde ajal.
+    function sunAltitudeDeg(lat, lon, date = new Date()) {
+      const rad = Math.PI / 180;
+      const dayOfYear = (date.getTime() - Date.UTC(date.getUTCFullYear(), 0, 0)) / 86400000;
+      const decl = 23.45 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+      const utcH = date.getUTCHours() + date.getUTCMinutes() / 60;
+      const hourAngle = (((utcH + lon / 15) % 24 + 24) % 24 - 12) * 15;
+      const sinAlt = Math.sin(lat * rad) * Math.sin(decl * rad) +
+                     Math.cos(lat * rad) * Math.cos(decl * rad) * Math.cos(hourAngle * rad);
+      return Math.asin(Math.max(-1, Math.min(1, sinAlt))) / rad;
+    }
+
+    function renderForecast(timeseries){
+      const days = new Map();
+      for(const item of timeseries){
+        const date = new Date(item.time), key = date.toDateString();
+        if(!days.has(key)) days.set(key, {date, min:Infinity, max:-Infinity, representative:null, distance:Infinity});
+        const day = days.get(key), details = item.data.instant.details;
+        day.min = Math.min(day.min, details.air_temperature);
+        day.max = Math.max(day.max, details.air_temperature);
+        const distance = Math.abs(date.getHours() - 13);
+        if(distance < day.distance){ day.distance = distance; day.representative = item; }
+      }
+      const selected = [...days.values()].filter(day => day.date >= new Date(new Date().setHours(0,0,0,0))).slice(0, 5);
+      $('forecast').innerHTML = selected.map((day, index) => {
+        const symbol = day.representative?.data.next_1_hours?.summary?.symbol_code || day.representative?.data.next_6_hours?.summary?.symbol_code || 'fair_day';
+        const icon = getWeatherIcon(symbol);
+        const name = index === 0 ? 'TÄNA' : (index === 1 ? 'HOMME' : day.date.toLocaleDateString('et-EE', {weekday:'short'}).replace('.', '').toUpperCase());
+        return `<div class="forecast-day"><span class="forecast-name">${name}</span><span class="forecast-icon">${icon}</span><span class="forecast-temp">${Math.round(day.min)}°/${Math.round(day.max)}°</span></div>`;
+      }).join('');
+    }
+
+    async function loadWeather(){
+      try {
+        const r = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${weatherPlace.lat}&lon=${weatherPlace.lon}`);
+        if(!r.ok) throw Error();
+        const json = await r.json();
+        const timeseries = json.properties.timeseries;
+        // Viimane prognoosirida, mis on juba alanud (mitte esimene rida, mis võib olla vana)
+        const nowMs = Date.now();
+        const currentItem = timeseries.filter(t => new Date(t.time).getTime() <= nowMs).pop() || timeseries[0];
+        const p = currentItem.data.instant.details;
+        const symbol = currentItem.data.next_1_hours?.summary?.symbol_code || currentItem.data.next_6_hours?.summary?.symbol_code || 'fair_day';
+
+        currentAirTemp = p.air_temperature ?? 15;
+        currentWindSpeed = p.wind_speed ?? 4;
+
+        $('weather-temp').textContent = `${Math.round(p.air_temperature)}°`;
+        $('weather-icon').textContent = getWeatherIcon(symbol);
+        $('location').textContent = `${weatherPlace.name} • Yr.no`;
+
+        if (p.cloud_area_fraction !== undefined) {
+          localCloudCover = Math.round(p.cloud_area_fraction);
+        }
+
+        const precip = currentItem.data.next_1_hours?.details?.precipitation_amount ?? 0;
+        $('yr-precip').textContent = `${precip} mm`;
+
+        const speed = Math.round(p.wind_speed || 0);
+        const gust = p.wind_speed_of_gust ? Math.round(p.wind_speed_of_gust) : speed;
+        $('yr-wind').textContent = `${speed} (${gust}) m/s`;
+
+        if (p.wind_from_direction !== undefined) {
+          $('yr-wind-arrow').style.transform = `rotate(${p.wind_from_direction + 180}deg)`;
+        }
+
+        const t = p.air_temperature, v = (p.wind_speed || 0) * 3.6;
+        let feelsLike = t;
+        if (t <= 10 && v >= 4.8) {
+          feelsLike = 13.12 + 0.6215 * t - 11.37 * Math.pow(v, 0.16) + 0.3965 * t * Math.pow(v, 0.16);
+        }
+        $('yr-feels').textContent = `${Math.round(feelsLike)}°C`;
+
+        $('yr-humidity').textContent = p.relative_humidity !== undefined ? `${Math.round(p.relative_humidity)}%` : '--%';
+        $('yr-pressure').textContent = p.air_pressure_at_sea_level !== undefined ? `${Math.round(p.air_pressure_at_sea_level)} hPa` : '---- hPa';
+
+        const sun = getSunTimes(Number(weatherPlace.lat), Number(weatherPlace.lon));
+        $('yr-sun').textContent = `↑ ${sun.rise}  ↓ ${sun.set}`;
+
+        renderForecast(timeseries);
+        weatherSeries = timeseries;
+        weatherAlerts = buildWeatherAlerts(timeseries);
+        setWeatherFx(symbol, precip, sun.isDark);
+        updateAlerts();
+      } catch(e){}
+    }
+
+    // --- 3. VIRMALISED & RANNAINFO MOODUL ---
+    const currentMonth = new Date().getMonth();
+    let activeMode = (currentMonth >= 4 && currentMonth <= 7) ? 'beach' : 'aurora';
+    let auroraAdviceText = 'Vajuta "🌍 Kaart", et näha virmaliste reaalajas asukohta 3D maakeral';
+    let beachAdviceText = 'Lähima ranna vee-, UV- ja ilmainfo';
+
+    // Rannad, mille seast valitakse asukohale lähim. Lisa ridu juurde, kui vaja.
+    // type: 'sea' = merevee andmed Open-Meteost, 'lake' = järve veetemperatuur SYKE mõõtejaamast (ainult Soome)
+    const BEACHES = [
+      { name: 'Pärnu',        lat: 58.370, lon: 24.490, type: 'sea' },
+      { name: 'Haapsalu',     lat: 58.935, lon: 23.515, type: 'sea' },
+      { name: 'Kuressaare',   lat: 58.243, lon: 22.480, type: 'sea' },
+      { name: 'Pirita',       lat: 59.470, lon: 24.830, type: 'sea' },
+      { name: 'Narva-Jõesuu', lat: 59.465, lon: 28.035, type: 'sea' },
+      { name: 'Helsinki',     lat: 60.172, lon: 24.905, type: 'sea' },
+      { name: 'Hanko',        lat: 59.820, lon: 22.960, type: 'sea' },
+      { name: 'Kotka',        lat: 60.450, lon: 26.950, type: 'sea' },
+      { name: 'Turku',        lat: 60.425, lon: 22.100, type: 'sea' },
+      { name: 'Yyteri',       lat: 61.565, lon: 21.525, type: 'sea' },
+      { name: 'Vaasa',        lat: 63.090, lon: 21.570, type: 'sea' },
+      { name: 'Oulu',         lat: 65.030, lon: 25.410, type: 'sea' },
+      { name: 'Kalmarinranta', lat: 61.168, lon: 25.552, type: 'lake', lake: 'Vesijärvi' }
+    ];
+
+    function currentBeach() {
+      let best = null;
+      for (const b of BEACHES) {
+        const km = distanceKm(Number(weatherPlace.lat), Number(weatherPlace.lon), b.lat, b.lon);
+        if (!best || km < best.km) best = { ...b, km };
+      }
+      return best;
+    }
+
+    const beachLabel = b => b.km < 3 ? (/rand|ranta/i.test(b.name) ? b.name : `${b.name} rand`) : `${b.name} · ${Math.round(b.km)} km`;
+
+    function switchMode(mode) {
+      activeMode = mode;
+      document.querySelectorAll('.mode-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      $('panel-aurora').classList.toggle('active', mode === 'aurora');
+      $('panel-beach').classList.toggle('active', mode === 'beach');
+
+      const locName = weatherPlace.name || 'Pärnu';
+      if (mode === 'aurora') {
+        $('multi-card-title').innerHTML = `Virmaliste Radar • <span class="location-badge">${locName}</span>`;
+        $('multi-footer-advice').innerHTML = auroraForecastHtml || auroraAdviceText;
+        $('multi-footer-source').innerHTML = `<strong>NOAA & Yr.no</strong>`;
+      } else {
+        $('multi-card-title').innerHTML = `Lähim rand • <span class="location-badge">${beachLabel(currentBeach())}</span>`;
+        $('multi-footer-advice').textContent = beachAdviceText;
+        $('multi-footer-source').innerHTML = currentBeach().type === 'lake' ? `Allikas: <strong>SYKE & Open-Meteo</strong>` : `Allikas: <strong>Open-Meteo Marine & Air</strong>`;
+      }
+    }
+
+    document.querySelectorAll('.mode-tab').forEach(btn => {
+      btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+    });
+
+    // 3A. VIRMALISTE RADAR (NOAA)
+    let currentAuroraProb = 0;
+    let liveKp = 2.6;      // algväärtused ainult 3D maakera joonistamiseks, kuni NOAA vastab
+    let liveBz = -2.1;
+    let liveSpeed = 420;
+    let kpLoaded = false, bzLoaded = false, speedLoaded = false;
+
+    // NOAA tabelist viimane kehtiv number (toetab nii ridu-massiividena kui objektidena)
+    function lastValue(rows, index, keys) {
+      if (!Array.isArray(rows)) return null;
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const row = rows[i];
+        let raw = null;
+        if (Array.isArray(row)) raw = row[index];
+        else if (row) for (const k of keys) { if (row[k] !== undefined) { raw = row[k]; break; } }
+        const val = parseFloat(raw);
+        if (Number.isFinite(val)) return val;
+      }
+      return null;
+    }
+
+    // Geomagnetiline laius: virmaliste jaoks loeb kaugus magnetpoolusest, mitte geograafilisest
+    function geomagneticLat(lat, lon) {
+      const rad = Math.PI / 180, poleLat = 80.6, poleLon = -72.6;
+      const s = Math.sin(lat * rad) * Math.sin(poleLat * rad) +
+                Math.cos(lat * rad) * Math.cos(poleLat * rad) * Math.cos((lon - poleLon) * rad);
+      return Math.asin(Math.max(-1, Math.min(1, s))) / rad;
+    }
+
+    // Virmaliste nägemise võimalus = kosmoseilm × pimedus × selge taevas
+    function auroraChance({ kp, bz, speed, lat, lon, cloud, sunAlt }) {
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      const mlat = geomagneticLat(lat, lon);
+      // Kp, mille juures virmaliste vöönd ulatub selle laiuseni (NOAA: vööndi serv ≈ 66,5° − 2×Kp)
+      const kpNeeded = Math.max(0, (66.5 - mlat) / 2.05);
+
+      // Bz ja päikesetuul nihutavad tulemust ainult veidi
+      let kpEff = kp;
+      if (bz < 0) kpEff += Math.min(0.7, -bz * 0.07); else kpEff -= Math.min(0.4, bz * 0.05);
+      if (speed > 500) kpEff += Math.min(0.3, (speed - 500) / 500);
+
+      const space = 100 / (1 + Math.exp(-1.6 * (kpEff - kpNeeded)));
+      const darkF = clamp((-6 - sunAlt) / 6, 0, 1);          // päike −12° või madalamal = täiesti pime
+      const cloudF = clamp(1 - (cloud - 20) / 70, 0.05, 1);  // 20% pilvi ei sega, 90% varjab peaaegu kõik
+      return { mlat, kpNeeded, space, darkF, cloudF, chance: Math.min(95, space * darkF * cloudF) };
+    }
+
+    // Proovib väiksemat 5-minutilist faili enne, siis 2-tunnist; aeglase võrgu jaoks pikem ooteaeg
+    async function fetchFirst(names) {
+      for (const n of names) {
+        try { return await fetchJson(`https://services.swpc.noaa.gov/products/solar-wind/${n}.json`, 10000); } catch(e) {}
+      }
+      return null;
+    }
+
+    async function loadAurora() {
+      // Bz ja päikesetuul tulevad meie serveri kaudu (/api/solarwind), sest brauser ei saa neid NOAA-st otse
+      const [kpData, wind, kpFc] = await Promise.all([
+        fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', 5000).catch(() => null),
+        fetchJson('/api/solarwind', 15000).catch(() => null),
+        fetchJson('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json', 8000).catch(() => null)
+      ]);
+      const parsedFc = parseKpForecast(kpFc);
+      if (parsedFc.length) kpForecast = parsedFc;
+      let magData = null, plasmaData = null;
+      if (!wind || wind.bz === null || wind.speed === null) {
+        [magData, plasmaData] = await Promise.all([
+          wind?.bz == null ? fetchFirst(['mag-5-minute', 'mag-2-hour']) : null,
+          wind?.speed == null ? fetchFirst(['plasma-5-minute', 'plasma-2-hour']) : null
+        ]);
+      }
+
+      const newKp = lastValue(kpData, 1, ['Kp', 'kp', 'kp_index', 'estimated_kp']);
+      const newBz = Number.isFinite(wind?.bz) ? wind.bz : lastValue(magData, 3, ['bz_gsm', 'bz']);
+      const newSpeed = Number.isFinite(wind?.speed) ? wind.speed : lastValue(plasmaData, 2, ['speed']);
+      if (newKp !== null) { liveKp = newKp; kpLoaded = true; }
+      if (newBz !== null) { liveBz = newBz; bzLoaded = true; }
+      if (newSpeed !== null) { liveSpeed = Math.round(newSpeed); speedLoaded = true; }
+
+      const kp = liveKp, bz = liveBz, speed = liveSpeed;
+      const lat = Number(weatherPlace.lat) || 58.38;
+      const lon = Number(weatherPlace.lon) || 24.5;
+      const sunAlt = sunAltitudeDeg(lat, lon);
+      const r = auroraChance({
+        kp,
+        bz: bzLoaded ? bz : 0,
+        speed: speedLoaded ? speed : 400,
+        lat, lon, cloud: localCloudCover, sunAlt
+      });
+
+      const prob = Math.round(r.chance);
+      const spacePct = Math.round(r.space);
+      let verdict = 'RAHULIK';
+      let subverdict = `Siin on vaja Kp ${r.kpNeeded.toFixed(1)}`;
+      let verdictColor = '#22d3ee';
+
+      if (prob >= 60) {
+        verdict = 'MINE ÕUE!'; subverdict = 'Suur võimalus silmaga näha'; verdictColor = '#34d399';
+      } else if (prob >= 30) {
+        verdict = 'HEA VÕIMALUS'; subverdict = 'Vaata põhjakaarde'; verdictColor = '#a855f7';
+      } else if (prob >= 10) {
+        verdict = 'VÄIKE VÕIMALUS'; subverdict = 'Kaameraga võib näha'; verdictColor = '#38bdf8';
+      } else if (spacePct >= 30 && r.darkF < 0.5) {
+        verdict = 'VALGE AEG'; subverdict = `Aktiivsus ${spacePct}% • oota pimedat`; verdictColor = '#fbbf24';
+      } else if (spacePct >= 30 && r.cloudF < 0.5) {
+        verdict = 'PILVED SEGAVAD'; subverdict = `Aktiivsus ${spacePct}% • taevas pilves`; verdictColor = '#fbbf24';
+      }
+
+      if (!kpLoaded) {
+        currentAuroraProb = 0;
+        $('aurora-gauge-arc').style.strokeDashoffset = '251.2';
+        $('aurora-prob').textContent = '--%';
+        $('aurora-verdict').textContent = 'ANDMED PUUDUVAD';
+        $('aurora-verdict').style.color = '#fbbf24';
+        $('aurora-subverdict').textContent = 'NOAA ei vasta, proovin uuesti';
+      } else {
+        currentAuroraProb = prob;
+        $('aurora-gauge-arc').style.strokeDashoffset = (251.2 - (prob / 100) * 251.2).toFixed(1);
+        $('aurora-prob').textContent = `${prob}%`;
+        $('aurora-verdict').textContent = verdict;
+        $('aurora-verdict').style.color = verdictColor;
+        $('aurora-subverdict').textContent = subverdict;
+      }
+
+      const kpStatus = kp >= 5 ? `G${Math.min(5, Math.floor(kp) - 4)} Torm` : kp >= 4 ? 'Aktiivne' : 'Rahulik';
+      const kpText = kpLoaded ? `Kp ${kp.toFixed(1)} (${kpStatus})` : 'Kp --';
+      $('au-kp').textContent = kpText;
+      $('au-kp').style.color = kpLoaded && kp >= r.kpNeeded - 0.5 ? '#34d399' : '#f8fafc';
+
+      const bzText = bzLoaded ? `${bz > 0 ? '+' : ''}${bz.toFixed(1)} nT` : '-- nT';
+      $('au-bz').textContent = bzLoaded ? `${bzText} • ${bz < 0 ? 'Lõuna ↓ (Hea)' : 'Põhi ↑'}` : bzText;
+      $('au-bz').style.color = !bzLoaded ? '#f8fafc' : bz <= -4 ? '#34d399' : bz < 0 ? '#22d3ee' : '#f8fafc';
+
+      const speedDesc = speed >= 550 ? 'Tugev' : speed >= 450 ? 'Mõõdukas' : 'Tavaline';
+      const speedText = speedLoaded ? `${speed} km/s` : '--- km/s';
+      $('au-speed').textContent = speedLoaded ? `${speedText} (${speedDesc})` : speedText;
+
+      const cloudDesc = localCloudCover <= 25 ? 'Selge' : localCloudCover <= 65 ? 'Poolpilves' : 'Pilves';
+      $('au-clouds').textContent = `${localCloudCover}% (${cloudDesc})`;
+      $('au-clouds').style.color = localCloudCover <= 35 ? '#34d399' : localCloudCover >= 75 ? '#fb7185' : '#f8fafc';
+
+      const moon = moonInfo();
+      const lightText = r.darkF >= 1 ? 'Pime' : r.darkF > 0 ? '🌆 Hämarik' : '☀️ Valge aeg';
+      $('au-darkness').textContent = r.darkF >= 1 ? '🌙 Pime (sobiv)' : lightText;
+      if (prob >= 10 && moon.illum >= 75 && r.darkF > 0) {
+        $('aurora-subverdict').textContent = `${subverdict} • hele kuu segab`;
+      }
+      auroraForecastHtml = renderAuroraNights();
+      updateAlerts();
+      $('au-lat').textContent = `${lat.toFixed(1)}° N • vaja Kp ${r.kpNeeded.toFixed(1)}`;
+
+      $('globe-hud-kp').textContent = kpText;
+      $('globe-hud-bz').textContent = bzText;
+      $('globe-hud-speed').textContent = speedText;
+
+      if (activeMode === 'aurora') $('multi-footer-advice').innerHTML = auroraForecastHtml || auroraAdviceText;
+    }
+
+    // 3B. RANNAINFO & SUVI
+    async function loadBeachInfo() {
+      const beach = currentBeach();
+      const q = `latitude=${beach.lat}&longitude=${beach.lon}`;
+
+      const isLake = beach.type === 'lake';
+      const [mData, aqData, fData] = await Promise.all([
+        isLake
+          ? fetchJson(`/api/laketemp?lat=${beach.lat}&lon=${beach.lon}${beach.lake ? '&lake=' + encodeURIComponent(beach.lake) : ''}`, 15000).catch(() => null)
+          : fetchJson(`https://marine-api.open-meteo.com/v1/marine?${q}&current=wave_height,sea_surface_temperature`, 5000).catch(() => null),
+        fetchJson(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}&current=european_aqi,uv_index,birch_pollen,grass_pollen`, 5000).catch(() => null),
+        fetchJson(`https://api.open-meteo.com/v1/forecast?${q}&current=cape,temperature_2m,cloud_cover,wind_speed_10m&wind_speed_unit=ms`, 5000).catch(() => null)
+      ]);
+      const num = v => Number.isFinite(v) ? v : null;
+
+      // Järvel: SYKE mõõtejaama viimane mõõtmine; laineid järvedel ei mõõdeta
+      const waterTemp = isLake ? num(mData?.temp) : num(mData?.current?.sea_surface_temperature);
+      const waveHeight = isLake ? null : num(mData?.current?.wave_height);
+      let lakeNote = '';
+      if (isLake && waterTemp !== null) {
+        const when = mData.time ? new Date(mData.time) : null;
+        const whenText = when && !isNaN(when) ? when.toLocaleDateString('et-EE', { day: 'numeric', month: 'numeric' }) : '';
+        const otherLake = beach.lake && mData.lake && !String(mData.lake).toLowerCase().includes(beach.lake.toLowerCase());
+        const src = otherLake ? `jaam: ${mData.lake}` : 'mõõtejaam';
+        lakeNote = `${src}${mData.km != null ? `, ${Math.round(mData.km)} km` : ''}${whenText ? `, ${whenText}` : ''}`;
+      }
+      const uvIndex = num(aqData?.current?.uv_index);
+      const aqi = num(aqData?.current?.european_aqi);
+      const cape = num(fData?.current?.cape);
+      let pollenLevel = '--';
+      if (aqData?.current) {
+        const maxPollen = Math.max(aqData.current.birch_pollen || 0, aqData.current.grass_pollen || 0);
+        pollenLevel = maxPollen > 50 ? 'Kõrge' : maxPollen > 10 ? 'Mõõdukas' : 'Madal';
+      }
+
+      // Ilm ranna enda juures (nt Vändras olles ikkagi Pärnu ranna õhk ja tuul)
+      const airTemp = num(fData?.current?.temperature_2m) ?? currentAirTemp;
+      const cloud = num(fData?.current?.cloud_cover) ?? localCloudCover;
+      const wind = num(fData?.current?.wind_speed_10m) ?? currentWindSpeed;
+
+      let score = 0;
+      score += Math.max(0, Math.min(50, (airTemp - 10) * 3.3));
+      if (waterTemp !== null) score += Math.max(0, Math.min(30, (waterTemp - 10) * 2.5));
+      score += Math.max(0, 20 - (cloud * 0.15) - Math.max(0, wind - 5) * 2);
+      const finalScore = Math.round(Math.max(0, Math.min(100, score)));
+
+      let bVerdict = 'HOOAJAVÄLINE';
+      let bColor = '#38bdf8';
+      if (finalScore >= 75) { bVerdict = 'IDEAALNE RANNAILM!'; bColor = '#34d399'; }
+      else if (finalScore >= 50) { bVerdict = 'SOE SUVEPÄEV'; bColor = '#fbbf24'; }
+      else if (finalScore >= 30) { bVerdict = 'MÕÕDUKAS / JAHEDAM'; bColor = '#a855f7'; }
+
+      const waterText = waterTemp !== null ? `${fmt(waterTemp, 1)}°C` : '--';
+      $('beach-gauge-arc').style.strokeDashoffset = (251.2 - (finalScore / 100) * 251.2).toFixed(1);
+      $('beach-score').textContent = `${finalScore}%`;
+      $('beach-verdict').textContent = bVerdict;
+      $('beach-verdict').style.color = bColor;
+      $('beach-subverdict').textContent = `Õhk ${Math.round(airTemp)}°C • Vesi ${waterText}`;
+
+      $('bc-water').textContent = waterText;
+      $('bc-water').style.color = waterTemp !== null && waterTemp >= 18 ? '#34d399' : '#38bdf8';
+
+      if (uvIndex !== null) {
+        const uvDesc = uvIndex >= 6 ? 'Kõrge' : uvIndex >= 3 ? 'Mõõdukas' : 'Madal';
+        $('bc-uv').textContent = `UV ${uvIndex.toFixed(1)} (${uvDesc})`;
+        $('bc-uv').style.color = uvIndex >= 6 ? '#fb7185' : uvIndex >= 3 ? '#fbbf24' : '#f8fafc';
+      } else { $('bc-uv').textContent = 'UV --'; }
+
+      $('bc-cape').textContent = cape === null ? '--' : cape >= 800 ? '⚡ Suur oht' : cape >= 300 ? 'Mõõdukas' : 'Madal (Rahulik)';
+      $('bc-cape').style.color = cape !== null && cape >= 500 ? '#fb7185' : '#f8fafc';
+
+      const measuredLake = isLake ? (mData?.lake || String(mData?.station || '').split(',')[0] || beach.lake || '') : '';
+      $('bc-water-label').textContent = isLake ? `Järvevesi${measuredLake ? ' • ' + measuredLake : ''}` : 'Merevesi';
+      $('bc-waves-label').textContent = isLake ? 'Tuul rannas' : 'Lainekõrgus';
+      $('bc-waves').textContent = isLake ? `${Math.round(wind)} m/s` : waveHeight !== null ? `${waveHeight.toFixed(2)} m` : '-- m';
+      $('bc-aqi').textContent = aqi === null ? 'AQI --' : `${aqi <= 25 ? 'Väga hea' : aqi <= 50 ? 'Hea' : 'Mõõdukas'} (AQI ${Math.round(aqi)})`;
+      $('bc-pollen').textContent = pollenLevel;
+
+      const where = beach.km < 3 ? beachLabel(beach) : `Lähim rand ${beach.name} (${Math.round(beach.km)} km)`;
+      beachAdviceText = isLake
+        ? `${where} • vesi ${waterText}${lakeNote ? ' (' + lakeNote + ')' : ''} • UV ${uvIndex !== null ? fmt(uvIndex, 1) : '--'}`
+        : `${where} • vesi ${waterText} • laine ${waveHeight !== null ? waveHeight.toFixed(1) + ' m' : '--'} • UV ${uvIndex !== null ? uvIndex.toFixed(1) : '--'}`;
+      if (activeMode === 'beach') {
+        $('multi-footer-advice').textContent = beachAdviceText;
+        $('multi-card-title').innerHTML = `Lähim rand • <span class="location-badge">${beachLabel(beach)}</span>`;
+      }
+    }
+
+    // --- INTERAKTIIVNE 3D VIRMALISTE MAAKERA ---
+    let worldLand = null;
+    let ovationPoints = [];
+    let globeOpen = false;
+    let globeAutoSpin = true;
+    let globeRotation = [-24.5, -62, 0]; // Fokuseeritud Põhja-Euroopale / Eestile
+    let isDraggingGlobe = false;
+    let dragStart = [0, 0];
+    let rotStart = [0, 0];
+
+    let ovationLoadedAt = 0;
+
+    async function initGlobeData() {
+      // 1. Maailmakaardi kontuurid (ainult üks kord)
+      if (!worldLand) {
+        try {
+          const topo = await fetchJson('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json', 6000);
+          if (window.topojson && topo) worldLand = topojson.feature(topo, topo.objects.land);
+        } catch(e) {}
+      }
+      // 2. NOAA OVATION prognoos: kõigepealt meie serveri kaudu (väiksem ja töötab ka telekas), siis otse
+      if (Date.now() - ovationLoadedAt < 10 * 60 * 1000) return;
+      let pts = null, forecast = null;
+      try {
+        const d = await fetchJson('/api/ovation', 15000);
+        if (Array.isArray(d?.points) && d.points.length) { pts = d.points; forecast = d.forecast; }
+      } catch(e) {}
+      if (!pts) {
+        try {
+          const ov = await fetchJson('https://services.swpc.noaa.gov/json/ovation_aurora_latest.json', 15000);
+          if (Array.isArray(ov?.coordinates)) {
+            pts = ov.coordinates
+              .filter(p => p[1] >= 40 && p[2] >= 3 && p[0] % 2 === 0 && p[1] % 2 === 0)
+              .map(p => [p[0] > 180 ? p[0] - 360 : p[0], p[1], p[2]]);
+            forecast = ov['Forecast Time'] || null;
+          }
+        } catch(e) {}
+      }
+      if (pts) {
+        ovationPoints = pts;
+        ovationLoadedAt = Date.now();
+        const tm = forecast ? new Date(forecast) : null;
+        const tmText = tm && !isNaN(tm) ? ` • prognoos kl ${tm.toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' })}` : '';
+        $('globe-data-status').textContent = `NOAA OVATION (${pts.filter(p => p[2] >= 6).length} punkti)${tmText}`;
+      } else {
+        $('globe-data-status').textContent = 'NOAA OVATION ei vasta • näidatud on ainult Kp-põhine hinnang';
+      }
+    }
+
+    // Kp-põhine hinnanguline virmaliste vöönd. Päris vöönd ei ole ring ümber magnetpooluse:
+    // öö poolel ulatub see kaugemale lõunasse, päeva poolel jääb põhja. Seepärast nihutame keskpunkti ööpoole.
+    function generateGeomagneticOvalRing(kpVal) {
+      const rad = Math.PI / 180;
+      const kp = Math.min(9, Math.max(0, kpVal));
+      // Sama valem mis virmaliste protsendil: öise poole lõunaserv ≈ 66,5° − 2×Kp (geomagn.).
+      // Vööndi keskjoon on öö poolel ~3° serva kohal; ring nihutatakse allpool 4° ööpoole, seega keskpunkt +7°.
+      const ovalRadiusDeg = 90 - (66.5 - 2.05 * kp + 7);
+      // Ööpoolne meridiaan: päike on otse pea kohal pikkusel −(UTC − 12)×15, kesköö on 180° sellest
+      const now = new Date();
+      const utcH = now.getUTCHours() + now.getUTCMinutes() / 60;
+      const midnightLon = -(utcH - 12) * 15 + 180;
+      // Magnetpoolusest 4° ööpoole
+      const pLat = 80.6 * rad, pLon = -72.6 * rad, shift = 4 * rad;
+      const bearing = Math.atan2(
+        Math.sin((midnightLon * rad) - pLon) * Math.cos(0),
+        Math.cos(pLat) * Math.sin(0) - Math.sin(pLat) * Math.cos(0) * Math.cos((midnightLon * rad) - pLon)
+      );
+      const lat0 = Math.asin(Math.sin(pLat) * Math.cos(shift) + Math.cos(pLat) * Math.sin(shift) * Math.cos(bearing));
+      const lon0 = pLon + Math.atan2(Math.sin(bearing) * Math.sin(shift) * Math.cos(pLat), Math.cos(shift) - Math.sin(pLat) * Math.sin(lat0));
+
+      const d = ovalRadiusDeg * rad;
+      const ring = [];
+      for (let brng = 0; brng <= 360; brng += 4) {
+        const b = brng * rad;
+        const lat2 = Math.asin(Math.sin(lat0) * Math.cos(d) + Math.cos(lat0) * Math.sin(d) * Math.cos(b));
+        const lon2 = lon0 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(lat0), Math.cos(d) - Math.sin(lat0) * Math.sin(lat2));
+        ring.push([((lon2 / rad + 540) % 360) - 180, lat2 / rad]);
+      }
+      return { ring, ovalRadiusDeg };
+    }
+
+    const gCanvas = $('globe-canvas');
+    const gCtx = gCanvas.getContext('2d');
+    let starField = Array.from({length: 90}, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.6 + 0.4,
+      a: Math.random() * 0.65 + 0.2
+    }));
+
+    function render3DGlobe() {
+      if (!globeOpen) return;
+      const rect = gCanvas.getBoundingClientRect();
+      const dpr = devicePixelRatio || 1;
+      if (gCanvas.width !== Math.floor(rect.width * dpr) || gCanvas.height !== Math.floor(rect.height * dpr)) {
+        gCanvas.width = rect.width * dpr;
+        gCanvas.height = rect.height * dpr;
+      }
+
+      gCtx.save();
+      gCtx.scale(dpr, dpr);
+      const w = rect.width, h = rect.height;
+      const cx = w / 2, cy = h / 2;
+      const radius = Math.min(w, h) * 0.41;
+
+      gCtx.clearRect(0, 0, w, h);
+
+      // 1. Kosmosetähed taustal
+      starField.forEach(s => {
+        gCtx.fillStyle = `rgba(226, 232, 240, ${s.a})`;
+        gCtx.beginPath();
+        gCtx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+        gCtx.fill();
+      });
+
+      if (globeAutoSpin && !isDraggingGlobe) {
+        globeRotation[0] = (globeRotation[0] - 0.16) % 360;
+      }
+
+      // Atmosfääri väline neoonkuma
+      const atmoGrad = gCtx.createRadialGradient(cx, cy, radius * 0.88, cx, cy, radius * 1.18);
+      atmoGrad.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
+      atmoGrad.addColorStop(0.5, 'rgba(168, 85, 247, 0.14)');
+      atmoGrad.addColorStop(1, 'rgba(11, 15, 36, 0)');
+      gCtx.fillStyle = atmoGrad;
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, radius * 1.18, 0, Math.PI * 2);
+      gCtx.fill();
+
+      // Maakera ookeani 3D sfäär (Midnight Indigo)
+      const oceanGrad = gCtx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, radius * 0.1, cx, cy, radius);
+      oceanGrad.addColorStop(0, '#1e2759');
+      oceanGrad.addColorStop(0.65, '#0f1535');
+      oceanGrad.addColorStop(1, '#070a1c');
+      gCtx.fillStyle = oceanGrad;
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+      gCtx.fill();
+
+      if (window.d3 && d3.geoOrthographic) {
+        const projection = d3.geoOrthographic()
+          .scale(radius)
+          .translate([cx, cy])
+          .clipAngle(90)
+          .rotate(globeRotation);
+
+        const path = d3.geoPath(projection, gCtx);
+
+        // 2. Koordinaatvõrgustik (Graticule)
+        const graticule = d3.geoGraticule10();
+        gCtx.strokeStyle = 'rgba(148, 163, 184, 0.11)';
+        gCtx.lineWidth = 0.8;
+        gCtx.beginPath();
+        path(graticule);
+        gCtx.stroke();
+
+        // 3. Mandrid ja riigid
+        if (worldLand) {
+          gCtx.fillStyle = 'rgba(30, 41, 82, 0.92)';
+          gCtx.strokeStyle = 'rgba(99, 102, 241, 0.5)';
+          gCtx.lineWidth = 1;
+          gCtx.beginPath();
+          path(worldLand);
+          gCtx.fill();
+          gCtx.stroke();
+        }
+
+        // 4. Virmaliste helendav ovaal (Geomagnetic + Live NOAA OVATION)
+        const { ring } = generateGeomagneticOvalRing(liveKp);
+        const isStorm = liveKp >= 5 || liveBz <= -5;
+
+        // Kihiline helendav virmaliste vöönd
+        const bandWidths = [24, 15, 7];
+        bandWidths.forEach((bw, idx) => {
+          gCtx.save();
+          gCtx.beginPath();
+          // d3 geoPath lõikab ära maakera tagumisele poolele jääva osa (enne joonistati see läbi maakera)
+          path({ type: 'LineString', coordinates: ring });
+          gCtx.strokeStyle = idx === 0
+            ? 'rgba(16, 185, 129, 0.18)'
+            : idx === 1
+              ? (isStorm ? 'rgba(168, 85, 247, 0.36)' : 'rgba(52, 211, 153, 0.38)')
+              : (isStorm ? 'rgba(236, 72, 153, 0.8)' : 'rgba(52, 211, 153, 0.85)');
+          gCtx.lineWidth = bw;
+          gCtx.lineCap = 'round';
+          gCtx.lineJoin = 'round';
+          gCtx.shadowColor = isStorm ? '#ec4899' : '#10b981';
+          gCtx.shadowBlur = 16;
+          gCtx.stroke();
+          gCtx.restore();
+        });
+
+        // NOAA OVATION reaalajas täppide kiht
+        if (ovationPoints.length) {
+          gCtx.save();
+          for (let i = 0; i < ovationPoints.length; i++) {
+            const p = ovationPoints[i];
+            if (p[2] < 6) continue;
+            const lon = p[0] > 180 ? p[0] - 360 : p[0];
+            const lat = p[1];
+            const val = p[2];
+            // Kontrollime, kas punkt on nähtaval poolkeral
+            const centerLon = -globeRotation[0];
+            const centerLat = -globeRotation[1];
+            const d3Dist = d3.geoDistance([lon, lat], [centerLon, centerLat]);
+            if (d3Dist < Math.PI / 2) {
+              const xy = projection([lon, lat]);
+              if (xy) {
+                const alpha = Math.min(0.85, val / 45);
+                gCtx.fillStyle = val > 35
+                  ? `rgba(236, 72, 153, ${alpha})`
+                  : val > 18
+                    ? `rgba(168, 85, 247, ${alpha})`
+                    : `rgba(16, 185, 129, ${alpha})`;
+                gCtx.beginPath();
+                gCtx.arc(xy[0], xy[1], Math.max(2.5, (val / 15) + 2), 0, Math.PI * 2);
+                gCtx.fill();
+              }
+            }
+          }
+          gCtx.restore();
+        }
+
+        // 5. Kasutaja asukoha helendav märk (nt Pärnu)
+        const userLon = Number(weatherPlace.lon) || 24.5;
+        const userLat = Number(weatherPlace.lat) || 58.38;
+        const distUser = d3.geoDistance([userLon, userLat], [-globeRotation[0], -globeRotation[1]]);
+        if (distUser < Math.PI / 2) {
+          const uPt = projection([userLon, userLat]);
+          if (uPt) {
+            const pulseR = 6 + Math.sin(Date.now() * 0.006) * 3;
+            gCtx.fillStyle = 'rgba(34, 211, 238, 0.35)';
+            gCtx.beginPath();
+            gCtx.arc(uPt[0], uPt[1], pulseR * 1.8, 0, Math.PI * 2);
+            gCtx.fill();
+
+            gCtx.fillStyle = '#22d3ee';
+            gCtx.strokeStyle = '#ffffff';
+            gCtx.lineWidth = 2;
+            gCtx.beginPath();
+            gCtx.arc(uPt[0], uPt[1], 5, 0, Math.PI * 2);
+            gCtx.fill();
+            gCtx.stroke();
+
+            gCtx.fillStyle = '#ffffff';
+            gCtx.font = '800 12px Inter, system-ui';
+            gCtx.shadowColor = '#000';
+            gCtx.shadowBlur = 6;
+            gCtx.fillText(weatherPlace.name || 'Pärnu', uPt[0] + 10, uPt[1] + 4);
+            gCtx.shadowBlur = 0;
+          }
+        }
+      }
+
+      // Maakera klaasjas äärerõngas
+      gCtx.strokeStyle = 'rgba(139, 92, 246, 0.45)';
+      gCtx.lineWidth = 2;
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+      gCtx.stroke();
+
+      gCtx.restore();
+      if (globeOpen) requestAnimationFrame(render3DGlobe);
+    }
+
+    // 3D Maakera modali juhtimine
+    $('btn-open-globe').addEventListener('click', () => {
+      globeOpen = true;
+      $('globe-modal').classList.add('open');
+      initGlobeData();
+      requestAnimationFrame(render3DGlobe);
+    });
+
+    $('btn-globe-close').addEventListener('click', () => {
+      globeOpen = false;
+      $('globe-modal').classList.remove('open');
+    });
+
+    $('globe-modal').addEventListener('click', e => {
+      if (e.target === $('globe-modal')) {
+        globeOpen = false;
+        $('globe-modal').classList.remove('open');
+      }
+    });
+
+    $('btn-globe-spin').addEventListener('click', () => {
+      globeAutoSpin = !globeAutoSpin;
+      $('btn-globe-spin').classList.toggle('active', globeAutoSpin);
+    });
+
+    $('btn-globe-estonia').addEventListener('click', () => {
+      globeAutoSpin = false;
+      $('btn-globe-spin').classList.remove('active');
+      const uLon = Number(weatherPlace.lon) || 24.5;
+      const uLat = Number(weatherPlace.lat) || 58.38;
+      globeRotation = [-uLon, -Math.min(72, uLat + 4), 0];
+    });
+
+    // Hiire ja puuteekraaniga 3D maakera pööramine
+    const stage = $('globe-stage');
+    stage.addEventListener('pointerdown', e => {
+      isDraggingGlobe = true;
+      dragStart = [e.clientX, e.clientY];
+      rotStart = [...globeRotation];
+      stage.setPointerCapture(e.pointerId);
+    });
+
+    stage.addEventListener('pointermove', e => {
+      if (!isDraggingGlobe) return;
+      const dx = e.clientX - dragStart[0];
+      const dy = e.clientY - dragStart[1];
+      globeRotation[0] = rotStart[0] + dx * 0.35;
+      globeRotation[1] = Math.max(-85, Math.min(85, rotStart[1] - dy * 0.35));
+    });
+
+    stage.addEventListener('pointerup', () => { isDraggingGlobe = false; });
+    stage.addEventListener('pointercancel', () => { isDraggingGlobe = false; });
+
+    // TAUSTA-ANIMATSIOON KAARDIL
+    const aCanvas = $('aurora-canvas');
+    const aCtx = aCanvas.getContext('2d');
+    let aPhase = 0;
+
+    function animateAuroraBg() {
+      const rect = aCanvas.getBoundingClientRect();
+      const dpr = devicePixelRatio || 1;
+      if (aCanvas.width !== Math.floor(rect.width * dpr) || aCanvas.height !== Math.floor(rect.height * dpr)) {
+        aCanvas.width = rect.width * dpr;
+        aCanvas.height = rect.height * dpr;
+      }
+      aCtx.save();
+      aCtx.scale(dpr, dpr);
+      const w = rect.width, h = rect.height;
+      aCtx.clearRect(0, 0, w, h);
+
+      aPhase += 0.018 + (currentAuroraProb / 100) * 0.02;
+
+      const ribbons = activeMode === 'beach'
+        ? [
+            { color1: 'rgba(56, 189, 248, 0.34)', color2: 'rgba(251, 191, 36, 0.0)', yBase: 0.45, amp: 18, speed: 0.8 },
+            { color1: 'rgba(251, 191, 36, 0.24)', color2: 'rgba(236, 72, 153, 0.0)', yBase: 0.62, amp: 22, speed: -0.6 }
+          ]
+        : [
+            { color1: 'rgba(16, 185, 129, 0.36)', color2: 'rgba(34, 211, 238, 0.0)', yBase: 0.35, amp: 22, speed: 1.0 },
+            { color1: 'rgba(168, 85, 247, 0.28)', color2: 'rgba(236, 72, 153, 0.0)', yBase: 0.52, amp: 28, speed: -0.7 }
+          ];
+
+      ribbons.forEach(r => {
+        const grad = aCtx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, r.color2);
+        grad.addColorStop(r.yBase, r.color1);
+        grad.addColorStop(1, r.color2);
+
+        aCtx.fillStyle = grad;
+        aCtx.beginPath();
+        aCtx.moveTo(0, h);
+        for (let x = 0; x <= w; x += 10) {
+          const y = h * r.yBase + Math.sin(x * 0.012 + aPhase * r.speed) * r.amp + Math.cos(x * 0.02 - aPhase) * (r.amp * 0.5);
+          aCtx.lineTo(x, y);
+        }
+        aCtx.lineTo(w, h);
+        aCtx.closePath();
+        aCtx.fill();
+      });
+
+      aCtx.restore();
+      requestAnimationFrame(animateAuroraBg);
+    }
+    requestAnimationFrame(animateAuroraBg);
+
+    // --- 4. RAADIO + TÄISKAARDI TAUSTA-EKVALAISER ---
+    const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
+    let currentStationName = "SKY PLUS";
+    let currentStreamUrl = "https://stream.skymedia.ee/live/SKYPLUS";
+    let isPlaying = false;
+
+    const svgPlay = '<path d="M8 5.14v14l11-7-11-7z"/>';
+    const svgPause = '<path d="M6 5h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1zm8 0h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1z"/>';
+
+    // Mõni jaam (Sunshine Live, SLAM! WKNDMX) saadab loo asemel ainult oma nime, nt "SUNSHINE LIVE - Hardcore"
+    function isStationNameOnly(title) {
+      const norm = t => t.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const t = norm(title);
+      return /^sunshinelive/.test(t) || /^slamwkndm[i]?x/.test(t) || t === norm(currentStationName);
+    }
+
+    async function updateNowPlaying() {
+      if (radio.paused) return;
+      try {
+        const r = await fetch(`/api/radio?url=${encodeURIComponent(currentStreamUrl)}`);
+        if (r.ok) {
+          const data = await r.json();
+          const title = (data.title || '').trim();
+          if (title && !isStationNameOnly(title)) {
+            $('radio-status').textContent = title;
+            return;
+          }
+        }
+      } catch(e) {}
+      $('radio-status').textContent = 'Otse-eetris';
+    }
+
+    function setStation(btn, name, url) {
+      document.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentStationName = name;
+      currentStreamUrl = url;
+      $('current-station-name').textContent = name;
+      const wasPlaying = !radio.paused;
+      radio.src = url;
+      radio.load();
+      if (wasPlaying) {
+        $('radio-status').textContent = 'Ühendan striimiga…';
+        radio.play().catch(() => $('radio-status').textContent = 'Käivitustõrge');
+      } else {
+        $('radio-status').textContent = 'Vali jaam ja vajuta Play';
+      }
+    }
+
+    ['sky', 'slam', 'qdance', 'hardcore', 'dnb'].forEach(id => {
+      $(`btn-station-${id}`).addEventListener('click', function() {
+        setStation(this, this.dataset.name, this.dataset.url);
+      });
+    });
+
+    play.addEventListener('click', async () => {
+      try {
+        if (radio.paused) {
+          $('radio-status').textContent = 'Ühendan striimiga…';
+          await radio.play();
+        } else {
+          radio.pause();
+        }
+      } catch(e) {
+        $('radio-status').textContent = 'Käivitustõrge';
+      }
+    });
+
+    radio.addEventListener('play', () => {
+      isPlaying = true;
+      playIcon.innerHTML = svgPause;
+      $('live-badge-text').textContent = 'OTSE-EETRIS';
+      radioCard.classList.add('playing');
+      updateNowPlaying();
+    });
+
+    radio.addEventListener('pause', () => {
+      isPlaying = false;
+      playIcon.innerHTML = svgPlay;
+      $('live-badge-text').textContent = 'PAUSIL';
+      $('radio-status').textContent = 'Pausil';
+      radioCard.classList.remove('playing');
+    });
+
+    const vCanvas = $('radio-visualizer');
+    const vCtx = vCanvas.getContext('2d');
+    const numBars = 28;
+    const barHeights = new Array(numBars).fill(0.12);
+    let phase = 0;
+
+    function animateVisualizer() {
+      const rect = vCanvas.getBoundingClientRect();
+      const dpr = devicePixelRatio || 1;
+      if (vCanvas.width !== Math.floor(rect.width * dpr) || vCanvas.height !== Math.floor(rect.height * dpr)) {
+        vCanvas.width = rect.width * dpr;
+        vCanvas.height = rect.height * dpr;
+      }
+      vCtx.save();
+      vCtx.scale(dpr, dpr);
+      const w = rect.width, h = rect.height;
+      vCtx.clearRect(0, 0, w, h);
+
+      phase += isPlaying ? 0.085 : 0.02;
+
+      const styles = getComputedStyle(document.documentElement);
+      const cCyan = styles.getPropertyValue('--cyan').trim() || '#22d3ee';
+      const cPurple = styles.getPropertyValue('--purple').trim() || '#a855f7';
+      const cPink = styles.getPropertyValue('--pink').trim() || '#ec4899';
+
+      const waveGrad = vCtx.createLinearGradient(0, h * 0.2, w, h);
+      waveGrad.addColorStop(0, cCyan + '33');
+      waveGrad.addColorStop(0.5, cPurple + '44');
+      waveGrad.addColorStop(1, cPink + '33');
+
+      vCtx.fillStyle = waveGrad;
+      vCtx.beginPath();
+      vCtx.moveTo(0, h);
+      for (let x = 0; x <= w; x += 8) {
+        const amp1 = isPlaying ? h * 0.16 : h * 0.05;
+        const amp2 = isPlaying ? h * 0.10 : h * 0.03;
+        const y = h * 0.58 + Math.sin(x * 0.012 - phase * 1.4) * amp1 + Math.cos(x * 0.022 + phase) * amp2;
+        vCtx.lineTo(x, y);
+      }
+      vCtx.lineTo(w, h);
+      vCtx.closePath();
+      vCtx.fill();
+
+      const slot = w / numBars;
+      const bw = Math.max(6, slot - 6);
+
+      for (let i = 0; i < numBars; i++) {
+        let target;
+        if (isPlaying) {
+          const w1 = Math.sin(phase * 1.6 + i * 0.45) * 0.32 + 0.42;
+          const w2 = Math.cos(phase * 2.3 - i * 0.7) * 0.22;
+          const bassBoost = i < 7 ? 0.18 : 0;
+          target = Math.min(0.88, Math.max(0.12, w1 + w2 + bassBoost + Math.random() * 0.18));
+        } else {
+          target = 0.08 + Math.sin(phase + i * 0.3) * 0.03;
+        }
+
+        barHeights[i] += (target - barHeights[i]) * (isPlaying ? 0.22 : 0.08);
+        const barH = barHeights[i] * (h * 0.82);
+        const x = i * slot + (slot - bw) / 2;
+        const y = h - barH;
+
+        const colGrad = vCtx.createLinearGradient(0, y, 0, h);
+        colGrad.addColorStop(0, cPink + '99');
+        colGrad.addColorStop(0.45, cPurple + '66');
+        colGrad.addColorStop(1, cCyan + '15');
+
+        vCtx.fillStyle = colGrad;
+        vCtx.beginPath();
+        vCtx.roundRect(x, y, bw, barH, [6, 6, 0, 0]);
+        vCtx.fill();
+      }
+
+      vCtx.restore();
+      requestAnimationFrame(animateVisualizer);
+    }
+    requestAnimationFrame(animateVisualizer);
+
+    // --- 4B. VIRMALISTE ÖÖPROGNOOS (järgmised 3 ööd) ---
+    // NOAA 3 päeva Kp prognoos (3 h kaupa) + Yr.no pilvisus + päikese kõrgus → iga öö parim aeg ja võimalus.
+    let weatherSeries = [];
+    let kpForecast = [];
+    let auroraNights = [];
+    let auroraForecastHtml = '';
+
+    function parseKpForecast(data) {
+      if (!Array.isArray(data) || !data.length) return [];
+      const rows = [];
+      const toMs = t => Date.parse(String(t).replace(' ', 'T') + (String(t).match(/Z|[+-]\d\d:?\d\d$/) ? '' : 'Z'));
+      if (Array.isArray(data[0])) {
+        const head = data[0].map(String);
+        const ti = head.indexOf('time_tag'), ki = head.findIndex(h => h.toLowerCase() === 'kp');
+        if (ti < 0 || ki < 0) return [];
+        for (const r of data.slice(1)) { const kp = parseFloat(r[ki]); const t = toMs(r[ti]); if (Number.isFinite(kp) && Number.isFinite(t)) rows.push({ t, kp }); }
+      } else {
+        for (const o of data) { const kp = parseFloat(o?.kp ?? o?.Kp); const t = toMs(o?.time_tag); if (Number.isFinite(kp) && Number.isFinite(t)) rows.push({ t, kp }); }
+      }
+      return rows.sort((a, b) => a.t - b.t);
+    }
+
+    // Pilvisus antud ajal Yr.no prognoosist (lähim rida 3,5 h piires); null kui teada pole
+    function cloudAt(ms) {
+      let best = null, bestD = Infinity;
+      for (const it of weatherSeries) {
+        const d = Math.abs(new Date(it.time).getTime() - ms);
+        if (d < bestD) { bestD = d; best = it; }
+      }
+      const c = best?.data?.instant?.details?.cloud_area_fraction;
+      return bestD <= 3.5 * 3600000 && Number.isFinite(c) ? c : null;
+    }
+
+    function buildAuroraNights() {
+      const lat = Number(weatherPlace.lat) || 58.38, lon = Number(weatherPlace.lon) || 24.5;
+      const now = Date.now();
+      const nights = new Map();
+      for (const blk of kpForecast) {
+        const end = blk.t + 3 * 3600000;
+        if (end <= now) continue;
+        let best = null;
+        for (let h = 0; h < 3; h++) {
+          const ms = Math.max(blk.t + h * 3600000 + 1800000, now);
+          if (ms >= end) continue;
+          const sunAlt = sunAltitudeDeg(lat, lon, new Date(ms));
+          if (sunAlt > -6) continue;                      // valge aeg, ei loe
+          const cloud = cloudAt(ms);
+          const r = auroraChance({ kp: blk.kp, bz: 0, speed: 400, lat, lon, cloud: cloud ?? 50, sunAlt });
+          if (!best || r.chance > best.chance) best = { chance: Math.round(r.chance), cloud, kp: blk.kp, start: blk.t, end };
+        }
+        if (!best) continue;
+        // Öö = kella 12-st järgmise päeva kella 12-ni; nimi tuleb õhtu kuupäevast
+        const eve = new Date(blk.t - 12 * 3600000); eve.setHours(0, 0, 0, 0);
+        const key = eve.getTime();
+        const cur = nights.get(key);
+        if (!cur || best.chance > cur.best.chance || (best.chance === cur.best.chance && best.kp > cur.best.kp)) nights.set(key, { key, best });
+      }
+      const today = new Date(now - 12 * 3600000); today.setHours(0, 0, 0, 0);
+      return [...nights.values()].sort((a, b) => a.key - b.key).slice(0, 3).map(n => {
+        const days = Math.round((n.key - today.getTime()) / 86400000);
+        const label = days <= 0 ? 'Täna öösel' : days === 1 ? 'Homme öösel'
+          : new Date(n.key).toLocaleDateString('et-EE', { weekday: 'short' }).replace('.', '').toUpperCase() + ' öösel';
+        const hh = ms => String(new Date(ms).getHours()).padStart(2, '0');
+        return { ...n, label, range: `${hh(n.best.start)}–${hh(n.best.end)}` };
+      });
+    }
+
+    function renderAuroraNights() {
+      auroraNights = buildAuroraNights();
+      if (!auroraNights.length) return '';
+      const chips = auroraNights.map(n => {
+        const c = n.best.chance;
+        const lv = c >= 60 ? 'lv3' : c >= 30 ? 'lv2' : c >= 10 ? 'lv1' : '';
+        const detail = c >= 5 ? ` kl ${n.range} • Kp ${fmt(n.best.kp, 1)}${n.best.cloud === null ? ' • pilved ?' : ''}` : '';
+        return `<span class="aur-night ${lv}"><b>${n.label}</b><span class="pct">${c}%</span>${detail}</span>`;
+      }).join('');
+      return `<span class="aur-nights"><span class="aur-nights-title">Prognoos:</span>${chips}</span>`;
+    }
+
+    // --- 5. KUUFAAS ---
+    // Kuu vanus päevades viimasest noorkuust (2000-01-06 18:14 UTC), sünoodiline kuu 29,53 päeva
+    function moonInfo(date = new Date()) {
+      const SYN = 29.530588853;
+      const age = ((date.getTime() - Date.UTC(2000, 0, 6, 18, 14)) / 86400000 % SYN + SYN) % SYN;
+      const phase = age / SYN;                                   // 0 = noorkuu, 0,5 = täiskuu
+      const illum = Math.round((1 - Math.cos(2 * Math.PI * phase)) / 2 * 100);
+      const names = [
+        ['🌑', 'Noorkuu'], ['🌒', 'Kasvav sirp'], ['🌓', 'Esimene veerand'], ['🌔', 'Kasvav kuu'],
+        ['🌕', 'Täiskuu'], ['🌖', 'Kahanev kuu'], ['🌗', 'Viimane veerand'], ['🌘', 'Kahanev sirp']
+      ];
+      const [emoji, name] = names[Math.round(phase * 8) % 8];
+      return { phase, illum, emoji, name, age };
+    }
+
+    // Kuu joonistamine nagu foto: kera iga punkt valgustatakse päikese suuna järgi (pehme terminaator),
+    // pind on genereeritud "mere" laikude ja kraatritega. Varjus pool jääb mustaks, ringi ümber ei ole.
+    let moonTex = null, moonTexN = 0;
+    function moonTexture(N) {
+      if (moonTex && moonTexN === N) return moonTex;
+      let seed = 1337;
+      const rnd = () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+      const tex = new Float32Array(N * N).fill(0.9);
+      const blob = (bx, by, br, amt, soft) => {
+        const x0 = Math.max(0, Math.floor((bx - br) * N)), x1 = Math.min(N - 1, Math.ceil((bx + br) * N));
+        const y0 = Math.max(0, Math.floor((by - br) * N)), y1 = Math.min(N - 1, Math.ceil((by + br) * N));
+        for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+          const d = Math.hypot(x / N - bx, y / N - by) / br;
+          if (d < 1) tex[y * N + x] += amt * (soft ? (1 - d * d) : 1);
+        }
+      };
+      // "mered" (suured tumedad alad, umbes nagu päris kuu nähtaval poolel)
+      [[0.34, 0.32, 0.17], [0.47, 0.27, 0.12], [0.6, 0.36, 0.13], [0.3, 0.52, 0.14], [0.52, 0.5, 0.1], [0.42, 0.66, 0.11], [0.66, 0.58, 0.08], [0.24, 0.4, 0.09]]
+        .forEach(([bx, by, br]) => { for (let k = 0; k < 16; k++) blob(bx + (rnd() - 0.5) * br * 1.4, by + (rnd() - 0.5) * br * 1.4, br * (0.25 + rnd() * 0.45), -0.035, true); });
+      // kraatrid: tume põhi, hele äär
+      for (let i = 0; i < 260; i++) {
+        const cr = 0.004 + Math.pow(rnd(), 3) * 0.045, cx = rnd(), cy = rnd();
+        blob(cx, cy, cr * 1.25, 0.06, true);
+        blob(cx, cy, cr, -0.1, true);
+      }
+      for (let i = 0; i < N * N; i++) tex[i] += (rnd() - 0.5) * 0.06;   // peen tekstuur
+      moonTex = tex; moonTexN = N;
+      return tex;
+    }
+
+    function drawMoon() {
+      const cv = $('moon-canvas');
+      const rect = cv.getBoundingClientRect();
+      if (!rect.width) return;
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      const W = Math.round(rect.width * dpr);
+      cv.width = W; cv.height = W;
+      const x = cv.getContext('2d');
+      const m = moonInfo();
+      const N = Math.round(W * 0.88), off = Math.round((W - N) / 2), R = N / 2;
+      const tex = moonTexture(N);
+
+      // Päikese suund: faasinurk + kalle (õhtul kasvav kuu on valgustatud paremalt-alt, hommikul kahanev vasakult-alt)
+      const th = 2 * Math.PI * m.phase, tilt = 25 * Math.PI / 180;
+      const sx = Math.sin(th) * Math.cos(tilt), sy = Math.abs(Math.sin(th)) * Math.sin(tilt), sz = -Math.cos(th);
+
+      const img = x.createImageData(W, W);
+      const d = img.data;
+      for (let py = 0; py < N; py++) {
+        for (let px = 0; px < N; px++) {
+          const nx = (px + 0.5 - R) / R, ny = (py + 0.5 - R) / R;
+          const q = nx * nx + ny * ny;
+          if (q >= 1) continue;
+          const nz = Math.sqrt(1 - q);
+          const lambert = nx * sx + ny * sy + nz * sz;
+          const light = Math.min(1, Math.max(0, (lambert + 0.02) / 0.1));      // pehme, aga selge üleminek
+          if (light <= 0) continue;
+          const edge = Math.min(1, (1 - Math.sqrt(q)) * R / 1.5);           // siledalt silutud serv
+          const v = Math.max(0, Math.min(1.1, tex[py * N + px])) * (0.55 + 0.45 * Math.pow(Math.max(lambert, 0), 0.5));
+          const i = ((py + off) * W + (px + off)) * 4;
+          d[i] = Math.min(255, v * 238); d[i + 1] = Math.min(255, v * 234); d[i + 2] = Math.min(255, v * 226);
+          d[i + 3] = Math.round(255 * light * edge);
+        }
+      }
+      x.putImageData(img, 0, 0);
+
+      // tekst: faas ja järgmine täiskuu / noorkuu
+      const SYN = 29.530588853;
+      const toFull = ((0.5 - m.phase + 1) % 1) * SYN;
+      const toNew = ((1 - m.phase) % 1) * SYN;
+      const fmtDay = d => new Date(Date.now() + d * 86400000).toLocaleDateString('et-EE', { day: 'numeric', month: 'short' }).replace('.', '');
+      const next = toFull < 1 ? 'täiskuu täna' : toNew < 1 ? 'noorkuu täna'
+        : toFull <= toNew ? `täiskuu ${fmtDay(toFull)}` : `noorkuu ${fmtDay(toNew)}`;
+      $('moon-label').innerHTML = `<b>${m.name}</b> ${m.illum}% • ${next}`;
+    }
+    // Kuu on ainult kaunistus: kui joonistamine mõnes brauseris ebaõnnestub, ei tohi see ülejäänud lehte peatada
+    const safeDrawMoon = () => { try { drawMoon(); } catch (e) { console.warn('Kuu joonistamine ebaõnnestus', e); } };
+    safeDrawMoon();
+    setInterval(safeDrawMoon, 30 * 60 * 1000);
+    addEventListener('resize', safeDrawMoon);
+
+    // --- 6. HOIATUSBÄNNER ---
+    let elecState = null;
+    let weatherAlerts = [];
+    let alertList = [];
+    let alertIndex = 0;
+
+    const hourText = t => new Date(t).toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' });
+
+    // Ilmahoiatused järgmise 12 tunni Yr.no prognoosist
+    function buildWeatherAlerts(timeseries) {
+      const now = Date.now();
+      const next = timeseries.filter(t => {
+        const ms = new Date(t.time).getTime();
+        return ms >= now - 3600000 && ms <= now + 12 * 3600000;
+      });
+      const out = [];
+      let maxWind = { v: 0, t: null };
+      let thunder = null, icy = null, snow6 = 0, rain3 = 0;
+      next.forEach((t, i) => {
+        const d = t.data.instant.details;
+        const sym = t.data.next_1_hours?.summary?.symbol_code || '';
+        const pr = t.data.next_1_hours?.details?.precipitation_amount ?? 0;
+        const wind = Math.max(d.wind_speed || 0, d.wind_speed_of_gust || 0);
+        if (wind > maxWind.v) maxWind = { v: wind, t: t.time };
+        if (!thunder && sym.includes('thunder') && i < 8) thunder = t.time;
+        if (!icy && pr >= 0.1 && d.air_temperature <= 1 && d.air_temperature >= -4 && (sym.includes('rain') || sym.includes('sleet'))) icy = t.time;
+        if (i < 6 && d.air_temperature <= 1) snow6 += pr;
+        if (i < 3) rain3 += pr;
+      });
+      if (maxWind.v >= 15) out.push({ prio: 90, color: '#f43f5e', text: `🌬️ Tormine tuul kuni ${Math.round(maxWind.v)} m/s • kl ${hourText(maxWind.t)}` });
+      if (thunder) out.push({ prio: 85, color: '#f59e0b', text: `⛈️ Äikeseoht • alates kl ${hourText(thunder)}` });
+      if (icy) out.push({ prio: 80, color: '#38bdf8', text: `🧊 Libedusoht: lörts või vihm 0° lähedal • alates kl ${hourText(icy)}` });
+      if (snow6 >= 4) out.push({ prio: 70, color: '#e2e8f0', text: `❄️ Tugev lumesadu: ${fmt(snow6, 1)} mm järgmise 6 h jooksul` });
+      else if (rain3 >= 8) out.push({ prio: 65, color: '#3b82f6', text: `🌧️ Tugev vihm: ${fmt(rain3, 1)} mm järgmise 3 h jooksul` });
+      return out;
+    }
+
+    function electricityAlerts() {
+      if (!elecState?.now) return [];
+      const { now, prices } = elecState;
+      const p = now.price;
+      const out = [];
+      if (p < 0) out.push({ prio: 75, color: '#10b981', text: `⚡ Elektri hind on negatiivne: ${fmt(p)} s/kWh` });
+      else if (p <= 3) out.push({ prio: 60, color: '#22d3ee', text: `⚡ Elekter praegu väga odav: ${fmt(p)} s/kWh` });
+      else if (p >= 30) {
+        const later = prices.filter(x => x.time > now.time && x.time <= now.time + 12 * 3600000);
+        const cheap = later.length ? later.reduce((a, b) => a.price < b.price ? a : b) : null;
+        const tip = cheap && cheap.price < p * 0.6 ? ` • odavam kl ${hourText(cheap.time)} (${fmt(cheap.price, 1)} s)` : '';
+        out.push({ prio: 55, color: '#ec4899', text: `💸 Elekter kallis: ${fmt(p)} s/kWh${tip}` });
+      }
+      return out;
+    }
+
+    function auroraAlerts() {
+      if (kpLoaded && currentAuroraProb >= 30) {
+        return [{ prio: 95, color: '#34d399', text: `🌌 Virmalised! ${currentAuroraProb}% võimalus • vaata põhja poole` }];
+      }
+      // Hoiatus ette: lähima 24 h öö, kus prognoos on vähemalt 30%
+      const soon = auroraNights.find(n => n.best && n.best.chance >= 30 && n.best.start - Date.now() < 24 * 3600000);
+      if (soon) {
+        return [{ prio: 50, color: '#a855f7', text: `🌌 Virmaliste võimalus ${soon.label.toLowerCase()} kl ${soon.range} • ${soon.best.chance}%` }];
+      }
+      return [];
+    }
+
+    function showAlert() {
+      const banner = $('alert-banner');
+      if (!alertList.length) { banner.hidden = true; return; }
+      banner.hidden = false;
+      alertIndex %= alertList.length;
+      const a = alertList[alertIndex];
+      $('alert-pill').style.setProperty('--alert-c', a.color);
+      $('alert-text').textContent = a.text;
+      $('alert-count').textContent = alertList.length > 1 ? `${alertIndex + 1}/${alertList.length}` : '';
+    }
+
+    function updateAlerts() {
+      alertList = [...auroraAlerts(), ...weatherAlerts, ...electricityAlerts()].sort((a, b) => b.prio - a.prio);
+      showAlert();
+    }
+
+    // Mitme hoiatuse korral vahetub iga 8 sekundi järel
+    setInterval(() => {
+      if (alertList.length < 2) return;
+      $('alert-pill').classList.add('fade');
+      setTimeout(() => { alertIndex++; showAlert(); $('alert-pill').classList.remove('fade'); }, 600);
+    }, 8000);
+
+    // --- 7. ILMAKAARDI TAUST ILMA JÄRGI ---
+    const fxCanvas = $('weather-fx');
+    const fxCtx = fxCanvas.getContext('2d');
+    let fxMode = 'none', fxAmount = 0, fxParts = [], fxFlash = 0, fxLast = 0;
+
+    function setWeatherFx(symbol, precip, isDark) {
+      const s = String(symbol || '');
+      let mode = 'clouds';
+      if (s.includes('thunder')) mode = 'thunder';
+      else if (s.includes('snow')) mode = 'snow';
+      else if (s.includes('sleet')) mode = 'sleet';
+      else if (s.includes('rain')) mode = 'rain';
+      else if (s.includes('fog')) mode = 'fog';
+      else if (s.startsWith('clearsky') || s.startsWith('fair')) mode = (isDark || s.includes('_night')) ? 'stars' : 'sun';
+      // sademete hulk määrab, kui tihe sadu on (0,2 … 1)
+      fxAmount = Math.max(0.2, Math.min(1, (Number(precip) || 0) / 2.5 + (s.includes('heavy') ? 0.5 : s.includes('light') ? 0 : 0.25)));
+      if (mode !== fxMode) { fxMode = mode; fxParts = []; }
+    }
+
+    function fxSpawn(w, h, kind, anywhere) {
+      const y = anywhere ? Math.random() * h : -10;
+      if (kind === 'snow') return { k: 'snow', x: Math.random() * w, y, r: 1.2 + Math.random() * 2.6, vy: 0.35 + Math.random() * 0.6, sw: Math.random() * 6.28, a: 0.35 + Math.random() * 0.45 };
+      if (kind === 'rain') return { k: 'rain', x: Math.random() * (w + 60), y, l: 10 + Math.random() * 12, vy: 7 + Math.random() * 5, a: 0.18 + Math.random() * 0.22 };
+      if (kind === 'star') return { k: 'star', x: Math.random() * w, y: Math.random() * h * 0.75, r: 0.6 + Math.random() * 1.4, ph: Math.random() * 6.28, sp: 0.6 + Math.random() * 1.6 };
+      return { k: 'cloud', x: Math.random() * w, y: h * (0.1 + Math.random() * 0.8), r: h * (0.25 + Math.random() * 0.25), vx: 0.08 + Math.random() * 0.15, a: 0.04 + Math.random() * 0.05 };
+    }
+
+    function drawWeatherFx(ts) {
+      requestAnimationFrame(drawWeatherFx);
+      if (document.hidden || ts - fxLast < 32) return;   // ~30 kaadrit sekundis on piisav
+      fxLast = ts;
+      const rect = fxCanvas.getBoundingClientRect();
+      const dpr = devicePixelRatio || 1;
+      if (fxCanvas.width !== Math.floor(rect.width * dpr) || fxCanvas.height !== Math.floor(rect.height * dpr)) {
+        fxCanvas.width = rect.width * dpr; fxCanvas.height = rect.height * dpr;
+      }
+      const w = rect.width, h = rect.height, x = fxCtx;
+      x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      x.clearRect(0, 0, w, h);
+      if (!w || !h) return;
+
+      const want = {
+        snow: Math.round(40 + fxAmount * 110), rain: Math.round(40 + fxAmount * 120),
+        sleet: Math.round(30 + fxAmount * 80), thunder: Math.round(60 + fxAmount * 100),
+        stars: 70, clouds: 6, fog: 9, sun: 0
+      }[fxMode] || 0;
+      while (fxParts.length < want) {
+        let kind = fxMode === 'stars' ? 'star' : fxMode === 'snow' ? 'snow' : (fxMode === 'rain' || fxMode === 'thunder') ? 'rain'
+          : fxMode === 'sleet' ? (fxParts.length % 2 ? 'snow' : 'rain') : 'cloud';
+        fxParts.push(fxSpawn(w, h, kind, true));
+      }
+      if (fxParts.length > want) fxParts.length = want;
+
+      if (fxMode === 'sun') {
+        const g = x.createRadialGradient(w * 0.2, h * 0.15, 0, w * 0.2, h * 0.15, h * 0.9);
+        g.addColorStop(0, 'rgba(251, 191, 36, 0.16)'); g.addColorStop(1, 'rgba(251, 191, 36, 0)');
+        x.fillStyle = g; x.fillRect(0, 0, w, h);
+        return;
+      }
+      if (fxMode === 'thunder') {
+        if (fxFlash <= 0 && Math.random() < 0.004) fxFlash = 1;
+        if (fxFlash > 0) { x.fillStyle = `rgba(226, 232, 240, ${fxFlash * 0.18})`; x.fillRect(0, 0, w, h); fxFlash -= 0.06; }
+      }
+
+      const t = ts / 1000;
+      for (const p of fxParts) {
+        if (p.k === 'snow') {
+          p.y += p.vy; p.x += Math.sin(t * 0.8 + p.sw) * 0.35;
+          if (p.y > h + 5) Object.assign(p, fxSpawn(w, h, 'snow', false));
+          x.fillStyle = `rgba(241, 245, 249, ${p.a})`;
+          x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI * 2); x.fill();
+        } else if (p.k === 'rain') {
+          p.y += p.vy; p.x -= p.vy * 0.18;
+          if (p.y > h + 10) Object.assign(p, fxSpawn(w, h, 'rain', false));
+          x.strokeStyle = `rgba(147, 197, 253, ${p.a})`; x.lineWidth = 1.2;
+          x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(p.x - p.l * 0.18, p.y + p.l); x.stroke();
+        } else if (p.k === 'star') {
+          const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(t * p.sp + p.ph));
+          x.fillStyle = `rgba(226, 232, 240, ${a})`;
+          x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI * 2); x.fill();
+        } else {
+          p.x += p.vx * (fxMode === 'fog' ? 1.5 : 1);
+          if (p.x - p.r > w) { p.x = -p.r; }
+          const g = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+          const c = fxMode === 'fog' ? '203, 213, 225' : '148, 163, 184';
+          g.addColorStop(0, `rgba(${c}, ${fxMode === 'fog' ? p.a * 1.6 : p.a})`); g.addColorStop(1, `rgba(${c}, 0)`);
+          x.fillStyle = g; x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI * 2); x.fill();
+        }
+      }
+    }
+    requestAnimationFrame(drawWeatherFx);
+
+    // --- 8. PÕLEMISKAITSE ---
+    // Iga 3 minuti järel liigub kogu sisu väga aeglaselt (40 s) uude kohta max 6 px kaugusel,
+    // et samad pikslid ei põleks teleri ekraanile sisse. Silmaga seda liikumist ei märka.
+    function shiftScreen() {
+      const dx = Math.round((Math.random() * 2 - 1) * 6);
+      const dy = Math.round((Math.random() * 2 - 1) * 4);
+      document.querySelector('.screen').style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+    setInterval(shiftScreen, 3 * 60 * 1000);
+
+    // --- 9. TURUINFO RIBA (bitcoin, nasdaq jne) ---
+    // Järjekorda ja valikut muudad failis api/markets.js (ITEMS).
+    function fmtMarket(it) {
+      const p = it.price;
+      if (p === null || p === undefined) return '--';
+      if (it.id === 'eurusd') return fmt(p, 4);
+      const cur = it.currency === 'EUR' ? ' €' : it.currency === 'USD' && !['nasdaq', 'sp500'].includes(it.id) ? ' $' : '';
+      const d = p >= 1000 ? 0 : 2;
+      return `${Number(p).toLocaleString('et-EE', { minimumFractionDigits: d, maximumFractionDigits: d })}${cur}`;
+    }
+
+    function tickerHtml(items) {
+      return items.map(it => {
+        const c = it.change;
+        const cls = c === null || c === undefined || Math.abs(c) < 0.05 ? 'tk-flat' : c > 0 ? 'tk-up' : 'tk-down';
+        const arrow = cls === 'tk-up' ? '▲' : cls === 'tk-down' ? '▼' : '';
+        const chg = c === null || c === undefined ? '' : `<span class="tk-chg ${cls}">${arrow} ${fmt(Math.abs(c), 1)}%</span>`;
+        return `<span class="tk"><span class="tk-name">${it.label}</span><span class="tk-price">${fmtMarket(it)}</span>${chg}</span>`;
+      }).join('');
+    }
+
+    async function loadMarkets() {
+      try {
+        const d = await fetchJson('/api/markets', 15000);
+        const items = (d?.items || []).filter(it => it.price !== null);
+        if (!items.length) throw new Error('tühi');
+        const track = $('ticker-track');
+        const html = tickerHtml(items);
+        track.classList.remove('scroll');
+        track.innerHTML = html;
+        // Kui kõik ei mahu ära, hakkab riba aeglaselt liikuma (sisu kahekordselt, et ring oleks sujuv)
+        requestAnimationFrame(() => {
+          if (track.scrollWidth > $('ticker').clientWidth) {
+            track.innerHTML = html + html;
+            track.style.setProperty('--ticker-dur', `${Math.round(track.scrollWidth / 2 / 50)}s`);
+            track.classList.add('scroll');
+          }
+        });
+      } catch (e) {
+        if ($('ticker-track').textContent.includes('Laen')) $('ticker-track').innerHTML = '<span class="tk"><span class="tk-name">Turuinfo pole hetkel saadaval</span></span>';
+      }
+    }
+
+    // --- KÄIVITUS ---
+    updateClock();
+    setInterval(updateClock, 1000);
+    fillPlaceSelect();
+    switchMode(activeMode);
+    loadElectricity();
+    startLocation();
+    initGlobeData();
+    loadMarkets();
+    setInterval(loadMarkets, 5 * 60 * 1000);
+    setInterval(loadElectricity, 10 * 60 * 1000);
+    setInterval(loadWeather, 30 * 60 * 1000);
+    setInterval(loadAurora, 5 * 60 * 1000);
+    setInterval(loadBeachInfo, 20 * 60 * 1000);
+    setInterval(initGlobeData, 15 * 60 * 1000);
+    setInterval(updateNowPlaying, 15 * 1000);
+
+    addEventListener('resize', () => {
+      const now = Date.now(), current = prices.find(p => p.time <= now && now < p.time + 3600000);
+      drawChart(prices.filter(p => p.time >= (current?.time ?? now)).slice(0, 18));
+    });
+// AKTIIVSETE KASUTAJATE LOENDUR
+    let clientId = localStorage.getItem('koduvaade_cid');
+    if (!clientId) {
+      clientId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      try { localStorage.setItem('koduvaade_cid', clientId); } catch(e) {}
+    }
+
+    async function pingOnlineUsers() {
+      try {
+        const d = await fetchJson(`/api/online?id=${encodeURIComponent(clientId)}`, 4000);
+        if (d?.devices) {
+          const ipInfo = d.ips > 1 ? ` (${d.ips} IP)` : '';
+          $('online-count').textContent = `${d.devices} hetkel lehel${ipInfo}`;
+        }
+      } catch(e) {}
+    }
+    pingOnlineUsers();
+    setInterval(pingOnlineUsers, 30000);
+    
+  </script>
+</body>
+</html><!doctype html>
+<html lang="et" data-theme="indigo">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0f24" />
+  <title>Koduvaade</title>
+  <link rel="icon" href="/koduvaade-favicon.svg" type="image/svg+xml" />
+  <script src="https://cdn.jsdelivr.net/npm/d3-array@3/dist/d3-array.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-geo@3/dist/d3-geo.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <style>
+    /* VAIKIMISI TEEMA: MIDNIGHT INDIGO */
+    :root, [data-theme="indigo"] {
+      color-scheme: only dark;
+      forced-color-adjust: none;
+      --bg: #0b0f24;
+      --bg-glow-1: rgba(88, 28, 135, 0.45);
+      --bg-glow-2: rgba(14, 116, 144, 0.28);
+      --card: rgba(20, 26, 56, 0.82);
+      --card2: rgba(13, 17, 38, 0.92);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: rgba(139, 92, 246, 0.24);
+      --line-soft: rgba(148, 163, 184, 0.14);
+      --cyan: #22d3ee;
+      --purple: #a855f7;
+      --pink: #ec4899;
+      --green: #10b981;
+      --red: #f43f5e;
+      --accent-grad: linear-gradient(90deg, #8b5cf6, #ec4899);
+      --accent-shadow: rgba(236, 72, 153, 0.45);
+    }
+
+    /* TEEMA 2: OOKEAN */
+    [data-theme="ocean"] {
+      --bg: #07121f;
+      --bg-glow-1: rgba(23, 60, 88, 0.6);
+      --bg-glow-2: rgba(102, 217, 255, 0.2);
+      --card: rgba(16, 38, 58, 0.9);
+      --card2: rgba(10, 25, 39, 0.95);
+      --text: #f5f8fb;
+      --muted: #9fb2c4;
+      --line: rgba(102, 217, 255, 0.22);
+      --line-soft: rgba(190, 214, 232, 0.12);
+      --cyan: #5be38f;
+      --purple: #ffc261;
+      --pink: #ff7790;
+      --green: #5be38f;
+      --red: #ff7790;
+      --accent-grad: linear-gradient(90deg, #0284c7, #38bdf8);
+      --accent-shadow: rgba(56, 189, 248, 0.4);
+    }
+
+    /* TEEMA 3: OLED KULD */
+    [data-theme="oled"] {
+      --bg: #050508;
+      --bg-glow-1: rgba(60, 42, 14, 0.4);
+      --bg-glow-2: rgba(30, 30, 40, 0.3);
+      --card: rgba(18, 18, 24, 0.92);
+      --card2: rgba(10, 10, 14, 0.96);
+      --text: #fafafa;
+      --muted: #a1a1aa;
+      --line: rgba(245, 158, 11, 0.24);
+      --line-soft: rgba(255, 255, 255, 0.1);
+      --cyan: #34d399;
+      --purple: #fbbf24;
+      --pink: #f87171;
+      --green: #34d399;
+      --red: #f87171;
+      --accent-grad: linear-gradient(90deg, #d97706, #fbbf24);
+      --accent-shadow: rgba(251, 191, 36, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 960px;
+      min-height: 540px;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(900px 500px at 20% 0%, var(--bg-glow-2), transparent 70%),
+        radial-gradient(900px 550px at 85% 15%, var(--bg-glow-1), transparent 70%),
+        var(--bg);
+      overflow: hidden;
+      user-select: none;
+    }
+    button { font: inherit; color: inherit; cursor: pointer; background: none; border: none; }
+
+    .screen {
+      height: 100vh;
+      padding: 2.6vh 3.2vw 2vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.8vh;
+    }
+    .screen > * { min-width: 0; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.2vw;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: clamp(16px, 1.55vw, 24px);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .brand-mark {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 16px var(--cyan), 0 0 6px #fff;
+    }
+    .now {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-size: clamp(14px, 1.3vw, 21px);
+      font-weight: 600;
+      color: var(--text);
+    }
+    #clock { font-weight: 750; letter-spacing: -0.02em; }
+    .now-sep { color: var(--cyan); }
+    #date { color: #cbd5e1; font-weight: 500; }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 2vh 1.5vw;
+      min-height: 0;
+    }
+
+    .card {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(145deg, var(--card), var(--card2));
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      padding: 2.2vh 2vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .card-head {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 2;
+    }
+    .label {
+      color: #cbd5e1;
+      font-weight: 700;
+      font-size: clamp(11px, 0.95vw, 15px);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* --- 1. ELEKTRI BÖRSIHIND --- */
+    .status-pill {
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.12);
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: clamp(9px, 0.78vw, 12px);
+      font-weight: 750;
+      letter-spacing: 0.05em;
+    }
+    .status-pill.error {
+      color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.5);
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    .elec-body {
+      display: grid;
+      grid-template-columns: 0.72fr 1.48fr;
+      align-items: center;
+      gap: 1vw;
+      flex: 1;
+      min-height: 0;
+      margin: 0.6vh 0;
+    }
+    .elec-left { display: flex; flex-direction: column; justify-content: center; }
+    .price-line { display: flex; align-items: baseline; gap: 6px; }
+    #price {
+      font-size: clamp(38px, 4.3vw, 68px);
+      font-weight: 800;
+      letter-spacing: -0.06em;
+      line-height: 0.95;
+      color: #fff;
+    }
+    .unit { font-size: clamp(13px, 1.15vw, 18px); font-weight: 700; color: #e2e8f0; }
+    .price-caption { margin-top: 0.8vh; color: var(--muted); font-size: clamp(11px, 0.9vw, 14px); font-weight: 500; }
+    .chart-wrap { position: relative; height: 100%; min-height: 95px; width: 100%; }
+    canvas#price-chart { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    .elec-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 1vh;
+      font-size: clamp(10px, 0.82vw, 13px);
+      color: var(--muted);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chart-legend { display: flex; align-items: center; gap: 12px; font-weight: 600; }
+    .chart-legend span { display: flex; align-items: center; gap: 5px; }
+    .chart-legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .elec-stats-inline { display: flex; gap: 14px; font-weight: 600; }
+    .elec-stats-inline strong { color: var(--text); font-weight: 750; }
+
+    /* --- 2. ILM & PROGNOOS --- */
+    .location-badge { font-size: clamp(11px, 0.95vw, 15px); font-weight: 800; color: var(--cyan); }
+    .pill-btn {
+      padding: 4px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+      font-size: clamp(9px, 0.75vw, 12px);
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .pill-btn:hover, .pill-btn:focus {
+      outline: 2px solid var(--cyan);
+      background: rgba(34, 211, 238, 0.15);
+      color: #fff;
+    }
+
+    .loc-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .place-select {
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      max-width: 13vw;
+      text-overflow: ellipsis;
+    }
+    .place-select option { background: #0b0f24; color: #f8fafc; }
+
+    .weather-middle {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 1.6vw;
+      margin: 0.6vh 0;
+      flex: 1;
+    }
+    /* Kuu ilmakaardi taustal (nagu raadio lained): suur, poolläbipaistev, sisu jääb peale */
     .moon-bg { position: absolute; right: 1%; top: 50%; transform: translateY(-54%); width: 40%; aspect-ratio: 1; z-index: 1; opacity: 0.32; pointer-events: none; }
     .moon-label { font-size: clamp(10px, 0.8vw, 13px); font-weight: 600; color: var(--muted); white-space: nowrap; margin-left: auto; margin-right: 0.6vw; }
     .moon-label b { color: #e2e8f0; font-weight: 700; }

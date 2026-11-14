@@ -238,7 +238,7 @@
     {
      "type": "list",
      "title": "Eesti-Läti liiga · tulemused",
-     "width": 6,
+     "width": 8,
      "items": [
       {
        "date": "26.09",
@@ -295,7 +295,7 @@
     {
      "type": "stats",
      "title": "Eesti-Läti liiga numbrites",
-     "width": 6,
+     "width": 4,
      "items": [
       [
        "4–3",

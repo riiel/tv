@@ -125,6 +125,52 @@ tr.cut td{border-bottom:1px dashed rgba(240,246,252,.25)}
 footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);font-size:14px}
 footer a{margin-right:14px;display:inline-block}
 html,body{overflow-x:hidden}
+
+/* Kompaktne paigutus */
+body{font-size:16px}
+@media (min-width:1600px){body{font-size:18px}}
+header{padding:14px 0 4px}
+.next{margin-top:10px;padding:12px 18px;gap:10px 24px}
+.next .teams{font-size:clamp(22px,2.4vw,34px);margin-top:2px}
+.next .meta{font-size:clamp(13px,1vw,16px);margin-top:2px}
+.cd{gap:6px}.cd div{min-width:60px;padding:6px 8px;border-radius:10px}.cd b{font-size:26px}.cd span{font-size:10px}
+main{gap:18px;padding:14px 0 28px}
+h2{margin-bottom:8px}
+.topgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1050px){.topgrid{grid-template-columns:1fr}}
+.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.cards{grid-template-columns:1fr}}
+.card{padding:11px 14px 11px 18px;gap:7px}
+.card h3{font-size:clamp(15px,1.15vw,19px)}
+.card .status{font-size:clamp(17px,1.35vw,22px)}
+.card .status small{font-size:12px}
+.row{grid-template-columns:70px 1fr;padding-top:6px;font-size:14px;gap:6px}
+.row .k{font-size:10px}
+.row .v small{font-size:12px}
+.panel{padding:2px 16px}
+.ev{grid-template-columns:72px 1fr auto;gap:10px;padding:7px 0}
+.ev .when{font-size:15px}.ev .when small{font-size:12px}
+.ev .what{font-size:15px}.ev .what small{font-size:12px}
+.tag{font-size:11px;padding:2px 8px 2px 6px}
+.tabs{margin-bottom:8px;gap:6px}.tab{padding:5px 12px;font-size:14px}
+.facts{font-size:13px;margin:0 0 8px}
+.grid{gap:12px}
+.box{padding:12px 14px}
+.box h3{margin-bottom:6px}
+table{font-size:14px}
+th{padding:4px 6px}
+td{padding:4px 6px}
+.list li{padding:5px 0;grid-template-columns:62px 1fr auto;gap:8px}
+.list .dt{font-size:12px}.list .note{font-size:12px}.list .sc{font-size:16px}
+.stats{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.stat{padding:8px 10px}.stat b{font-size:22px}.stat span{font-size:11px}
+.ldgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 24px}
+.ldg{margin:4px 0 2px}
+.ld{grid-template-columns:120px 1fr 40px;font-size:13px;margin:3px 0}
+.ld .v{font-size:15px}
+.note2{font-size:12px;margin-top:6px}
+.callout{font-size:13px;padding:7px 12px;margin-top:8px}
+footer{padding:14px 0 24px;font-size:12px}
 </style>
 </head>
 <body>
@@ -143,12 +189,10 @@ html,body{overflow-x:hidden}
 </header>
 
 <main class="wrap" id="main">
-  <section aria-label="Meeskonnad"><div class="cards" id="cards" role="tablist"></div></section>
-
-  <section aria-labelledby="h-cal">
-    <h2 id="h-cal">Tulevad mängud</h2>
-    <div class="panel" id="upcoming"></div>
-  </section>
+  <div class="topgrid">
+    <section aria-labelledby="h-teams"><h2 id="h-teams">Meeskonnad</h2><div class="cards" id="cards" role="tablist"></div></section>
+    <section aria-labelledby="h-cal"><h2 id="h-cal">Tulevad mängud</h2><div class="panel" id="upcoming"></div></section>
+  </div>
 
   <section aria-labelledby="h-det" id="detail">
     <h2 id="h-det">Tabelid ja tulemused</h2>
@@ -205,7 +249,7 @@ function renderCards(){
   document.querySelectorAll(".card").forEach(b=>b.addEventListener("click",()=>{select(b.dataset.k);document.getElementById("detail").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}));
 }
 function renderUpcoming(){
-  const now=new Date(), up=upcoming(now).slice(0,8);
+  const now=new Date(), up=upcoming(now).slice(0,7);
   document.getElementById("upcoming").innerHTML=up.length?up.map(e=>{const rel=relDay(e);
     return `<div class="ev" style="--c:${COLORS[e.team]}">
       <div class="when">${rel?rel[0].toUpperCase()+rel.slice(1):dateTxt(e,false)}<small>${e.time?"kell "+e.time:(rel?dateTxt(e,false):"")}</small></div>
@@ -220,12 +264,12 @@ function panelHtml(p,k){
     b+=`<div class="tbl"><table><thead><tr>${p.columns.map((c,i)=>`<th class="${i>=2?"n":""}">${esc(c)}</th>`).join("")}</tr></thead><tbody>`+
       p.rows.map(r=>`<tr class="${r[1]===p.highlight?"me":""} ${p.cutAfter&&r[0]===p.cutAfter?"cut":""}">${r.map((v,i)=>`<td class="${i>=2?"n":""}">${esc(v)}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
   }else if(p.type==="list"){
-    b+=`<ul class="list"${p.width===12?' style="columns:2 360px;column-gap:28px"':""}>`+p.items.map(i=>`<li><span class="dt">${esc(i.date)}</span><span>${esc(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`).join("")+`</ul>`;
+    b+=`<ul class="list"${(p.width===12||p.width===8)?' style="columns:2 300px;column-gap:24px"':""}>`+p.items.map(i=>`<li><span class="dt">${esc(i.date)}</span><span>${esc(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`).join("")+`</ul>`;
   }else if(p.type==="stats"){
     b+=`<div class="stats">${p.items.map(([v,l])=>`<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
   }else if(p.type==="leaders"){
-    b+=p.groups.map(g=>{const mx=Math.max(...g.rows.map(r=>r[1]));return `<div class="ldg">${esc(g.label)}</div>`+
-      g.rows.map(([n,v])=>`<div class="ld"><span>${esc(n)}</span><div class="track"><div class="fill" style="width:${(v/mx*100).toFixed(1)}%"></div></div><span class="v">${Number(v).toFixed(1).replace(".",",")}</span></div>`).join("");}).join("");
+    b+='<div class="ldgrid">'+p.groups.map(g=>{const mx=Math.max(...g.rows.map(r=>r[1]));return `<div><div class="ldg">${esc(g.label)}</div>`+
+      g.rows.map(([n,v])=>`<div class="ld"><span>${esc(n)}</span><div class="track"><div class="fill" style="width:${(v/mx*100).toFixed(1)}%"></div></div><span class="v">${Number(v).toFixed(1).replace(".",",")}</span></div>`).join("")+`</div>`;}).join("")+'</div>';
   }
   if(p.note) b+=`<p class="note2">${esc(p.note)}</p>`;
   if(p.callout) b+=`<div class="callout">${esc(p.callout)}</div>`;

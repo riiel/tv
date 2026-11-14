@@ -15,65 +15,32 @@ export default async function handler(req, res) {
     // kui ICS ajutiselt ei vasta, jätame need lihtsalt nimekirjast välja
   }
 
-  // 2) EESTI MEESTE JALGPALLIKOONDIS — 2026. aasta sügisese UEFA Uefa Nations League mängud.
-  // Allikas: UEFA / balticfootballnews.com. Ajad juba Eesti aja järgi.
-  const MANUAL_FOOTBALL_NATIONAL = [
-    { title: 'Island - Eesti (võõrsil, Nations League)', date: '2026-09-26T19:00:00' },
-    { title: 'Bulgaaria - Eesti (võõrsil, Nations League)', date: '2026-09-29T21:45:00' },
-    { title: 'Eesti - Luxembourg/Malta (kodus, Nations League)', date: '2026-10-03T19:00:00' },
-    { title: 'Eesti - Island (kodus, Nations League)', date: '2026-10-06T21:45:00' },
-    { title: 'Luxembourg/Malta - Eesti (võõrsil, Nations League)', date: '2026-11-13T19:00:00' },
-    { title: 'Eesti - Bulgaaria (kodus, Nations League)', date: '2026-11-16T19:00:00' },
-  ];
-  events.push(...MANUAL_FOOTBALL_NATIONAL.map(m => ({
-    sport: 'jalgpall',
-    team: 'Eesti koondis',
-    title: m.title,
-    date: m.date,
-  })));
-
-  // 3) PÄRNU BC (Pärnu Sadam) — 2026/2027 hooaja mängukava.
-  // Allikas: RealGM. Kellaajad teisendatud USA idarannikuajast (ET) Eesti ajale minu poolt.
-  // Tänase mängu aeg (26.09) on juba kasutaja kinnitusel parandatud 17:00-le —
-  // ülejäänud mängude ajad võivad samamoodi 1-3h vale olla, tasub bcparnu.ee vastu kontrollida.
-  // Uuenda käsitsi, kui hooaeg edeneb või kava muutub.
-  const MANUAL_BASKETBALL = [
-    { title: 'Pärnu Sadam - BK Liepaja (kodus)', date: '2026-09-26T17:00:00' },
-    { title: 'Pärnu Sadam - Neftchi IK (kodus, FIBA Europe Cup)', date: '2026-09-30T21:00:00' },
-    { title: 'BC Kalev-Cramo - Pärnu Sadam (võõrsil)', date: '2026-10-03T20:00:00' },
-    { title: 'Pärnu Sadam - Keila Korvpallikool (kodus)', date: '2026-10-10T20:00:00' },
-    { title: 'VEF Riga - Pärnu Sadam (võõrsil)', date: '2026-10-17T20:00:00' },
-    { title: 'Pärnu Sadam - Latvijas Universitate (kodus)', date: '2026-10-25T19:00:00' },
-    { title: 'Pärnu Sadam - Valmiera Glass Via (kodus)', date: '2026-11-01T20:00:00' },
-    { title: 'Pärnu Sadam - BK Ventspils (kodus)', date: '2026-11-07T20:00:00' },
-    { title: 'Pärnu Sadam - Tartu Ülikool Maks&Moorits (kodus)', date: '2026-11-15T20:00:00' },
-    { title: 'Keila Coolbet - Pärnu Sadam (võõrsil)', date: '2026-11-22T20:00:00' },
-    { title: 'Rigas Zelli - Pärnu Sadam (võõrsil)', date: '2026-12-02T20:00:00' },
-    { title: 'TalTech ALEXELA - Pärnu Sadam (võõrsil)', date: '2026-12-06T20:00:00' },
-    { title: 'Pärnu Sadam - BK Ogre (kodus)', date: '2026-12-13T20:00:00' },
-    { title: 'Pärnu Sadam - Rigas Ekselences Juniori (kodus)', date: '2026-12-18T20:00:00' },
-    { title: 'Pärnu Sadam - BC Kalev-Cramo (kodus)', date: '2026-12-27T20:00:00' },
-    { title: 'Pärnu Sadam - Viimsi (kodus)', date: '2026-12-30T20:00:00' },
-    { title: 'Keila Korvpallikool - Pärnu Sadam (võõrsil)', date: '2027-01-09T20:00:00' },
-    { title: 'Pärnu Sadam - TalTech ALEXELA (kodus)', date: '2027-01-16T20:00:00' },
-    { title: 'BK Liepaja - Pärnu Sadam (võõrsil)', date: '2027-01-20T20:00:00' },
-    { title: 'Latvijas Universitate - Pärnu Sadam (võõrsil)', date: '2027-01-25T20:00:00' },
-    { title: 'Tartu Ülikool Maks&Moorits - Pärnu Sadam (võõrsil)', date: '2027-01-30T20:00:00' },
-    { title: 'BK Ventspils - Pärnu Sadam (võõrsil)', date: '2027-02-02T20:00:00' },
-    { title: 'Pärnu Sadam - Keila Coolbet (kodus)', date: '2027-02-07T20:00:00' },
-    { title: 'Pärnu Sadam - Rigas Zelli (kodus)', date: '2027-02-10T20:00:00' },
-    { title: 'Valmiera Glass Via - Pärnu Sadam (võõrsil)', date: '2027-03-03T20:00:00' },
-    { title: 'Viimsi - Pärnu Sadam (võõrsil)', date: '2027-03-07T20:00:00' },
-    { title: 'BK Ogre - Pärnu Sadam (võõrsil)', date: '2027-03-10T20:00:00' },
-    { title: 'Pärnu Sadam - VEF Riga (kodus)', date: '2027-03-13T20:00:00' },
-    { title: 'Rigas Ekselences Juniori - Pärnu Sadam (võõrsil)', date: '2027-03-16T20:00:00' },
-  ];
-  events.push(...MANUAL_BASKETBALL.map(m => ({
-    sport: 'korvpall',
-    team: 'Pärnu BC',
-    title: m.title,
-    date: m.date,
-  })));
+  // 2) KOONDISED JA BC PÄRNU — samast andmefailist, mida kasutab spordileht (/sport/data.json).
+  // Seda faili uuendatakse automaatselt, nii et kellaajad on siin ja spordilehel alati samad.
+  try {
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const dataRes = await fetch(`https://${host}/sport/data.json`);
+    const data = await dataRes.json();
+    const LABELS = {
+      bcp: { sport: 'korvpall', team: 'BC Pärnu' },
+      ejk: { sport: 'jalgpall', team: 'Eesti koondis' },
+      ekk: { sport: 'korvpall', team: 'Eesti koondis' },
+    };
+    for (const e of data.events || []) {
+      const l = LABELS[e.team];
+      if (!l || e.score) continue; // Vaprus tuleb ICS-ist, mängitud mänge kalendris ei näita
+      events.push({
+        sport: l.sport,
+        team: l.team,
+        title: `${e.title} (${e.comp})`,
+        date: `${e.date}T${e.time || '00:00'}:00`,
+        place: e.place || '',
+        timeConfirmed: Boolean(e.time),
+      });
+    }
+  } catch (e) {
+    // kui andmefaili ei saa kätte, jäävad alles ainult ICS-ist loetud mängud
+  }
 
   // Sorteeri ajaliselt, jäta alles ainult tulevased (+ tänased) mängud
   const now = new Date();

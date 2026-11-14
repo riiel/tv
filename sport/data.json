@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T23:02:34+02:00",
+ "updated": "2026-11-14T23:12:45+02:00",
  "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
  "teams": {
   "bcp": {
@@ -184,7 +184,8 @@
      ],
      "highlight": "BC Pärnu",
      "cutAfter": 8,
-     "note": "Järjestus võiduprotsendi järgi, arvutatud basket.ee ametlikest tulemustest. Ametlik tabel võib võrdse seisu korral erineda. 8 paremat pääsevad play-offi."
+     "note": "Järjestus võiduprotsendi järgi, arvutatud basket.ee ametlikest tulemustest. Ametlik tabel võib võrdse seisu korral erineda. 8 paremat pääsevad play-offi.",
+     "key": "lg-table"
     },
     {
      "type": "stack",
@@ -253,7 +254,8 @@
        ],
        "highlight": "BC Pärnu (EST)",
        "cutAfter": 2,
-       "note": "Kaks parimat pääsevad edasi. Jäänud on 4 vooru."
+       "note": "Kaks parimat pääsevad edasi. Jäänud on 4 vooru.",
+       "key": "ec-table"
       },
       {
        "type": "table",
@@ -325,7 +327,8 @@
         ]
        ],
        "highlight": "BC Pärnu",
-       "note": "Ühisliiga põhiturniiri mängud lähevad arvesse ka KML-i tabelisse. Eesti meister selgub kevadel KML-i play-offis."
+       "note": "Ühisliiga põhiturniiri mängud lähevad arvesse ka KML-i tabelisse. Eesti meister selgub kevadel KML-i play-offis.",
+       "key": "lg-kml"
       }
      ]
     },
@@ -384,7 +387,7 @@
        "result": "W"
       }
      ],
-     "callout": "Kolm võitu järjest. Järgmine liigamäng: P 15.11 kell 17:00 kodus Tartu Ülikooliga."
+     "key": "lg-results"
     },
     {
      "type": "stats",
@@ -415,7 +418,8 @@
        "3",
        "võitu järjest"
       ]
-     ]
+     ],
+     "key": "lg-stats"
     },
     {
      "type": "list",
@@ -478,7 +482,8 @@
        "score": "65:86",
        "result": "L"
       }
-     ]
+     ],
+     "key": "ec-results"
     },
     {
      "type": "leaders",
@@ -536,7 +541,8 @@
         ]
        ]
       }
-     ]
+     ],
+     "key": "ec-leaders"
     }
    ]
   },
@@ -693,113 +699,163 @@
      ],
      "highlight": "Pärnu JK Vaprus",
      "cutAfter": 8,
-     "note": "9. koht läheb üleminekumängudele, 10. koht langeb Esiliigasse."
+     "note": "9. koht läheb üleminekumängudele, 10. koht langeb Esiliigasse.",
+     "key": "vap-table"
     },
     {
-     "type": "stats",
-     "title": "Hooaeg numbrites",
+     "type": "stack",
      "width": 4,
-     "items": [
-      [
-       "11",
-       "võitu"
-      ],
-      [
-       "7",
-       "viiki"
-      ],
-      [
-       "18",
-       "kaotust"
-      ],
-      [
-       "1,42",
-       "lööduid väravaid mängus"
-      ],
-      [
-       "1,92",
-       "lastud väravaid mängus"
-      ],
-      [
-       "1,11",
-       "punkti mängus"
-      ]
-     ],
-     "callout": "Vaprus lõpetas hooaja 5:0 võiduga Tammeka üle ja tõusis viimases voorus 8. kohalt 7. kohale."
+     "panels": [
+      {
+       "type": "stats",
+       "key": "vap-stats",
+       "title": "Hooaeg numbrites",
+       "items": [
+        [
+         "11–7–18",
+         "võidud–viigid–kaotused"
+        ],
+        [
+         "7–5–6",
+         "kodus"
+        ],
+        [
+         "4–2–12",
+         "võõrsil"
+        ],
+        [
+         "51:69",
+         "väravad"
+        ],
+        [
+         "1,42",
+         "löödud väravat mängus"
+        ],
+        [
+         "1,11",
+         "punkti mängus"
+        ]
+       ],
+       "callout": "Hooaja viimases mängus võitis Vaprus võõrsil Tammekat 5:0 ja tõusis 8. kohalt 7. kohale."
+      },
+      {
+       "type": "list",
+       "key": "vap-cup",
+       "title": "Tipneri karikas 2026",
+       "items": [
+        {
+         "date": "10.03",
+         "title": "Vaprus – Tartu JK Welco",
+         "note": "kodus",
+         "score": "2:1",
+         "result": "W"
+        },
+        {
+         "date": "06.05",
+         "title": "Paide Linnameeskond – Vaprus",
+         "note": "võõrsil",
+         "score": "2:0",
+         "result": "L"
+        },
+        {
+         "date": "21.07",
+         "title": "Tabasalu – Vaprus",
+         "note": "võõrsil",
+         "score": "1:4",
+         "result": "W"
+        },
+        {
+         "date": "12.08",
+         "title": "Jõhvi FC Phoenix – Vaprus",
+         "note": "võõrsil",
+         "score": "0:5",
+         "result": "W"
+        },
+        {
+         "date": "02.09",
+         "title": "Nõmme United – Vaprus",
+         "note": "võõrsil",
+         "score": "3:2",
+         "result": "L"
+        }
+       ]
+      }
+     ]
     },
     {
      "type": "list",
-     "title": "Hooaja olulisemad mängud",
+     "key": "vap-last",
+     "title": "Premium liiga · viimased 10 mängu",
      "width": 12,
      "items": [
       {
-       "date": "07.03",
-       "title": "Vaprus – Paide",
-       "note": "1. voor, hooaja avamäng",
-       "score": "3:2",
-       "result": "W"
-      },
-      {
-       "date": "14.03",
-       "title": "Nõmme United – Vaprus",
-       "note": "2. voor",
-       "score": "7:1",
+       "date": "12.09",
+       "title": "FCI Levadia – Vaprus",
+       "note": "võõrsil",
+       "score": "4:0",
        "result": "L"
       },
       {
-       "date": "08.04",
-       "title": "Levadia – Vaprus",
-       "note": "5. voor · värav: Välja",
-       "score": "2:1",
-       "result": "L"
-      },
-      {
-       "date": "8. voor",
-       "title": "Kuressaare – Vaprus",
-       "note": "värav: Limberg",
-       "score": "0:1",
-       "result": "W"
-      },
-      {
-       "date": "11. voor",
-       "title": "Vaprus – Narva Trans",
-       "note": "väravad: Välja (pen), Aloe",
+       "date": "16.09",
+       "title": "Paide Linnameeskond – Vaprus",
+       "note": "võõrsil",
        "score": "2:0",
-       "result": "W"
-      },
-      {
-       "date": "24.05",
-       "title": "Vaprus – Levadia",
-       "note": "13. voor · värav: Lepik",
-       "score": "1:6",
        "result": "L"
       },
       {
-       "date": "02.08",
-       "title": "Vaprus – Levadia",
-       "note": "21. voor · värav: Orm",
+       "date": "20.09",
+       "title": "FC Flora – Vaprus",
+       "note": "võõrsil",
+       "score": "3:2",
+       "result": "L"
+      },
+      {
+       "date": "10.10",
+       "title": "Vaprus – Narva Trans",
+       "note": "kodus",
+       "score": "2:2",
+       "result": "D"
+      },
+      {
+       "date": "13.10",
+       "title": "Vaprus – Nõmme Kalju",
+       "note": "kodus",
+       "score": "2:2",
+       "result": "D"
+      },
+      {
+       "date": "18.10",
+       "title": "Harju JK Laagri – Vaprus",
+       "note": "võõrsil",
+       "score": "2:0",
+       "result": "L"
+      },
+      {
+       "date": "23.10",
+       "title": "Nõmme United – Vaprus",
+       "note": "võõrsil",
+       "score": "4:2",
+       "result": "L"
+      },
+      {
+       "date": "28.10",
+       "title": "Vaprus – FC Kuressaare",
+       "note": "kodus",
        "score": "1:1",
        "result": "D"
       },
       {
-       "date": "26. voor",
-       "title": "Vaprus – Nõmme United",
-       "note": "värav: Pajo",
-       "score": "1:0",
-       "result": "W"
+       "date": "31.10",
+       "title": "Vaprus – Paide Linnameeskond",
+       "note": "kodus",
+       "score": "0:1",
+       "result": "L"
       },
       {
-       "date": "27. voor",
-       "title": "Vaprus – Harju",
-       "note": "väravad: Orm, Sild, omavärav",
-       "score": "3:2",
-       "result": "W"
-      },
-      {
-       "date": "36. voor",
-       "title": "Vaprus vs Tammeka",
-       "note": "hooaja viimane mäng",
-       "score": "5:0",
+       "date": "07.11",
+       "title": "Tartu Tammeka – Vaprus",
+       "note": "võõrsil",
+       "score": "0:5",
        "result": "W"
       }
      ]
@@ -894,7 +950,8 @@
      ],
      "highlight": "Eesti",
      "cutAfter": 2,
-     "callout": "Eesti on 2. koha kindlustanud ja mängib vähemalt üleminekumänge B-liigasse pääsemiseks."
+     "callout": "Eesti on 2. koha kindlustanud ja mängib vähemalt üleminekumänge B-liigasse pääsemiseks.",
+     "key": "ejk-table"
     },
     {
      "type": "list",
@@ -943,7 +1000,8 @@
        "score": "0:1",
        "result": "W"
       }
-     ]
+     ],
+     "key": "ejk-results"
     },
     {
      "type": "stats",
@@ -970,7 +1028,8 @@
        "1",
        "värav: Rasmus Peetson"
       ]
-     ]
+     ],
+     "key": "ejk-stats"
     }
    ]
   },
@@ -978,9 +1037,9 @@
    "name": "Eesti korvpallikoondis",
    "color": "ekk",
    "summary": {
-    "competition": "MM 2027 valiksari · L-alagrupp, võidud ja kaotused kokku",
-    "headline": "3 V · 5 K",
-    "sub": ""
+    "competition": "MM 2027 valiksari · L-alagrupp",
+    "headline": "6. koht",
+    "sub": "3 V · 5 K"
    },
    "facts": [
     [
@@ -999,58 +1058,74 @@
    "panels": [
     {
      "type": "table",
-     "title": "L-alagrupp · seis enne 2. ringi",
+     "title": "MM-valiksari · L-alagrupp",
      "width": 6,
      "columns": [
       "#",
       "Koondis",
+      "M",
       "V",
-      "K"
+      "K",
+      "P"
      ],
      "rows": [
       [
        1,
        "Prantsusmaa",
-       5,
-       1
+       8,
+       7,
+       1,
+       15
       ],
       [
        2,
        "Soome",
-       4,
-       2
-      ],
-      [
+       8,
+       5,
        3,
-       "Eesti",
-       3,
-       3
-      ],
-      [
-       3,
-       "Rootsi",
-       3,
-       3
+       13
       ],
       [
        3,
        "Sloveenia",
-       3,
-       3
+       8,
+       4,
+       4,
+       12
       ],
       [
-       3,
+       4,
+       "Rootsi",
+       8,
+       4,
+       4,
+       12
+      ],
+      [
+       5,
        "Ungari",
+       8,
+       4,
+       4,
+       12
+      ],
+      [
+       6,
+       "Eesti",
+       8,
        3,
-       3
+       5,
+       11
       ]
      ],
      "highlight": "Eesti",
-     "note": "1. ringi tulemused tulid kaasa. Pärast augustikuu kahte kaotust on Eesti bilanss 3 võitu, 5 kaotust. Kolm paremat pääsevad 2027. aasta MM-finaalturniirile Kataris."
+     "note": "Kolm paremat pääsevad 2027. aasta MM-ile Katari. Igal koondisel on jäänud 4 mängu.",
+     "key": "ekk-table",
+     "cutAfter": 3
     },
     {
      "type": "list",
-     "title": "Tulemused 2026",
+     "title": "Valikmängud 2026",
      "width": 6,
      "items": [
       {
@@ -1096,7 +1171,7 @@
        "result": "L"
       }
      ],
-     "callout": "Järgmine aken: 27.11 kodus Prantsusmaaga ja 30.11 võõrsil Soomega."
+     "key": "ekk-results"
     }
    ]
   }
@@ -1121,18 +1196,18 @@
   {
    "team": "ekk",
    "date": "2026-11-27",
-   "time": null,
+   "time": "19:00",
    "title": "Eesti – Prantsusmaa",
    "comp": "MM 2027 valiksari, L-alagrupp",
-   "place": "Tallinn"
+   "place": "Unibet Arena, Tallinn"
   },
   {
    "team": "ekk",
    "date": "2026-11-30",
-   "time": null,
+   "time": "18:30",
    "title": "Soome – Eesti",
    "comp": "MM 2027 valiksari, L-alagrupp",
-   "place": "Soome"
+   "place": "Metro Areena, Espoo"
   },
   {
    "team": "bcp",
@@ -1175,16 +1250,6 @@
    "comp": "FIBA Europe Cup",
    "score": "65:86",
    "result": "L"
-  },
-  {
-   "team": "vap",
-   "date": "2026-11-07",
-   "dateLabel": "nov",
-   "time": null,
-   "title": "Vaprus vs Tammeka",
-   "comp": "Premium liiga, 36. voor",
-   "score": "5:0",
-   "result": "W"
   },
   {
    "team": "bcp",
@@ -1277,48 +1342,12 @@
    "result": "L"
   },
   {
-   "team": "vap",
-   "date": "2026-08-02",
-   "time": null,
-   "title": "Vaprus – Levadia",
-   "comp": "Premium liiga, 21. voor",
-   "score": "1:1",
-   "result": "D"
-  },
-  {
    "team": "ekk",
    "date": "2026-07-03",
    "time": null,
    "title": "Eesti – Sloveenia",
    "comp": "MM 2027 valiksari",
    "score": "93:62",
-   "result": "W"
-  },
-  {
-   "team": "vap",
-   "date": "2026-05-24",
-   "time": null,
-   "title": "Vaprus – Levadia",
-   "comp": "Premium liiga, 13. voor",
-   "score": "1:6",
-   "result": "L"
-  },
-  {
-   "team": "vap",
-   "date": "2026-04-08",
-   "time": null,
-   "title": "Levadia – Vaprus",
-   "comp": "Premium liiga, 5. voor",
-   "score": "2:1",
-   "result": "L"
-  },
-  {
-   "team": "vap",
-   "date": "2026-03-07",
-   "time": null,
-   "title": "Vaprus – Paide",
-   "comp": "Premium liiga, 1. voor",
-   "score": "3:2",
    "result": "W"
   },
   {
@@ -1390,7 +1419,8 @@
    "time": "17:00",
    "title": "BC Pärnu – Tartu Ülikool Maks & Moorits",
    "comp": "Eesti-Läti liiga",
-   "place": "Pärnu Spordihall"
+   "place": "Pärnu Spordihall",
+   "tv": "Inspira, Delfi TV, 24sport.app"
   },
   {
    "team": "bcp",
@@ -1398,7 +1428,8 @@
    "time": "17:30",
    "title": "Keila Basket – BC Pärnu",
    "comp": "Eesti-Läti liiga",
-   "place": "Keila Tervisekeskus"
+   "place": "Keila Tervisekeskus",
+   "tv": "Inspira, Delfi TV, 24sport.app"
   },
   {
    "team": "bcp",
@@ -1414,7 +1445,8 @@
    "time": "18:00",
    "title": "TalTech/ALEXELA – BC Pärnu",
    "comp": "Eesti-Läti liiga",
-   "place": "TalTechi spordihoone, Tallinn"
+   "place": "TalTechi spordihoone, Tallinn",
+   "tv": "Inspira, Delfi TV"
   },
   {
    "team": "bcp",
@@ -1620,6 +1652,767 @@
    "title": "Rootsi – Eesti",
    "comp": "MM 2027 valiksari",
    "score": "77:88",
+   "result": "W"
+  },
+  {
+   "team": "vap",
+   "date": "2026-11-07",
+   "time": "12:30",
+   "title": "Tartu Tammeka – Vaprus",
+   "comp": "Premium liiga",
+   "score": "0:5",
+   "result": "W",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-10-31",
+   "time": "14:30",
+   "title": "Vaprus – Paide Linnameeskond",
+   "comp": "Premium liiga",
+   "score": "0:1",
+   "result": "L",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-10-28",
+   "time": "18:00",
+   "title": "Vaprus – FC Kuressaare",
+   "comp": "Premium liiga",
+   "score": "1:1",
+   "result": "D",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-10-23",
+   "time": "19:00",
+   "title": "Nõmme United – Vaprus",
+   "comp": "Premium liiga",
+   "score": "4:2",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-10-18",
+   "time": "14:30",
+   "title": "Harju JK Laagri – Vaprus",
+   "comp": "Premium liiga",
+   "score": "2:0",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-10-13",
+   "time": "18:00",
+   "title": "Vaprus – Nõmme Kalju",
+   "comp": "Premium liiga",
+   "score": "2:2",
+   "result": "D",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-10-10",
+   "time": "14:30",
+   "title": "Vaprus – Narva Trans",
+   "comp": "Premium liiga",
+   "score": "2:2",
+   "result": "D",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-09-20",
+   "time": "19:00",
+   "title": "FC Flora – Vaprus",
+   "comp": "Premium liiga",
+   "score": "3:2",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-09-16",
+   "time": "19:00",
+   "title": "Paide Linnameeskond – Vaprus",
+   "comp": "Premium liiga",
+   "score": "2:0",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-09-12",
+   "time": "14:30",
+   "title": "FCI Levadia – Vaprus",
+   "comp": "Premium liiga",
+   "score": "4:0",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-09-09",
+   "time": "19:00",
+   "title": "Vaprus – Harju JK Laagri",
+   "comp": "Premium liiga",
+   "score": "3:2",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-09-05",
+   "time": "17:00",
+   "title": "Vaprus – Nõmme United",
+   "comp": "Premium liiga",
+   "score": "1:0",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-09-02",
+   "time": "17:30",
+   "title": "Nõmme United – Vaprus",
+   "comp": "Tipneri karikas",
+   "score": "3:2",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-08-29",
+   "time": "17:00",
+   "title": "FC Kuressaare – Vaprus",
+   "comp": "Premium liiga",
+   "score": "2:2",
+   "result": "D",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-08-23",
+   "time": "19:00",
+   "title": "Vaprus – FC Flora",
+   "comp": "Premium liiga",
+   "score": "1:2",
+   "result": "L",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-08-16",
+   "time": "17:00",
+   "title": "Nõmme Kalju – Vaprus",
+   "comp": "Premium liiga",
+   "score": "3:1",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-08-12",
+   "time": "19:00",
+   "title": "Jõhvi FC Phoenix – Vaprus",
+   "comp": "Tipneri karikas",
+   "score": "0:5",
+   "result": "W",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-08-02",
+   "time": "19:00",
+   "title": "Vaprus – FCI Levadia",
+   "comp": "Premium liiga",
+   "score": "1:1",
+   "result": "D",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-07-21",
+   "time": "20:00",
+   "title": "Tabasalu – Vaprus",
+   "comp": "Tipneri karikas",
+   "score": "1:4",
+   "result": "W",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-07-18",
+   "time": "17:00",
+   "title": "Narva Trans – Vaprus",
+   "comp": "Premium liiga",
+   "score": "3:1",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-07-11",
+   "time": "14:30",
+   "title": "Vaprus – Tartu Tammeka",
+   "comp": "Premium liiga",
+   "score": "5:1",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-07-04",
+   "time": "19:00",
+   "title": "Paide Linnameeskond – Vaprus",
+   "comp": "Premium liiga",
+   "score": "3:1",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-06-26",
+   "time": "20:00",
+   "title": "Vaprus – FC Kuressaare",
+   "comp": "Premium liiga",
+   "score": "1:0",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-06-16",
+   "time": "19:00",
+   "title": "Vaprus – FC Flora",
+   "comp": "Premium liiga",
+   "score": "1:2",
+   "result": "L",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-06-13",
+   "time": "17:00",
+   "title": "Tartu Tammeka – Vaprus",
+   "comp": "Premium liiga",
+   "score": "0:0",
+   "result": "D",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-05-30",
+   "time": "14:30",
+   "title": "Vaprus – Nõmme Kalju",
+   "comp": "Premium liiga",
+   "score": "3:1",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-05-24",
+   "time": "17:00",
+   "title": "Vaprus – FCI Levadia",
+   "comp": "Premium liiga",
+   "score": "1:6",
+   "result": "L",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-05-16",
+   "time": "17:00",
+   "title": "Harju JK Laagri – Vaprus",
+   "comp": "Premium liiga",
+   "score": "1:2",
+   "result": "W",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-05-09",
+   "time": "17:00",
+   "title": "Vaprus – Narva Trans",
+   "comp": "Premium liiga",
+   "score": "2:0",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-05-06",
+   "time": "18:15",
+   "title": "Paide Linnameeskond – Vaprus",
+   "comp": "Tipneri karikas",
+   "score": "2:0",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-05-02",
+   "time": "17:00",
+   "title": "Vaprus – Nõmme United",
+   "comp": "Premium liiga",
+   "score": "2:3",
+   "result": "L",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-04-26",
+   "time": "14:30",
+   "title": "Nõmme Kalju – Vaprus",
+   "comp": "Premium liiga",
+   "score": "1:2",
+   "result": "W",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-04-21",
+   "time": "18:45",
+   "title": "FC Kuressaare – Vaprus",
+   "comp": "Premium liiga",
+   "score": "0:1",
+   "result": "W",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-04-18",
+   "time": "17:00",
+   "title": "Vaprus – Tartu Tammeka",
+   "comp": "Premium liiga",
+   "score": "0:0",
+   "result": "D",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-04-12",
+   "time": "17:00",
+   "title": "FC Flora – Vaprus",
+   "comp": "Premium liiga",
+   "score": "2:0",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-04-08",
+   "time": "19:00",
+   "title": "FCI Levadia – Vaprus",
+   "comp": "Premium liiga",
+   "score": "2:1",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-04-04",
+   "time": "17:00",
+   "title": "Vaprus – Harju JK Laagri",
+   "comp": "Premium liiga",
+   "score": "0:2",
+   "result": "L",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-03-21",
+   "time": "14:30",
+   "title": "Narva Trans – Vaprus",
+   "comp": "Premium liiga",
+   "score": "2:1",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-03-14",
+   "time": "12:30",
+   "title": "Nõmme United – Vaprus",
+   "comp": "Premium liiga",
+   "score": "7:1",
+   "result": "L",
+   "place": "võõrsil"
+  },
+  {
+   "team": "vap",
+   "date": "2026-03-10",
+   "time": "19:00",
+   "title": "Vaprus – Tartu JK Welco",
+   "comp": "Tipneri karikas",
+   "score": "2:1",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "vap",
+   "date": "2026-03-07",
+   "time": "14:30",
+   "title": "Vaprus – Paide Linnameeskond",
+   "comp": "Premium liiga",
+   "score": "3:2",
+   "result": "W",
+   "place": "Pärnu Rannastaadion"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-03-23",
+   "time": "20:00",
+   "title": "BC Pärnu – Tartu Ülikool Maks & Moorits",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "88:89",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-03-20",
+   "time": "19:00",
+   "title": "Tartu Ülikool Maks & Moorits – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "80:71",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-03-11",
+   "time": "19:00",
+   "title": "BC Pärnu – Viimsi",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "88:75",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-03-07",
+   "time": "20:00",
+   "title": "Rīgas Zeļļi – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "83:75",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-03-04",
+   "time": "19:00",
+   "title": "BC Pärnu – Tartu Ülikool Maks & Moorits",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "70:91",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-02-11",
+   "time": "19:00",
+   "title": "BC Pärnu – VEF Rīga",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "62:72",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-02-07",
+   "time": "17:00",
+   "title": "BC Pärnu – Latvijas Universitāte",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "72:71",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-02-03",
+   "time": "19:00",
+   "title": "Valmiera Glass VIA – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "92:85",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-01-31",
+   "time": "17:00",
+   "title": "BC Pärnu – Keila Basket",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "98:82",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-01-27",
+   "time": "18:30",
+   "title": "BK Ventspils – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "80:71",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-01-24",
+   "time": "17:00",
+   "title": "BC Pärnu – TalTech/ALEXELA",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "76:83",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-01-17",
+   "time": "19:00",
+   "title": "Bigbank/Kalev – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "100:81",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-01-14",
+   "time": "19:00",
+   "title": "BC Pärnu – BK Liepāja",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "85:69",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-01-11",
+   "time": "17:00",
+   "title": "Viimsi – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "76:88",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-01-07",
+   "time": "19:00",
+   "title": "BC Pärnu – BK Ogre",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "85:71",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-12-27",
+   "time": "17:00",
+   "title": "BC Pärnu – Keila KK",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "76:72",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-12-21",
+   "time": "17:30",
+   "title": "Keila Basket – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "64:81",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-12-17",
+   "time": "19:00",
+   "title": "BC Pärnu – BK Ventspils",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "73:82",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-12-13",
+   "time": "15:00",
+   "title": "VEF Rīga – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "90:80",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-12-06",
+   "time": "18:00",
+   "title": "Keila KK – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "70:97",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-11-23",
+   "time": "17:00",
+   "title": "BK Liepāja – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "83:90",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-11-15",
+   "time": "17:00",
+   "title": "TalTech/ALEXELA – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "86:78",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-11-08",
+   "time": "17:00",
+   "title": "BC Pärnu – Valmiera Glass VIA",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "62:78",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-11-01",
+   "time": "19:00",
+   "title": "Tartu Ülikool Maks & Moorits – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "83:71",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-10-25",
+   "time": "17:00",
+   "title": "BC Pärnu – Bigbank/Kalev",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "78:86",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-10-18",
+   "time": "17:00",
+   "title": "BK Ogre – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "71:60",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-10-11",
+   "time": "17:30",
+   "title": "Latvijas Universitāte – BC Pärnu",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "73:97",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2025-10-08",
+   "time": "19:00",
+   "title": "BC Pärnu – Rīgas Zeļļi",
+   "comp": "Eesti-Läti liiga 2025/26",
+   "score": "76:83",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-05-17",
+   "time": "17:00",
+   "title": "TalTech/ALEXELA – BC Pärnu",
+   "comp": "KML play-off 2025/26",
+   "score": "97:77",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-05-15",
+   "time": "19:00",
+   "title": "BC Pärnu – TalTech/ALEXELA",
+   "comp": "KML play-off 2025/26",
+   "score": "72:79",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-05-13",
+   "time": "18:30",
+   "title": "TalTech/ALEXELA – BC Pärnu",
+   "comp": "KML play-off 2025/26",
+   "score": "88:85",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-05-09",
+   "time": "19:00",
+   "title": "Tartu Ülikool Maks & Moorits – BC Pärnu",
+   "comp": "KML play-off 2025/26",
+   "score": "76:72",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-05-07",
+   "time": "19:00",
+   "title": "BC Pärnu – Tartu Ülikool Maks & Moorits",
+   "comp": "KML play-off 2025/26",
+   "score": "63:70",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-05-04",
+   "time": "19:00",
+   "title": "Tartu Ülikool Maks & Moorits – BC Pärnu",
+   "comp": "KML play-off 2025/26",
+   "score": "82:75",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-04-30",
+   "time": "19:00",
+   "title": "BC Pärnu – Tartu Ülikool Maks & Moorits",
+   "comp": "KML play-off 2025/26",
+   "score": "101:81",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-04-27",
+   "time": "19:00",
+   "title": "Tartu Ülikool Maks & Moorits – BC Pärnu",
+   "comp": "KML play-off 2025/26",
+   "score": "76:84",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-04-16",
+   "time": "19:00",
+   "title": "BC Pärnu – Viimsi",
+   "comp": "KML play-off 2025/26",
+   "score": "94:69",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-04-13",
+   "time": "18:30",
+   "title": "Viimsi – BC Pärnu",
+   "comp": "KML play-off 2025/26",
+   "score": "81:96",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-04-10",
+   "time": "19:00",
+   "title": "BC Pärnu – Viimsi",
+   "comp": "KML play-off 2025/26",
+   "score": "87:81",
    "result": "W"
   }
  ],

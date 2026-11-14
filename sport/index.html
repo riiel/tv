@@ -142,6 +142,27 @@ html,body{overflow-x:hidden}
 .lg{width:1.25em;height:1.25em;object-fit:contain;vertical-align:-0.28em;margin-right:.4em;background:#fff;border-radius:5px;padding:1px;flex-shrink:0}
 .lg.fl{background:none;padding:0;border-radius:2px;width:1.3em;height:.9em;vertical-align:-0.1em;object-fit:cover;box-shadow:0 0 0 1px rgba(240,246,252,.25)}
 .tn-team{white-space:nowrap}
+/* Uued osad: tagasilink, vorm, mängupäev, omavahelised mängud, telekarežiim */
+.hright{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.navlink{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.navlink:hover,.navlink:focus-visible{color:var(--ink);border-color:rgba(240,246,252,.3)}
+.form{display:inline-flex;gap:3px;margin-left:auto;padding-left:8px}
+.form i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:0;width:17px;height:17px;border-radius:4px;display:grid;place-items:center;color:#0d1117}
+.next.today{border-color:var(--accent-strong);box-shadow:0 0 0 1px var(--accent-strong),0 8px 24px rgba(0,0,0,.35)}
+.next.today .lbl{color:var(--accent)}
+.next.live{border-color:var(--loss);box-shadow:0 0 0 1px var(--loss),0 8px 24px rgba(0,0,0,.35)}
+.next.live .lbl{color:var(--loss)}
+.next.live .lbl::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--loss);margin-right:8px;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.next.live .lbl::before{animation:none}}
+.ev.live .when{color:var(--loss)}
+.h2h{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;margin-top:6px;font-size:13px;color:var(--muted)}
+.h2h:empty{display:none}
+.h2h b{color:var(--ink);font-variant-numeric:tabular-nums}
+.h2h .pill{font-size:11px;padding:0 5px;margin-right:5px}
+.keyhint{font-size:12px;color:var(--muted);align-self:center;margin-left:auto}
+.tab.auto[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+@media (max-width:900px){.keyhint{display:none}}
 /* Kompaktne paigutus */
 body{font-size:16px}
 @media (min-width:1600px){body{font-size:18px}}
@@ -201,12 +222,13 @@ footer{padding:14px 0 24px;font-size:12px}
 <body>
 <header>
   <div class="wrap">
-    <div class="hrow"><h1>Pärnu ja Eesti spordikeskus</h1><span class="stamp" id="stamp">Laen andmeid…</span></div>
-    <div class="next" aria-live="polite">
+    <div class="hrow"><h1>Pärnu ja Eesti spordikeskus</h1><span class="hright"><span class="stamp" id="stamp">Laen andmeid…</span><a class="navlink" href="/">Koduvaade</a></span></div>
+    <div class="next" id="next" aria-live="polite">
       <div>
-        <div class="lbl">Järgmine mäng</div>
+        <div class="lbl" id="nextLbl">Järgmine mäng</div>
         <div class="teams" id="nextTeams">–</div>
         <div class="meta" id="nextMeta"></div>
+        <div class="h2h" id="nextH2H"></div>
       </div>
       <div class="cd" id="countdown" aria-label="Aega mängu alguseni"></div>
     </div>
@@ -234,6 +256,8 @@ footer{padding:14px 0 24px;font-size:12px}
 <script>
 const COLORS={bcp:"var(--t-bcp)",vap:"var(--t-vap)",ejk:"var(--t-ejk)",ekk:"var(--t-ekk)"};
 const SHORT={bcp:"BC Pärnu",vap:"Vaprus",ejk:"Jalgpallikoondis",ekk:"Korvpallikoondis"};
+const OWN={bcp:["BC Pärnu"],vap:["Vaprus","Pärnu JK Vaprus"],ejk:["Eesti"],ekk:["Eesti"]};
+const DUR={bcp:135,ekk:135,vap:120,ejk:120}; // mängu ligikaudne kestus minutites
 const MONTHS=["jaanuar","veebruar","märts","aprill","mai","juuni","juuli","august","september","oktoober","november","detsember"];
 const WDL=["pühapäev","esmaspäev","teisipäev","kolmapäev","neljapäev","reede","laupäev"];
 const WD=["P","E","T","K","N","R","L"];
@@ -247,9 +271,10 @@ const FLAG='<svg class="flag" viewBox="0 0 33 21" aria-label="Eesti" role="img">
 const SPORT={bcp:"basket",vap:"football",ejk:"football",ekk:"basket"};
 const NATIONAL={ejk:true,ekk:true};
 const tIco=k=>`<span class="tico" style="--c:${COLORS[k]}" title="${SPORT[k]==="basket"?"Korvpall":"Jalgpall"}${NATIONAL[k]?" · koondis":""}">${ico(SPORT[k])}${NATIONAL[k]?FLAG:""}</span>`;
-let DATA=null, sel="bcp";
-try{const s=localStorage.getItem("sk-team"); if(s) sel=s;}catch(_){}
+let DATA=null, SIG="", LIVE_OK=false, sel="bcp", auto=false, autoTimer=null;
+try{const s=localStorage.getItem("sk-team"); if(s) sel=s; auto=localStorage.getItem("sk-auto")==="1";}catch(_){}
 
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function logoUrl(n){
   if(!DATA||!DATA.logos) return null;
   const k=(DATA.logoAliases&&DATA.logoAliases[n])||n; const u=DATA.logos[k];
@@ -257,32 +282,60 @@ function logoUrl(n){
 }
 function team(n){const l=logoUrl(String(n).trim());return l?`<span class="tn-team"><img class="lg${l.f?" fl":""}" src="${l.u}" alt="" onerror="this.remove()">${esc(n)}</span>`:esc(n);}
 function teamsTitle(t){const m=String(t).split(/( – | vs )/);return m.map((x,i)=>i%2?esc(x):team(x)).join("");}
-const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sides=t=>String(t).split(/ – | vs /).map(x=>x.trim());
 function tzOff(d){const [y,m,day]=d.split("-").map(Number);
   const lastSun=mo=>{const x=new Date(Date.UTC(y,mo,0));return x.getUTCDate()-x.getUTCDay();};
   return ((m>3&&m<10)||(m===3&&day>=lastSun(3))||(m===10&&day<lastSun(10)))?"+03:00":"+02:00";}
 const startOf=e=>new Date(e.date+"T"+(e.time||"23:59")+":00"+tzOff(e.date));
 const dayStart=e=>new Date(e.date+"T00:00:00"+tzOff(e.date));
+const endOf=e=>e.time?startOf(e).getTime()+(DUR[e.team]||120)*6e4:dayStart(e).getTime()+864e5;
 const wdOf=e=>new Date(e.date+"T12:00:00Z").getUTCDay();
 function dateTxt(e,long){const [y,m,d]=e.date.split("-").map(Number);
   return long?`${WDL[wdOf(e)]}, ${d}. ${MONTHS[m-1]}`:`${WD[wdOf(e)]} ${d}.${String(m).padStart(2,"0")}`;}
+const shortDate=e=>{const [y,m,d]=e.date.split("-");return `${d}.${m}.${y.slice(2)}`;};
 function relDay(e){const now=new Date(),t=new Date(now.toLocaleString("en-US",{timeZone:"Europe/Tallinn"}));
   const today=new Date(t.getFullYear(),t.getMonth(),t.getDate()); const [y,m,d]=e.date.split("-").map(Number);
   const diff=Math.round((new Date(y,m-1,d)-today)/864e5); return diff===0?"täna":diff===1?"homme":"";}
 const isUp=(e,now)=>!e.score&&startOf(e).getTime()+3*36e5>now.getTime();
+const isLive=(e,now)=>!e.score&&e.time&&startOf(e)<=now&&endOf(e)>now.getTime();
 const upcoming=now=>DATA.events.filter(e=>isUp(e,now)).sort((a,b)=>startOf(a)-startOf(b));
+const played=k=>DATA.events.filter(e=>e.team===k&&e.score).sort((a,b)=>startOf(b)-startOf(a));
+function* walk(ps){for(const p of ps||[]){if(p.type==="stack") yield* walk(p.panels); else yield p;}}
 
+// Otseandmed korvpalliliidu lehelt (/api/sport) kirjutavad üle BC Pärnu liigaosa
+function applyLive(d,L){
+  const b=d.teams&&d.teams.bcp; if(!b||!L||!L.ok||!L.table||!L.table.length) return false;
+  const P={}; for(const p of walk(b.panels)) if(p.key) P[p.key]=p;
+  const dm=s=>{const [y,m,dd]=s.split("-");return `${dd}.${m}`;}, c1=x=>Number(x).toFixed(1).replace(".",",");
+  if(P["lg-table"]){P["lg-table"].columns=["#","Meeskond","M","V","K","%","+/−"];P["lg-table"].rows=L.table;}
+  if(P["lg-kml"]){P["lg-kml"].columns=["#","Meeskond","M","V","K","%"];P["lg-kml"].rows=L.kml;}
+  if(P["lg-results"]) P["lg-results"].items=L.results.map(g=>({date:dm(g.date),title:g.title,note:g.place||"",score:g.score,result:g.result}));
+  const s=L.summary||{};
+  if(P["lg-stats"]&&s.home) P["lg-stats"].items=[[`${s.w}–${s.l}`,"võidud–kaotused"],[`${s.home[0]}–${s.home[1]}`,"kodus"],[`${s.away[0]}–${s.away[1]}`,"võõrsil"],
+    [c1(s.ppg),"visatud punkte mängus"],[c1(s.oppg),"lastud punkte mängus"],[String(s.streak),s.streakType==="W"?"võitu järjest":"kaotust järjest"]];
+  if(s.pos) b.summary=Object.assign({},b.summary,{competition:b.summary.competition,headline:`${s.pos}. koht`,sub:`${s.w} V · ${s.l} K`});
+  const LG="Eesti-Läti liiga";
+  d.events=d.events.filter(e=>!(e.team==="bcp"&&e.comp===LG))
+    .concat(L.results.map(g=>({team:"bcp",date:g.date,time:g.time,title:g.title,comp:LG,place:g.place,score:g.score,result:g.result})),
+            L.upcoming.map(g=>({team:"bcp",date:g.date,time:g.time,title:g.title,comp:LG,place:g.place,tv:g.tv||""})));
+  return true;
+}
+
+function formHtml(k){
+  const f=played(k).slice(0,5).reverse(); if(!f.length) return "";
+  return `<span class="form" title="Viimased ${f.length} mängu, uusim paremal">${f.map(e=>`<i class="${e.result}">${RL[e.result]||""}</i>`).join("")}</span>`;
+}
 function renderCards(){
   const now=new Date();
   document.getElementById("cards").innerHTML=Object.entries(DATA.teams).map(([k,t])=>{
     const s=t.summary||{};
     const n=DATA.events.filter(e=>e.team===k&&isUp(e,now)).sort((a,b)=>startOf(a)-startOf(b))[0];
-    const l=DATA.events.filter(e=>e.team===k&&e.score).sort((a,b)=>startOf(b)-startOf(a))[0];
+    const l=played(k)[0];
     const rel=n?relDay(n):"";
-    const nextV=n?`<b>${teamsTitle(n.title)}</b><small>${rel?rel+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""}</small>`:`<small>${esc(s.nextText||"Uut mängu pole veel kalendris")}</small>`;
+    const nextV=n?`<b>${teamsTitle(n.title)}</b><small>${isLive(n,now)?"käib praegu · ":""}${rel?rel+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""}</small>`:`<small>${esc(s.nextText||"Uut mängu pole veel kalendris")}</small>`;
     const lastV=l?`<span class="pill ${l.result}">${RL[l.result]}</span><b class="tn">${esc(l.score)}</b> ${teamsTitle(l.title)}`:"–";
     return `<button class="card" role="tab" aria-selected="${k===sel}" data-k="${k}" style="--c:${COLORS[k]}">
-      <h3>${tIco(k)}${esc(t.name)}</h3>
+      <h3>${tIco(k)}${esc(t.name)}${formHtml(k)}</h3>
       <div class="status">${esc(s.headline)}${s.sub?" · "+esc(s.sub):""}<small>${esc(s.competition)}</small></div>
       <div class="row"><span class="k">Järgmine</span><span class="v">${nextV}</span></div>
       <div class="row"><span class="k">Viimane</span><span class="v">${lastV}</span></div>
@@ -291,9 +344,9 @@ function renderCards(){
 }
 function renderUpcoming(){
   const now=new Date(), up=upcoming(now).slice(0,7);
-  document.getElementById("upcoming").innerHTML=up.length?up.map(e=>{const rel=relDay(e);
-    return `<div class="ev" style="--c:${COLORS[e.team]}">
-      <div class="when">${rel?rel[0].toUpperCase()+rel.slice(1):dateTxt(e,false)}<small>${e.time?"kell "+e.time:(rel?dateTxt(e,false):"")}</small></div>
+  document.getElementById("upcoming").innerHTML=up.length?up.map(e=>{const rel=relDay(e), live=isLive(e,now);
+    return `<div class="ev${live?" live":""}" style="--c:${COLORS[e.team]}">
+      <div class="when">${live?"Käib":rel?rel[0].toUpperCase()+rel.slice(1):dateTxt(e,false)}<small>${e.time?"kell "+e.time:(rel?dateTxt(e,false):"")}</small></div>
       <div class="what">${teamsTitle(e.title)}<small>${esc(e.comp)}${e.place?" · "+esc(e.place):""}</small></div>
       <span class="tag" style="--c:${COLORS[e.team]}">${tIco(e.team)}${SHORT[e.team]}</span></div>`;}).join("")
     :'<div class="ev"><div></div><div class="what">Kalendris pole praegu tulevaid mänge.</div></div>';
@@ -324,43 +377,75 @@ function select(k){
   if(!DATA.teams[k]) k=Object.keys(DATA.teams)[0];
   sel=k; try{localStorage.setItem("sk-team",k)}catch(_){}
   const t=DATA.teams[k];
-  document.getElementById("tabs").innerHTML=Object.keys(DATA.teams).map(x=>`<button class="tab" role="tab" aria-selected="${x===k}" data-k="${x}" style="--c:${COLORS[x]}">${tIco(x)}${esc(DATA.teams[x].name)}</button>`).join("");
-  document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>select(b.dataset.k)));
+  document.getElementById("tabs").innerHTML=Object.keys(DATA.teams).map(x=>`<button class="tab" role="tab" aria-selected="${x===k}" data-k="${x}" style="--c:${COLORS[x]}">${tIco(x)}${esc(DATA.teams[x].name)}</button>`).join("")+
+    `<span class="keyhint">← → vahetab meeskonda</span><button class="tab auto" id="autoBtn" aria-pressed="${auto}">${auto?"Vahetub ise · peata":"Vaheta ise"}</button>`;
+  document.querySelectorAll(".tab[data-k]").forEach(b=>b.addEventListener("click",()=>select(b.dataset.k)));
+  document.getElementById("autoBtn").addEventListener("click",()=>setAuto(!auto));
   document.querySelectorAll(".card").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.k===k)));
   document.getElementById("teamDetail").innerHTML=`<div style="--c:${COLORS[k]}">
     <p class="facts">${(t.facts||[]).map(([a,v])=>`<span>${esc(a)}: <b>${esc(v)}</b></span>`).join("")}</p>
     <div class="grid">${(t.panels||[]).map(p=>panelHtml(p,k)).join("")}</div></div>`;
 }
+function step(dir){const ks=Object.keys(DATA.teams);select(ks[(ks.indexOf(sel)+dir+ks.length)%ks.length]);}
+function setAuto(on){
+  auto=on; try{localStorage.setItem("sk-auto",on?"1":"0")}catch(_){}
+  clearInterval(autoTimer); autoTimer=on?setInterval(()=>step(1),20000):null;
+  if(DATA) select(sel);
+}
+document.addEventListener("keydown",e=>{
+  if(!DATA||e.ctrlKey||e.altKey||e.metaKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if(e.key==="ArrowRight"){step(1);e.preventDefault();}
+  else if(e.key==="ArrowLeft"){step(-1);e.preventDefault();}
+});
+function h2hHtml(n){
+  const own=OWN[n.team]||[], opp=sides(n.title).find(x=>!own.includes(x)); if(!opp) return "";
+  const g=played(n.team).filter(e=>sides(e.title).includes(opp)).slice(0,4); if(!g.length) return "";
+  return `<span>Omavahel:</span>`+g.map(e=>`<span><span class="pill ${e.result}">${RL[e.result]}</span><b>${esc(e.score)}</b> ${own.includes(sides(e.title)[0])?"kodus":"võõrsil"} · ${shortDate(e)}</span>`).join("");
+}
 function tick(){
   if(!DATA) return; const now=new Date();
-  const n=DATA.events.filter(e=>!e.score&&(e.time?startOf(e):dayStart(e).getTime()+864e5)>now).sort((a,b)=>startOf(a)-startOf(b))[0];
-  const T=document.getElementById("nextTeams"),M=document.getElementById("nextMeta"),C=document.getElementById("countdown");
-  if(!n){T.textContent="Kalender on tühi";M.textContent="";C.innerHTML="";return;}
-  const rel=relDay(n);
-  T.innerHTML=teamsTitle(n.title);
-  M.textContent=`${rel?rel[0].toUpperCase()+rel.slice(1)+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""} · ${n.comp}${n.place?" · "+n.place:""}`;
+  const n=DATA.events.filter(e=>!e.score&&endOf(e)>now.getTime()).sort((a,b)=>startOf(a)-startOf(b))[0];
+  const box=document.getElementById("next"),Lb=document.getElementById("nextLbl"),T=document.getElementById("nextTeams"),M=document.getElementById("nextMeta"),H=document.getElementById("nextH2H"),C=document.getElementById("countdown");
+  if(!n){box.className="next";Lb.textContent="Järgmine mäng";T.textContent="Kalender on tühi";M.textContent="";H.innerHTML="";C.innerHTML="";return;}
+  const rel=relDay(n), live=isLive(n,now);
+  box.className="next"+(live?" live":rel==="täna"?" today":"");
+  Lb.textContent=live?"Käib praegu":rel==="täna"?"Täna mängib":"Järgmine mäng";
+  const key=n.team+n.date+n.title;
+  if(T.dataset.k!==key){T.dataset.k=key;T.innerHTML=teamsTitle(n.title);H.innerHTML=h2hHtml(n);}
+  M.textContent=`${rel?rel[0].toUpperCase()+rel.slice(1)+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""} · ${n.comp}${n.place?" · "+n.place:""}${n.tv?" · Ülekanne: "+n.tv:""}`;
+  if(live){C.innerHTML=`<div><b>Käib</b><span>tulemus pärast mängu</span></div>`;return;}
   if(!n.time){C.innerHTML="";return;}
-  let ms=Math.max(0,startOf(n)-now);
-  if(ms===0){C.innerHTML=`<div><b>Käib</b><span>praegu</span></div>`;return;}
-  const d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60;
+  const ms=Math.max(0,startOf(n)-now), d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60;
   C.innerHTML=`<div><b>${d}</b><span>päeva</span></div><div><b>${String(h).padStart(2,"0")}</b><span>tundi</span></div><div><b>${String(m).padStart(2,"0")}</b><span>minutit</span></div>`;
 }
 function renderAll(){
-  document.getElementById("stamp").textContent="Andmed uuendatud "+new Date(DATA.updated).toLocaleString("et-EE",{day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Tallinn"});
+  const tm=new Date(DATA.updated).toLocaleString("et-EE",{day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Tallinn"});
+  document.getElementById("stamp").textContent=`Andmed uuendatud ${tm}`+(LIVE_OK?" · korvpalliliiga otse":"");
+  document.getElementById("nextTeams").dataset.k="";
   renderCards(); renderUpcoming(); select(sel); tick();
   document.getElementById("srcNote").textContent=(DATA.note||"")+" Kellaajad on Eesti aja järgi.";
   document.getElementById("sources").innerHTML="Allikad: "+(DATA.sources||[]).map(([n,u])=>`<a href="${esc(u)}">${esc(n)}</a>`).join("");
 }
+async function getLive(){
+  try{
+    const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),9000);
+    const r=await fetch("/api/sport",{signal:ctl.signal}); clearTimeout(t);
+    if(!r.ok) return null; const j=await r.json(); return j&&j.ok?j:null;
+  }catch(_){return null;}
+}
 async function load(first){
   try{
-    const r=await fetch("/sport/data.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) throw new Error(r.status);
+    const [r,L]=await Promise.all([fetch("/sport/data.json?t="+Date.now(),{cache:"no-store"}),getLive()]);
+    if(!r.ok) throw new Error(r.status);
     const d=await r.json();
-    if(first||!DATA||d.updated!==DATA.updated){DATA=d;renderAll();} else {renderCards();renderUpcoming();tick();}
+    const ok=applyLive(d,L);
+    const sig=d.updated+"|"+(ok?JSON.stringify([L.table,L.results.length,L.upcoming]):"-");
+    if(first||sig!==SIG){DATA=d;SIG=sig;LIVE_OK=ok;renderAll();} else {renderCards();renderUpcoming();tick();}
   }catch(e){ if(!DATA) document.getElementById("main").insertAdjacentHTML("afterbegin",'<div class="err">Andmeid ei saanud laadida. Proovi lehte värskendada.</div>'); }
 }
-load(true);
+load(true).then(()=>{if(auto) setAuto(true);});
 setInterval(tick,30000);
-setInterval(()=>load(false),10*60*1000);
+setInterval(()=>load(false),3*60*1000);
 </script>
 </body>
 </html>

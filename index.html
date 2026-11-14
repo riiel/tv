@@ -171,6 +171,18 @@
       background: var(--cyan);
       box-shadow: 0 0 16px var(--cyan), 0 0 6px #fff;
     }
+    .nav-link {
+      margin-left: 6px;
+      padding: 4px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.62em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .nav-link:hover, .nav-link:focus-visible { color: var(--text); border-color: var(--cyan); outline: none; }
     .now {
       display: flex;
       align-items: baseline;
@@ -747,7 +759,7 @@
 <body>
   <div class="screen">
     <header>
-      <div class="brand"><span class="brand-mark"></span>KODUVAADE</div>
+      <div class="brand"><span class="brand-mark"></span>KODUVAADE<a class="nav-link" href="/sport/">Sport</a></div>
       <div id="alert-banner" class="alert-banner" hidden>
         <div id="alert-pill" class="alert-pill"><span id="alert-text"></span><span id="alert-count" class="alert-count"></span></div>
       </div>

@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T22:41:36+02:00",
+ "updated": "2026-11-14T22:48:16+02:00",
  "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
  "teams": {
   "bcp": {
@@ -1026,6 +1026,13 @@
      "width": 6,
      "items": [
       {
+       "date": "27.02",
+       "title": "Rootsi – Eesti",
+       "note": "1. ring, Stockholm · Drell 23 p",
+       "score": "77:88",
+       "result": "W"
+      },
+      {
        "date": "01.03",
        "title": "Eesti – Rootsi",
        "note": "1. ring, Tallinn",
@@ -1578,6 +1585,15 @@
    "comp": "MM 2027 valiksari",
    "score": "69:79",
    "result": "L"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-02-27",
+   "time": "20:00",
+   "title": "Rootsi – Eesti",
+   "comp": "MM 2027 valiksari",
+   "score": "77:88",
+   "result": "W"
   }
  ],
  "sources": [

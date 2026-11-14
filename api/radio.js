@@ -87,7 +87,7 @@ function openStream(url, signal, redirects = 3) {
 // Numbri leiad sunshine-live.de kanali lehelt: F12 → Network → flow.json?station=<NUMBER>
 const SUNSHINE_STATIONS = {
   hardcore: 91,     // Sunshine Live Hardcore (kontrolli /api/radio?sunshine=list abil)
-  dnb: null         // TÄIDA: Drum 'n' Bass number (71 osutus Classics kanaliks)
+  dnb: 16           // Sunshine Live Drum 'n' Bass
 };
 
 async function sunshineTitle(streamUrl, signal) {

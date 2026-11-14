@@ -995,6 +995,7 @@
           <button id="btn-station-sky" class="station-btn active" data-name="SKY PLUS" data-url="https://stream.skymedia.ee/live/SKYPLUS">Sky Plus</button>
           <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">WKNDMX</button>
           <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">Q-Dance</button>
+          <button id="btn-station-hardstyle" class="station-btn" data-name="SUNSHINE HARDSTYLE" data-url="https://stream.sunshine-live.de/hardstyle/mp3-192/stream.sunshine-live.de/">Hardstyle</button>
           <button id="btn-station-hardcore" class="station-btn" data-name="SUNSHINE HARDCORE" data-url="https://stream.sunshine-live.de/Hardcore/mp3-192/stream.sunshine-live.de/">Hardcore</button>
           <button id="btn-station-dnb" class="station-btn" data-name="SUNSHINE LIVE DNB" data-url="https://stream.sunshine-live.de/dnb/mp3-192/stream.sunshine-live.de/">DnB</button>
         </div>
@@ -2254,7 +2255,7 @@
       }
     }
 
-    ['sky', 'slam', 'qdance', 'hardcore', 'dnb'].forEach(id => {
+    ['sky', 'slam', 'qdance', 'hardstyle', 'hardcore', 'dnb'].forEach(id => {
       $(`btn-station-${id}`).addEventListener('click', function() {
         setStation(this, this.dataset.name, this.dataset.url);
       });

@@ -9,166 +9,115 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* Paigutus: tulemustabloo-stiilis päis järgmise mänguga, siis neli meeskonnakaarti, kalender + tulemused, ja iga meeskonna detailosa. */
+/* Paigutus: 1) järgmine mäng suurelt, 2) neli meeskonnakaarti, 3) lühike kalender, 4) ühe meeskonna detailid vahelehel. */
 :root{
-  --bg:#eef2f5;
-  --surface:#ffffff;
-  --ink:#0f1a24;
-  --muted:#5b6b7a;
-  --line:#d5dde4;
-  --accent:#0a6aa8;          /* Pärnu lahe sinine */
-  --t-bcp:#e07b12;           /* BC Pärnu – korvpall */
-  --t-vap:#1d8a4e;           /* Vaprus – jalgpall */
-  --t-ejk:#0072ce;           /* Eesti jalgpallikoondis */
-  --t-ekk:#2b3440;           /* Eesti korvpallikoondis */
+  --bg:#eef2f5; --surface:#fff; --ink:#0f1a24; --muted:#5b6b7a; --line:#d5dde4; --accent:#0a6aa8; --hi:#e6f1f9;
+  --t-bcp:#e07b12; --t-vap:#1d8a4e; --t-ejk:#0072ce; --t-ekk:#2b3440;
   --win:#1f8a4c; --draw:#8a96a3; --loss:#c23b2e;
-  --hi:#e6f1f9;
-  --display:"Barlow Condensed","Arial Narrow",sans-serif;
-  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0b131b; --surface:#121e29; --ink:#e8eef3; --muted:#93a4b4; --line:#233444;
-    --accent:#4fb0ee; --t-ekk:#9fb0c2; --t-ejk:#4fa3ff; --hi:#16304a;
-    --win:#3fbf76; --draw:#7d8b99; --loss:#ef6a5c;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0b131b; --surface:#121e29; --ink:#e8eef3; --muted:#93a4b4; --line:#233444;
-  --accent:#4fb0ee; --t-ekk:#9fb0c2; --t-ejk:#4fa3ff; --hi:#16304a;
-  --win:#3fbf76; --draw:#7d8b99; --loss:#ef6a5c;
-  color-scheme:dark;
-}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0b131b; --surface:#121e29; --ink:#e8eef3; --muted:#93a4b4; --line:#233444; --accent:#4fb0ee; --hi:#16304a;
+  --t-ekk:#9fb0c2; --t-ejk:#4fa3ff; --win:#3fbf76; --draw:#7d8b99; --loss:#ef6a5c; color-scheme:dark;}}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body)}
-@media (min-width:1600px){body{font-size:20px}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 18px/1.45 var(--body)}
+@media (min-width:1600px){body{font-size:21px}}
 a{color:var(--accent)}
-a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
-h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
 .wrap{max-width:1280px;margin:0 auto;padding:0 20px}
-.num,.score,td.n{font-variant-numeric:tabular-nums}
+.tn{font-variant-numeric:tabular-nums}
 
-/* Päis */
-header.top{background:#0f1a24;color:#e8eef3;padding:22px 0 26px;border-bottom:4px solid var(--accent)}
-.top .row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between}
-.top h1{font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:.01em}
-.top .sub{color:#93a4b4;margin-top:4px}
-.stamp{font-family:var(--display);font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#93a4b4}
-.next{margin-top:20px;display:grid;grid-template-columns:1fr auto;gap:16px 28px;align-items:center;background:#16232f;border:1px solid #233444;border-radius:10px;padding:18px 22px}
-.next .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:15px;color:#4fb0ee}
-.next .teams{font-family:var(--display);font-size:clamp(26px,3.4vw,40px);font-weight:700;margin-top:2px}
-.next .meta{color:#b8c6d3}
+header{background:#0f1a24;color:#e8eef3;padding:18px 0 22px;border-bottom:4px solid var(--accent)}
+.hrow{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+header h1{font-size:clamp(24px,2.6vw,32px);font-weight:600;color:#b8c6d3;letter-spacing:.02em}
+.stamp{font-size:14px;color:#93a4b4}
+.next{margin-top:14px;display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
+.next .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:16px;color:#4fb0ee}
+.next .teams{font-family:var(--display);font-size:clamp(32px,4.4vw,56px);font-weight:700;line-height:1.05}
+.next .meta{color:#b8c6d3;font-size:20px;margin-top:4px}
 .cd{display:flex;gap:10px}
-.cd div{background:#0b131b;border:1px solid #233444;border-radius:8px;min-width:68px;padding:8px 10px;text-align:center}
-.cd b{display:block;font-family:var(--display);font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.cd div{background:#16232f;border:1px solid #233444;border-radius:8px;min-width:78px;padding:10px;text-align:center}
+.cd b{display:block;font-family:var(--display);font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
 .cd span{font-size:12px;color:#93a4b4;text-transform:uppercase;letter-spacing:.06em}
-@media (max-width:640px){.next{grid-template-columns:1fr}.cd div{min-width:58px}}
 
-nav.jump{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
-nav.jump .wrap{display:flex;gap:6px;overflow-x:auto;padding-top:8px;padding-bottom:8px}
-nav.jump a{white-space:nowrap;text-decoration:none;color:var(--ink);font-family:var(--display);font-weight:600;font-size:17px;padding:6px 12px;border-radius:6px}
-nav.jump a:hover{background:var(--hi)}
+main{display:grid;gap:34px;padding:26px 0 48px}
+h2{font-size:clamp(24px,2.4vw,30px);margin-bottom:12px}
 
-main{display:grid;gap:36px;padding:28px 0 48px}
-section>h2{font-size:clamp(26px,2.6vw,34px);display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.bar{width:6px;height:28px;border-radius:3px;display:inline-block}
-
-/* Kokkuvõtte kaardid */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-.card{background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--c);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink)}
+/* Meeskonnakaardid */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.card{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:12px;padding:16px 18px;display:grid;gap:12px;align-content:start}
 .card:hover{border-color:var(--c)}
-.card h3{font-size:24px}
-.card .comp{color:var(--muted);font-size:15px}
-.card .big{font-family:var(--display);font-size:40px;font-weight:700;line-height:1}
-.card .big small{font-size:18px;color:var(--muted);font-weight:600;margin-left:6px}
-.card .nx{font-size:15px;border-top:1px solid var(--line);padding-top:8px;margin-top:auto}
-.form{display:flex;gap:4px}
-.form i{font-style:normal;font-family:var(--display);font-weight:700;font-size:14px;width:24px;height:24px;border-radius:4px;display:grid;place-items:center;color:#fff}
-.form .W{background:var(--win)} .form .D{background:var(--draw)} .form .L{background:var(--loss)}
+.card[aria-selected="true"]{box-shadow:0 0 0 3px var(--c)}
+.card h3{font-size:26px}
+.card .status{font-family:var(--display);font-size:22px;font-weight:600}
+.card .status small{display:block;font-family:var(--body);font-size:14px;font-weight:400;color:var(--muted)}
+.row{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:baseline;border-top:1px solid var(--line);padding-top:10px;font-size:16px}
+.row .k{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.row .v b{font-weight:700}
+.row .v small{display:block;color:var(--muted);font-size:14px}
+.pill{display:inline-block;font-family:var(--display);font-weight:700;color:#fff;border-radius:4px;padding:0 6px;margin-right:6px;font-size:15px}
+.W{background:var(--win)} .D{background:var(--draw)} .L{background:var(--loss)}
 
 /* Kalender */
-.cal{display:grid;grid-template-columns:3fr 2fr;gap:20px}
-@media (max-width:900px){.cal{grid-template-columns:1fr}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
-.panel h3{font-size:22px;margin-bottom:10px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.chip{font:600 15px var(--body);border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--c);display:inline-block}
-.month{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-size:15px;margin:14px 0 6px}
-.month:first-child{margin-top:0}
-.ev{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
-.ev .d{text-align:center;border-left:4px solid var(--c);padding-left:6px}
-.ev .d b{display:block;font-family:var(--display);font-size:26px;line-height:1}
-.ev .d span{font-size:13px;color:var(--muted);text-transform:uppercase}
-.ev .t{font-weight:700}
-.ev .m{font-size:14px;color:var(--muted)}
-.ev .tm{font-family:var(--display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
-.ev .tm small{display:block;font-family:var(--body);font-size:12px;color:var(--muted);font-weight:400}
-.res{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
-.res .pill{font-family:var(--display);font-weight:700;color:#fff;border-radius:4px;width:28px;text-align:center}
-.res .pill.W{background:var(--win)} .res .pill.D{background:var(--draw)} .res .pill.L{background:var(--loss)}
-.res .score{font-family:var(--display);font-size:22px;font-weight:700}
-.res .m{font-size:13px;color:var(--muted)}
-.empty{color:var(--muted);padding:10px 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 18px}
+.ev{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.ev:first-child{border-top:0}
+.ev .when{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.1}
+.ev .when small{display:block;font-family:var(--body);font-size:14px;font-weight:400;color:var(--muted)}
+.ev .what{font-weight:700;font-size:19px}
+.ev .what small{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.tag{font-size:13px;font-weight:700;color:var(--c);border:1.5px solid var(--c);border-radius:999px;padding:2px 10px;white-space:nowrap}
+@media (max-width:560px){.ev{grid-template-columns:84px 1fr}.ev .tag{grid-column:2;justify-self:start}}
 
-/* Meeskonna osad */
-.team{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-.team>.panel{grid-column:span 6}
-.team>.panel.w12{grid-column:span 12}
-.team>.panel.w4{grid-column:span 4}
-.team>.panel.w8{grid-column:span 8}
-@media (max-width:900px){.team>.panel,.team>.panel.w4,.team>.panel.w8{grid-column:span 12}}
-.facts{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted);font-size:15px;margin:-4px 0 14px}
+/* Detailid */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{cursor:pointer;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:700;display:inline-flex;gap:8px;align-items:center}
+.tab .dot{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.tab[aria-selected="true"]{border-color:var(--c);background:var(--hi)}
+.facts{color:var(--muted);font-size:15px;margin:0 0 14px;display:flex;flex-wrap:wrap;gap:6px 20px}
 .facts b{color:var(--ink);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.box{grid-column:span 6;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.box.w12{grid-column:span 12}.box.w8{grid-column:span 8}.box.w4{grid-column:span 4}
+@media (max-width:900px){.box,.box.w8,.box.w4{grid-column:span 12}}
+.box h3{font-size:22px;margin-bottom:10px}
 .tbl{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:16px}
-th{font:600 13px var(--body);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:2px solid var(--line)}
-th.n,td.n{text-align:right}
+table{border-collapse:collapse;width:100%;font-size:16px;font-variant-numeric:tabular-nums}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:2px solid var(--line)}
 td{padding:7px 8px;border-bottom:1px solid var(--line)}
+th.n,td.n{text-align:right}
 tr.me td{background:var(--hi);font-weight:700}
 tr.cut td{border-bottom:2px dashed var(--muted)}
 .list{list-style:none;margin:0;padding:0}
-.list li{display:grid;grid-template-columns:70px 1fr auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:baseline}
+.list li{display:grid;grid-template-columns:76px 1fr auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:baseline}
 .list li:first-child{border-top:0}
 .list .dt{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
-.list .sc{font-family:var(--display);font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
-.list .sc.W{color:var(--win)} .list .sc.L{color:var(--loss)} .list .sc.D{color:var(--draw)}
 .list .note{display:block;font-size:13px;color:var(--muted)}
+.list .sc{font-family:var(--display);font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+.sc.W{background:none;color:var(--win)}.sc.L{background:none;color:var(--loss)}.sc.D{background:none;color:var(--draw)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .stat{background:var(--bg);border-radius:8px;padding:10px 12px}
-.stat b{display:block;font-family:var(--display);font-size:32px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat b{display:block;font-family:var(--display);font-size:30px;line-height:1.05}
 .stat span{font-size:13px;color:var(--muted)}
-.leaders{display:grid;gap:10px}
-.ld{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center;font-size:15px}
-.ld .track{height:12px;background:var(--bg);border-radius:6px;overflow:hidden}
-.ld .fill{height:100%;background:var(--t-bcp);border-radius:6px}
-.ld .v{font-family:var(--display);font-size:20px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
-.ld.cat{display:block;grid-column:1/-1;font:600 13px var(--body);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:6px}
-.callout{border-left:4px solid var(--c,var(--accent));background:var(--hi);padding:10px 14px;border-radius:0 8px 8px 0;font-size:15px}
-footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:14px}
-footer ul{columns:2 320px;padding-left:18px;margin:8px 0 0}
-footer li{margin-bottom:4px;break-inside:avoid}
-
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ldg{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin:10px 0 4px}
+.ld{display:grid;grid-template-columns:150px 1fr 50px;gap:10px;align-items:center;font-size:15px;margin:4px 0}
+.track{height:10px;background:var(--bg);border-radius:5px;overflow:hidden}
+.fill{height:100%;background:var(--c);border-radius:5px}
+.ld .v{font-family:var(--display);font-size:19px;font-weight:700;text-align:right}
+.note2{font-size:14px;color:var(--muted);margin:10px 0 0}
+.callout{border-left:4px solid var(--c);background:var(--hi);padding:10px 14px;border-radius:0 8px 8px 0;font-size:15px;margin-top:12px}
 .err{background:#fdecea;color:#7a1f16;border-radius:8px;padding:12px 16px}
-.panel>p.note{font-size:14px;color:var(--muted);margin:10px 0 0}
+footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);font-size:14px}
+footer a{margin-right:14px;white-space:nowrap}
 </style>
 </head>
 <body>
-<header class="top">
+<header>
   <div class="wrap">
-    <div class="row">
-      <div>
-        <h1>Pärnu ja Eesti spordikeskus</h1>
-        <div class="sub">BC Pärnu · Pärnu JK Vaprus · Eesti jalgpallikoondis · Eesti korvpallikoondis</div>
-      </div>
-      <div class="stamp" id="stamp">Laen andmeid…</div>
-    </div>
+    <div class="hrow"><h1>Pärnu ja Eesti spordikeskus</h1><span class="stamp" id="stamp">Laen andmeid…</span></div>
     <div class="next" aria-live="polite">
       <div>
         <div class="lbl">Järgmine mäng</div>
@@ -179,138 +128,137 @@ footer li{margin-bottom:4px;break-inside:avoid}
     </div>
   </div>
 </header>
-<nav class="jump" aria-label="Lehe osad"><div class="wrap" id="navlinks">
-  <a href="#ylevaade">Ülevaade</a><a href="#kalender">Kalender</a>
-</div></nav>
+
 <main class="wrap" id="main">
-  <section id="ylevaade"><h2 class="sr">Ülevaade</h2><div class="cards" id="cards"></div></section>
-  <section id="kalender" aria-labelledby="h-kal">
-    <h2 id="h-kal"><span class="bar" style="background:var(--accent)"></span>Kalender ja tulemused</h2>
-    <div class="chips" role="group" aria-label="Näita meeskonda" id="chips"></div>
-    <div class="cal">
-      <div class="panel"><h3>Tulevad mängud</h3><div id="upcoming"></div></div>
-      <div class="panel"><h3>Viimased tulemused</h3><div id="results"></div></div>
-    </div>
+  <section aria-label="Meeskonnad"><div class="cards" id="cards" role="tablist"></div></section>
+
+  <section aria-labelledby="h-cal">
+    <h2 id="h-cal">Tulevad mängud</h2>
+    <div class="panel" id="upcoming"></div>
   </section>
-  <div id="teamSections" style="display:grid;gap:36px"></div>
+
+  <section aria-labelledby="h-det" id="detail">
+    <h2 id="h-det">Tabelid ja tulemused</h2>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div id="teamDetail"></div>
+  </section>
 </main>
-<footer id="allikad"><div class="wrap">
-  <strong>Allikad.</strong> <span id="srcNote"></span> Kellaajad on Eesti aja järgi; kui aeg puudub, pole see veel kinnitatud.
-  <ul id="sources"></ul>
+
+<footer><div class="wrap">
+  <div id="srcNote" style="margin-bottom:6px"></div>
+  <div id="sources"></div>
 </div></footer>
+
 <script>
 const COLORS={bcp:"var(--t-bcp)",vap:"var(--t-vap)",ejk:"var(--t-ejk)",ekk:"var(--t-ekk)"};
 const SHORT={bcp:"BC Pärnu",vap:"Vaprus",ejk:"Jalgpallikoondis",ekk:"Korvpallikoondis"};
-const ANCH={bcp:"bc-parnu",vap:"vaprus",ejk:"jalgpall",ekk:"korvpall"};
 const MONTHS=["jaanuar","veebruar","märts","aprill","mai","juuni","juuli","august","september","oktoober","november","detsember"];
+const WDL=["pühapäev","esmaspäev","teisipäev","kolmapäev","neljapäev","reede","laupäev"];
 const WD=["P","E","T","K","N","R","L"];
 const RL={W:"V",D:"Vi",L:"K"};
-let DATA=null, filter="all";
-try{const f=localStorage.getItem("sk-filter"); if(f) filter=f;}catch(_){}
+let DATA=null, sel="bcp";
+try{const s=localStorage.getItem("sk-team"); if(s) sel=s;}catch(_){}
 
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const startOf=e=>new Date(e.date+"T"+(e.time||"23:59")+":00"+tzOff(e.date));
-function tzOff(d){ // Eesti aeg: suveaeg märtsi viimasest pühapäevast oktoobri viimase pühapäevani
-  const [y,m,day]=d.split("-").map(Number);
+function tzOff(d){const [y,m,day]=d.split("-").map(Number);
   const lastSun=mo=>{const x=new Date(Date.UTC(y,mo,0));return x.getUTCDate()-x.getUTCDay();};
-  const s=(m>3&&m<10)||(m===3&&day>=lastSun(3))||(m===10&&day<lastSun(10));
-  return s?"+03:00":"+02:00";
-}
-function fmt(e){const [y,m,d]=e.date.split("-").map(Number);return{d,m:MONTHS[m-1],y,wd:WD[new Date(e.date+"T12:00:00Z").getUTCDay()]};}
-const isUp=(e,now)=>!e.score && startOf(e).getTime()+3*36e5>now.getTime();
+  return ((m>3&&m<10)||(m===3&&day>=lastSun(3))||(m===10&&day<lastSun(10)))?"+03:00":"+02:00";}
+const startOf=e=>new Date(e.date+"T"+(e.time||"23:59")+":00"+tzOff(e.date));
+const dayStart=e=>new Date(e.date+"T00:00:00"+tzOff(e.date));
+const wdOf=e=>new Date(e.date+"T12:00:00Z").getUTCDay();
+function dateTxt(e,long){const [y,m,d]=e.date.split("-").map(Number);
+  return long?`${WDL[wdOf(e)]}, ${d}. ${MONTHS[m-1]}`:`${WD[wdOf(e)]} ${d}.${String(m).padStart(2,"0")}`;}
+function relDay(e){const now=new Date(),t=new Date(now.toLocaleString("en-US",{timeZone:"Europe/Tallinn"}));
+  const today=new Date(t.getFullYear(),t.getMonth(),t.getDate()); const [y,m,d]=e.date.split("-").map(Number);
+  const diff=Math.round((new Date(y,m-1,d)-today)/864e5); return diff===0?"täna":diff===1?"homme":"";}
+const isUp=(e,now)=>!e.score&&startOf(e).getTime()+3*36e5>now.getTime();
+const upcoming=now=>DATA.events.filter(e=>isUp(e,now)).sort((a,b)=>startOf(a)-startOf(b));
 
-function cardHtml(k,t,now){
-  const s=t.summary||{};
-  const n=DATA.events.filter(e=>e.team===k&&isUp(e,now)).sort((a,b)=>startOf(a)-startOf(b))[0];
-  const next=n?`<b>Järgmine:</b> ${fmt(n).d}. ${fmt(n).m} · ${esc(n.title)}${n.time?" · "+n.time:""}`:esc(s.nextText||"Kalendris järgmist mängu pole");
-  const form=s.form?`<div class="form">${s.form.map(r=>`<i class="${r}">${RL[r]}</i>`).join("")}</div>`:"";
-  return `<a class="card" href="#${ANCH[k]}" style="--c:${COLORS[k]}"><h3>${esc(t.name)}</h3><div class="comp">${esc(s.competition)}</div>
-    <div class="big">${esc(s.headline)} <small>${esc(s.sub)}</small></div>${form}<div class="nx">${next}</div></a>`;
+function renderCards(){
+  const now=new Date();
+  document.getElementById("cards").innerHTML=Object.entries(DATA.teams).map(([k,t])=>{
+    const s=t.summary||{};
+    const n=DATA.events.filter(e=>e.team===k&&isUp(e,now)).sort((a,b)=>startOf(a)-startOf(b))[0];
+    const l=DATA.events.filter(e=>e.team===k&&e.score).sort((a,b)=>startOf(b)-startOf(a))[0];
+    const rel=n?relDay(n):"";
+    const nextV=n?`<b>${esc(n.title)}</b><small>${rel?rel+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""}</small>`:`<small>${esc(s.nextText||"Uut mängu pole veel kalendris")}</small>`;
+    const lastV=l?`<span class="pill ${l.result}">${RL[l.result]}</span><b class="tn">${esc(l.score)}</b> ${esc(l.title)}`:"–";
+    return `<button class="card" role="tab" aria-selected="${k===sel}" data-k="${k}" style="--c:${COLORS[k]}">
+      <h3>${esc(t.name)}</h3>
+      <div class="status">${esc(s.headline)}${s.sub?" · "+esc(s.sub):""}<small>${esc(s.competition)}</small></div>
+      <div class="row"><span class="k">Järgmine</span><span class="v">${nextV}</span></div>
+      <div class="row"><span class="k">Viimane</span><span class="v">${lastV}</span></div>
+    </button>`;}).join("");
+  document.querySelectorAll(".card").forEach(b=>b.addEventListener("click",()=>{select(b.dataset.k);document.getElementById("detail").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}));
+}
+function renderUpcoming(){
+  const now=new Date(), up=upcoming(now).slice(0,8);
+  document.getElementById("upcoming").innerHTML=up.length?up.map(e=>{const rel=relDay(e);
+    return `<div class="ev" style="--c:${COLORS[e.team]}">
+      <div class="when">${rel?rel[0].toUpperCase()+rel.slice(1):dateTxt(e,false)}<small>${e.time?"kell "+e.time:(rel?dateTxt(e,false):"")}</small></div>
+      <div class="what">${esc(e.title)}<small>${esc(e.comp)}${e.place?" · "+esc(e.place):""}</small></div>
+      <span class="tag">${SHORT[e.team]}</span></div>`;}).join("")
+    :'<div class="ev"><div></div><div class="what">Kalendris pole praegu tulevaid mänge.</div></div>';
 }
 function panelHtml(p,k){
   const w=p.width===12?"w12":p.width===8?"w8":p.width===4?"w4":"";
-  let body="";
-  if(p.text) body+=`<p style="margin-top:0">${esc(p.text)}</p>`;
+  let b=p.text?`<p style="margin-top:0">${esc(p.text)}</p>`:"";
   if(p.type==="table"){
-    const numCol=i=>i>=2;
-    body+=`<div class="tbl"><table><thead><tr>${p.columns.map((c,i)=>`<th class="${numCol(i)?"n":""}">${esc(c)}</th>`).join("")}</tr></thead><tbody>`+
-      p.rows.map(r=>{const cls=[r[1]===p.highlight?"me":"",p.cutAfter&&r[0]===p.cutAfter?"cut":""].join(" ");
-        return `<tr class="${cls}">${r.map((v,i)=>`<td class="${numCol(i)?"n":""}">${esc(v)}</td>`).join("")}</tr>`;}).join("")+`</tbody></table></div>`;
-  } else if(p.type==="list"){
-    body+=`<ul class="list"${p.width===12?' style="columns:2 360px;column-gap:28px"':""}>`+p.items.map(i=>
-      `<li><span class="dt">${esc(i.date)}</span><span>${esc(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`).join("")+`</ul>`;
-  } else if(p.type==="stats"){
-    body+=`<div class="stats">${p.items.map(([v,l])=>`<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
-  } else if(p.type==="leaders"){
-    body+=`<div class="leaders">`+p.groups.map(g=>{const mx=Math.max(...g.rows.map(r=>r[1]));
-      return `<div class="ld cat">${esc(g.label)}</div>`+g.rows.map(([n,v])=>`<div class="ld"><span>${esc(n)}</span><div class="track"><div class="fill" style="width:${(v/mx*100).toFixed(1)}%"></div></div><span class="v">${String(v).replace(".",",")}</span></div>`).join("");}).join("")+`</div>`;
+    b+=`<div class="tbl"><table><thead><tr>${p.columns.map((c,i)=>`<th class="${i>=2?"n":""}">${esc(c)}</th>`).join("")}</tr></thead><tbody>`+
+      p.rows.map(r=>`<tr class="${r[1]===p.highlight?"me":""} ${p.cutAfter&&r[0]===p.cutAfter?"cut":""}">${r.map((v,i)=>`<td class="${i>=2?"n":""}">${esc(v)}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  }else if(p.type==="list"){
+    b+=`<ul class="list"${p.width===12?' style="columns:2 360px;column-gap:28px"':""}>`+p.items.map(i=>`<li><span class="dt">${esc(i.date)}</span><span>${esc(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`).join("")+`</ul>`;
+  }else if(p.type==="stats"){
+    b+=`<div class="stats">${p.items.map(([v,l])=>`<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
+  }else if(p.type==="leaders"){
+    b+=p.groups.map(g=>{const mx=Math.max(...g.rows.map(r=>r[1]));return `<div class="ldg">${esc(g.label)}</div>`+
+      g.rows.map(([n,v])=>`<div class="ld"><span>${esc(n)}</span><div class="track"><div class="fill" style="width:${(v/mx*100).toFixed(1)}%"></div></div><span class="v">${Number(v).toFixed(1).replace(".",",")}</span></div>`).join("");}).join("");
   }
-  if(p.note) body+=`<p class="note">${esc(p.note)}</p>`;
-  if(p.callout) body+=`<div class="callout" style="--c:${COLORS[k]};margin-top:12px">${esc(p.callout)}</div>`;
-  return `<div class="panel ${w}"><h3>${esc(p.title)}</h3>${body}</div>`;
+  if(p.note) b+=`<p class="note2">${esc(p.note)}</p>`;
+  if(p.callout) b+=`<div class="callout">${esc(p.callout)}</div>`;
+  return `<div class="box ${w}"><h3>${esc(p.title)}</h3>${b}</div>`;
 }
-function renderStatic(){
-  const now=new Date(), T=DATA.teams;
-  document.getElementById("stamp").textContent="Uuendatud "+new Date(DATA.updated).toLocaleString("et-EE",{day:"numeric",month:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Tallinn"});
-  document.getElementById("cards").innerHTML=Object.keys(T).map(k=>cardHtml(k,T[k],now)).join("");
-  document.getElementById("navlinks").innerHTML=`<a href="#ylevaade">Ülevaade</a><a href="#kalender">Kalender</a>`+
-    Object.keys(T).map(k=>`<a href="#${ANCH[k]}">${SHORT[k]}</a>`).join("")+`<a href="#allikad">Allikad</a>`;
-  document.getElementById("chips").innerHTML=`<button class="chip" data-f="all">Kõik</button>`+
-    Object.keys(T).map(k=>`<button class="chip" data-f="${k}" style="--c:${COLORS[k]}"><span class="dot"></span>${SHORT[k]}</button>`).join("");
-  document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.f;try{localStorage.setItem("sk-filter",filter)}catch(_){};renderCal();}));
-  document.getElementById("teamSections").innerHTML=Object.keys(T).map(k=>{const t=T[k];
-    return `<section id="${ANCH[k]}"><h2><span class="bar" style="background:${COLORS[k]}"></span>${esc(t.name)}</h2>
-      <div class="facts">${(t.facts||[]).map(([a,b])=>`<span>${esc(a)} <b>${esc(b)}</b></span>`).join("")}</div>
-      <div class="team">${(t.panels||[]).map(p=>panelHtml(p,k)).join("")}</div></section>`;}).join("");
-  document.getElementById("srcNote").textContent=DATA.note||"";
-  document.getElementById("sources").innerHTML=(DATA.sources||[]).map(([n,u])=>`<li><a href="${esc(u)}">${esc(n)}</a></li>`).join("");
-  if(location.hash){const el=document.getElementById(location.hash.slice(1)); if(el) el.scrollIntoView();}
-}
-function renderCal(){
-  const now=new Date(), m=e=>filter==="all"||e.team===filter;
-  const up=DATA.events.filter(e=>isUp(e,now)&&m(e)).sort((a,b)=>startOf(a)-startOf(b)).slice(0,14);
-  const pend=DATA.events.filter(e=>!e.score&&!isUp(e,now)&&m(e)&&now-startOf(e)<7*864e5);
-  const res=DATA.events.filter(e=>e.score&&m(e)).sort((a,b)=>startOf(b)-startOf(a)).slice(0,12);
-  let h="",last="";
-  up.forEach(e=>{const f=fmt(e),key=f.m+" "+f.y; if(key!==last){h+=`<div class="month">${key}</div>`;last=key;}
-    h+=`<div class="ev" style="--c:${COLORS[e.team]}"><div class="d"><b>${f.d}</b><span>${f.wd}</span></div>
-      <div><div class="t">${esc(e.title)}</div><div class="m">${SHORT[e.team]} · ${esc(e.comp)}${e.place?" · "+esc(e.place):""}</div></div>
-      <div class="tm">${e.time||"–"}<small>${e.time?"Eesti aeg":"aeg selgumata"}</small></div></div>`;});
-  if(!up.length) h='<div class="empty">Selle valikuga tulevaid mänge kalendris pole.</div>';
-  if(pend.length) h+=`<div class="empty">Mängitud, tulemus lisandub järgmise uuendusega: ${pend.map(e=>esc(e.title)).join(", ")}.</div>`;
-  document.getElementById("upcoming").innerHTML=h;
-  document.getElementById("results").innerHTML=res.length?res.map(e=>{const f=fmt(e);
-    return `<div class="res"><span class="pill ${e.result}">${RL[e.result]||"–"}</span><div><div>${esc(e.title)}</div>
-      <div class="m"><span class="dot" style="--c:${COLORS[e.team]}"></span> ${e.dateLabel?esc(e.dateLabel):f.d+". "+f.m} · ${esc(e.comp)}</div></div><span class="score">${esc(e.score)}</span></div>`;}).join("")
-    :'<div class="empty">Selle valikuga tulemusi pole.</div>';
-  document.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.f===filter)));
+function select(k){
+  if(!DATA.teams[k]) k=Object.keys(DATA.teams)[0];
+  sel=k; try{localStorage.setItem("sk-team",k)}catch(_){}
+  const t=DATA.teams[k];
+  document.getElementById("tabs").innerHTML=Object.keys(DATA.teams).map(x=>`<button class="tab" role="tab" aria-selected="${x===k}" data-k="${x}" style="--c:${COLORS[x]}"><span class="dot"></span>${esc(DATA.teams[x].name)}</button>`).join("");
+  document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>select(b.dataset.k)));
+  document.querySelectorAll(".card").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.k===k)));
+  document.getElementById("teamDetail").innerHTML=`<div style="--c:${COLORS[k]}">
+    <p class="facts">${(t.facts||[]).map(([a,v])=>`<span>${esc(a)}: <b>${esc(v)}</b></span>`).join("")}</p>
+    <div class="grid">${(t.panels||[]).map(p=>panelHtml(p,k)).join("")}</div></div>`;
 }
 function tick(){
   if(!DATA) return; const now=new Date();
-  const fut=DATA.events.filter(e=>!e.score&&startOf(e)>now).sort((a,b)=>startOf(a)-startOf(b));
-  const n=fut[0];
+  const n=DATA.events.filter(e=>!e.score&&(e.time?startOf(e):dayStart(e).getTime()+864e5)>now).sort((a,b)=>startOf(a)-startOf(b))[0];
   const T=document.getElementById("nextTeams"),M=document.getElementById("nextMeta"),C=document.getElementById("countdown");
   if(!n){T.textContent="Kalender on tühi";M.textContent="";C.innerHTML="";return;}
-  const f=fmt(n); T.textContent=n.title;
-  M.textContent=`${f.wd}, ${f.d}. ${f.m} ${f.y}${n.time?" kell "+n.time:""} · ${n.comp}${n.place?" · "+n.place:""}`;
-  let ms=(n.time?startOf(n):new Date(n.date+"T00:00:00"+tzOff(n.date)))-now; if(ms<0) ms=0;
-  const d=Math.floor(ms/864e5),hh=Math.floor(ms/36e5)%24,mm=Math.floor(ms/6e4)%60;
-  C.innerHTML=`<div><b>${d}</b><span>päeva</span></div><div><b>${String(hh).padStart(2,"0")}</b><span>tundi</span></div><div><b>${String(mm).padStart(2,"0")}</b><span>minutit</span></div>`;
+  const rel=relDay(n);
+  T.textContent=n.title;
+  M.textContent=`${rel?rel[0].toUpperCase()+rel.slice(1)+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""} · ${n.comp}${n.place?" · "+n.place:""}`;
+  if(!n.time){C.innerHTML="";return;}
+  let ms=Math.max(0,startOf(n)-now);
+  if(ms===0){C.innerHTML=`<div><b>Käib</b><span>praegu</span></div>`;return;}
+  const d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60;
+  C.innerHTML=`<div><b>${d}</b><span>päeva</span></div><div><b>${String(h).padStart(2,"0")}</b><span>tundi</span></div><div><b>${String(m).padStart(2,"0")}</b><span>minutit</span></div>`;
+}
+function renderAll(){
+  document.getElementById("stamp").textContent="Andmed uuendatud "+new Date(DATA.updated).toLocaleString("et-EE",{day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Tallinn"});
+  renderCards(); renderUpcoming(); select(sel); tick();
+  document.getElementById("srcNote").textContent=(DATA.note||"")+" Kellaajad on Eesti aja järgi.";
+  document.getElementById("sources").innerHTML="Allikad: "+(DATA.sources||[]).map(([n,u])=>`<a href="${esc(u)}">${esc(n)}</a>`).join("");
 }
 async function load(first){
   try{
-    const r=await fetch("/sport/data.json?t="+Date.now(),{cache:"no-store"});
-    if(!r.ok) throw new Error(r.status);
+    const r=await fetch("/sport/data.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) throw new Error(r.status);
     const d=await r.json();
-    if(first||!DATA||d.updated!==DATA.updated){DATA=d;renderStatic();}
-    renderCal();tick();
-  }catch(e){
-    if(!DATA) document.getElementById("main").insertAdjacentHTML("afterbegin",'<div class="err">Andmefaili ei saanud laadida. Proovi lehte värskendada.</div>');
-  }
+    if(first||!DATA||d.updated!==DATA.updated){DATA=d;renderAll();} else {renderCards();renderUpcoming();tick();}
+  }catch(e){ if(!DATA) document.getElementById("main").insertAdjacentHTML("afterbegin",'<div class="err">Andmeid ei saanud laadida. Proovi lehte värskendada.</div>'); }
 }
 load(true);
 setInterval(tick,30000);
-setInterval(()=>load(false),10*60*1000); // vaatab iga 10 min, kas andmefail on uuenenud
+setInterval(()=>load(false),10*60*1000);
 </script>
 </body>
 </html>

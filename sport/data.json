@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T20:45:00+02:00",
+ "updated": "2026-11-14T21:35:00+02:00",
  "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
  "teams": {
   "bcp": {
@@ -87,7 +87,7 @@
        7
       ]
      ],
-     "highlight": "BC Pärnu",
+     "highlight": "BC Pärnu (EST)",
      "cutAfter": 2,
      "note": "Kaks parimat pääsevad edasi teise ringi. Jäänud on 4 vooru."
     },
@@ -667,9 +667,9 @@
    "name": "Eesti korvpallikoondis",
    "color": "ekk",
    "summary": {
-    "competition": "MM 2027 valiksari · L-alagrupp",
+    "competition": "MM 2027 valiksari · L-alagrupp, võidud ja kaotused kokku",
     "headline": "3 V · 5 K",
-    "sub": "kokku"
+    "sub": ""
    },
    "facts": [
     [
@@ -780,8 +780,8 @@
   {
    "team": "bcp",
    "date": "2026-11-15",
-   "time": null,
-   "title": "Pärnu – Tartu Ülikool Maks & Moorits",
+   "time": "17:00",
+   "title": "BC Pärnu – Tartu Ülikool Maks & Moorits",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -789,7 +789,7 @@
    "team": "bcp",
    "date": "2026-11-22",
    "time": null,
-   "title": "Keila Coolbet – Pärnu",
+   "title": "Keila Coolbet – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -797,7 +797,7 @@
    "team": "bcp",
    "date": "2026-12-02",
    "time": null,
-   "title": "Rīgas Zeļļi – Pärnu",
+   "title": "Rīgas Zeļļi – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -805,7 +805,7 @@
    "team": "bcp",
    "date": "2026-12-06",
    "time": null,
-   "title": "TalTech/ALEXELA – Pärnu",
+   "title": "TalTech/ALEXELA – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -813,7 +813,7 @@
    "team": "bcp",
    "date": "2026-12-13",
    "time": null,
-   "title": "Pärnu – BK Ogre",
+   "title": "BC Pärnu – BK Ogre",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -821,7 +821,7 @@
    "team": "bcp",
    "date": "2026-12-18",
    "time": null,
-   "title": "Pärnu – Rīgas Ekselences Juniori",
+   "title": "BC Pärnu – Rīgas Ekselences Juniori",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -829,7 +829,7 @@
    "team": "bcp",
    "date": "2026-12-27",
    "time": null,
-   "title": "Pärnu – Kalev/Cramo",
+   "title": "BC Pärnu – Kalev/Cramo",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -837,7 +837,7 @@
    "team": "bcp",
    "date": "2026-12-30",
    "time": null,
-   "title": "Pärnu – Viimsi",
+   "title": "BC Pärnu – Viimsi",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -845,7 +845,7 @@
    "team": "bcp",
    "date": "2027-01-09",
    "time": null,
-   "title": "Keila Korvpallikool – Pärnu",
+   "title": "Keila Korvpallikool – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -853,7 +853,7 @@
    "team": "bcp",
    "date": "2027-01-16",
    "time": null,
-   "title": "Pärnu – TalTech/ALEXELA",
+   "title": "BC Pärnu – TalTech/ALEXELA",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -861,7 +861,7 @@
    "team": "bcp",
    "date": "2027-01-20",
    "time": null,
-   "title": "BK Liepāja – Pärnu",
+   "title": "BK Liepāja – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -869,7 +869,7 @@
    "team": "bcp",
    "date": "2027-01-25",
    "time": null,
-   "title": "Latvijas Universitāte – Pärnu",
+   "title": "Latvijas Universitāte – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -877,7 +877,7 @@
    "team": "bcp",
    "date": "2027-01-30",
    "time": null,
-   "title": "Tartu Ülikool Maks & Moorits – Pärnu",
+   "title": "Tartu Ülikool Maks & Moorits – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -885,7 +885,7 @@
    "team": "bcp",
    "date": "2027-02-02",
    "time": null,
-   "title": "BK Ventspils – Pärnu",
+   "title": "BK Ventspils – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -893,7 +893,7 @@
    "team": "bcp",
    "date": "2027-02-07",
    "time": null,
-   "title": "Pärnu – Keila Coolbet",
+   "title": "BC Pärnu – Keila Coolbet",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -901,7 +901,7 @@
    "team": "bcp",
    "date": "2027-02-10",
    "time": null,
-   "title": "Pärnu – Rīgas Zeļļi",
+   "title": "BC Pärnu – Rīgas Zeļļi",
    "comp": "Eesti-Läti liiga",
    "place": "Pärnu Spordihall"
   },
@@ -909,7 +909,7 @@
    "team": "bcp",
    "date": "2027-03-03",
    "time": null,
-   "title": "Valmiera Glass VIA – Pärnu",
+   "title": "Valmiera Glass VIA – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -917,7 +917,7 @@
    "team": "bcp",
    "date": "2027-03-07",
    "time": null,
-   "title": "Viimsi – Pärnu",
+   "title": "Viimsi – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },
@@ -925,7 +925,7 @@
    "team": "bcp",
    "date": "2027-03-10",
    "time": null,
-   "title": "BK Ogre – Pärnu",
+   "title": "BK Ogre – BC Pärnu",
    "comp": "Eesti-Läti liiga",
    "place": "võõrsil"
   },

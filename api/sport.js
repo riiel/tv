@@ -152,7 +152,7 @@ function parseBasket(html) {
 const FIBA = 'https://www.fiba.basketball/en/events/';
 const PARNU_ORG = 58616;
 const CLUBS = { 58616: ME, 1129: 'SLUC Nancy', 66528: 'King Szczecin', 729: 'Keravnos', 73436: 'BC Vienna', 89491: 'Nitra Blue Wings', 81526: 'Neftçi', 2710: 'Tartu Ülikool Maks & Moorits', 8015: 'Bigbank/Kalev' };
-const PLAYER_FIX = { 'Klavs Dubults': 'Klāvs Dubults', 'Renars Birkans': 'Renārs Birkāns', 'Hendrik Eelmae': 'Hendrik Eelmäe', 'Illia Sidorov': 'Illja Sidorov' };
+const PLAYER_FIX = { 'Klavs Dubults': 'Klāvs Dubults', 'Renars Birkans': 'Renārs Birkāns', 'Hendrik Eelmae': 'Hendrik Eelmäe', 'Illya Sydorov': 'Illja Sidorov' };
 const CITY = { Vienna: 'Viin', Nicosia: 'Nikosia', Baku: 'Bakuu', Warsaw: 'Varssavi', Prague: 'Praha', Athens: 'Ateena', Brussels: 'Brüssel', Lisbon: 'Lissabon', Bucharest: 'Bukarest', Copenhagen: 'Kopenhaagen', Rome: 'Rooma', Belgrade: 'Belgrad', Cologne: 'Köln', Munich: 'München', Geneva: 'Genf', Riga: 'Riia', Helsinki: 'Helsingi', Stockholm: 'Stockholm' };
 // FIBA riigikood → [eestikeelne nimi, lipu kood]
 const COUNTRY = {
@@ -431,7 +431,7 @@ async function vaprus(t) {
     bySeason[s] = pages[i] || [];
     for (const g of bySeason[s]) {
       const home = g.home.name === VAPRUS;
-      const e = { team: 'vap', date: g.date, time: g.time, title: `${short(g.home)} – ${short(g.away)}`, comp: FB_COMP[g.code] || g.code || 'Jalgpall' };
+      const e = { team: 'vap', date: g.date, time: g.time, title: `${short(g.home)} – ${short(g.away)}`, comp: FB_COMP[g.code] || (/^TT/.test(g.code) ? 'Taliturniir' : g.code) || 'Jalgpall' };
       if (g.score) { const [x, y] = g.score; e.score = `${x}:${y}`; e.result = x === y ? 'D' : ((home ? x > y : y > x) ? 'W' : 'L'); }
       events.push(e);
     }
@@ -558,7 +558,10 @@ async function koondis() {
   }
 
   const done = events.filter(e => e.score);
-  if (done.length) panels['ejk-results'] = { title: 'Tulemused', items: done.slice(-8).map(e => ({ date: dm(e.date), title: e.title, note: [e.comp, e.place].filter(Boolean).join(' · '), score: e.score, result: e.result })) };
+  if (done.length) {
+    const last = done.slice(-8), mixed = new Set(last.map(e => e.comp)).size > 1;
+    panels['ejk-results'] = { title: mixed ? 'Tulemused' : `${last[0].comp} · tulemused`, items: last.map(e => ({ date: dm(e.date), title: e.title, note: [mixed ? e.comp : '', e.place].filter(Boolean).join(' · '), score: e.score, result: e.result })) };
+  }
 
   if (tour) {
     const known = NAT_KNOWN[tour.tid] || {};

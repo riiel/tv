@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-14T23:12:45+02:00",
- "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
+ "updated": "2026-11-14T23:36:29+02:00",
+ "note": "Andmed loetakse otse alaliitude lehtedelt: basket.ee, fiba.basketball ja jalgpall.ee.",
  "teams": {
   "bcp": {
    "name": "BC Pärnu",
@@ -476,7 +476,7 @@
        "result": "L"
       },
       {
-       "date": "11.11",
+       "date": "12.11",
        "title": "BC Pärnu – Keravnos",
        "note": "6. voor, Pärnu",
        "score": "65:86",
@@ -735,8 +735,7 @@
          "1,11",
          "punkti mängus"
         ]
-       ],
-       "callout": "Hooaja viimases mängus võitis Vaprus võõrsil Tammekat 5:0 ja tõusis 8. kohalt 7. kohale."
+       ]
       },
       {
        "type": "list",
@@ -950,7 +949,6 @@
      ],
      "highlight": "Eesti",
      "cutAfter": 2,
-     "callout": "Eesti on 2. koha kindlustanud ja mängib vähemalt üleminekumänge B-liigasse pääsemiseks.",
      "key": "ejk-table"
     },
     {
@@ -1244,8 +1242,8 @@
   },
   {
    "team": "bcp",
-   "date": "2026-11-11",
-   "time": null,
+   "date": "2026-11-12",
+   "time": "19:00",
    "title": "BC Pärnu – Keravnos",
    "comp": "FIBA Europe Cup",
    "score": "65:86",
@@ -1254,7 +1252,7 @@
   {
    "team": "bcp",
    "date": "2026-11-04",
-   "time": null,
+   "time": "19:00",
    "title": "BC Pärnu – King Szczecin",
    "comp": "FIBA Europe Cup",
    "score": "69:82",
@@ -2422,32 +2420,20 @@
    "https://www.basket.ee/et/ajakava-ja-tulemused"
   ],
   [
-   "FIBA Europe Cup: BC Pärnu",
-   "https://www.fiba.basketball/en/events/fiba-europe-cup-26-27/teams/bc-parnu"
-  ],
-  [
-   "Eesti-Läti korvpalliliiga",
-   "https://www.estlatbl.com/en/standings-regular-season"
-  ],
-  [
-   "Premium liiga tabel",
-   "https://www.thestatsapi.com/football/league/premium-liiga/standings"
-  ],
-  [
-   "UEFA: Eesti Rahvuste liigas",
-   "https://www.uefa.com/uefanationsleague/teams/56556--estonia/matches/"
+   "FIBA Europe Cup",
+   "https://www.fiba.basketball/en/events/fiba-europe-cup-26-27/standings"
   ],
   [
    "FIBA: MM 2027 valiksari",
-   "https://www.fiba.basketball/en/events/fiba-basketball-world-cup-2027-european-qualifiers"
+   "https://www.fiba.basketball/en/events/fiba-basketball-world-cup-2027-european-qualifiers/standings"
   ],
   [
-   "jalgpall.ee",
-   "https://www.jalgpall.ee/"
+   "jalgpall.ee: Premium liiga",
+   "https://jalgpall.ee/voistlused/52/liigad"
   ],
   [
-   "basket.ee",
-   "https://www.basket.ee/"
+   "jalgpall.ee: koondis",
+   "https://jalgpall.ee/koondis/1/mangud"
   ]
  ],
  "logos": {

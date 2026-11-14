@@ -16,11 +16,22 @@ export default async function handler(req, res) {
   }
 
   // 2) KOONDISED JA BC PÄRNU — samast andmefailist, mida kasutab spordileht (/sport/data.json).
-  // Seda faili uuendatakse automaatselt, nii et kellaajad on siin ja spordilehel alati samad.
+  // Andmefail on varuvariant; värsked mängud tulevad allpool /api/sport kaudu.
   try {
     const host = req.headers['x-forwarded-host'] || req.headers.host;
     const dataRes = await fetch(`https://${host}/sport/data.json`);
     const data = await dataRes.json();
+    // Otseandmed alaliitude lehtedelt (/api/sport) kirjutavad andmefaili mängud üle, nagu spordilehelgi
+    try {
+      const live = await (await fetch(`https://${host}/api/sport`)).json();
+      if (live && live.ok) for (const g of live.eventSets || []) {
+        if (!g.events || !g.events.length) continue;
+        const re = g.re ? new RegExp(g.re) : null, dates = new Set(g.events.map(e => e.date));
+        data.events = (data.events || []).filter(e => !(e.team === g.team && (re ? re.test(e.comp || '') : dates.has(e.date)))).concat(g.events);
+      }
+    } catch (e) {
+      // kui otseandmeid ei saa, jäävad andmefaili mängud
+    }
     const LABELS = {
       bcp: { sport: 'korvpall', team: 'BC Pärnu' },
       ejk: { sport: 'jalgpall', team: 'Eesti koondis' },

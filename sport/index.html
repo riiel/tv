@@ -126,6 +126,18 @@ footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);f
 footer a{margin-right:14px;display:inline-block}
 html,body{overflow-x:hidden}
 
+/* Ikoonid: koduvaatega sama joonistiil (ühevärvilised, teksti värvi) */
+.ico{width:1em;height:1em;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-0.14em}
+.flag{width:1.25em;height:.84em;flex-shrink:0;border-radius:2px;vertical-align:-0.06em;box-shadow:0 0 0 1px rgba(240,246,252,.28)}
+.tico{display:inline-flex;align-items:center;gap:5px;color:var(--c);margin-right:8px}
+.card h3{display:flex;align-items:center}
+.tag::before{display:none}
+.tag .tico{margin-right:0;gap:4px}
+.tab .tico{margin-right:0}
+.card h3 .ico{width:1.15em;height:1.15em}
+.tag .ico{width:1.35em;height:1.35em;stroke-width:1.9}
+.tab .ico{width:1.2em;height:1.2em}
+.tab[aria-selected="true"] .tico{color:#fff}
 /* Kompaktne paigutus */
 body{font-size:16px}
 @media (min-width:1600px){body{font-size:18px}}
@@ -217,6 +229,15 @@ const MONTHS=["jaanuar","veebruar","märts","aprill","mai","juuni","juuli","augu
 const WDL=["pühapäev","esmaspäev","teisipäev","kolmapäev","neljapäev","reede","laupäev"];
 const WD=["P","E","T","K","N","R","L"];
 const RL={W:"V",D:"Vi",L:"K"};
+const ICON_PATHS={
+  basket:'<circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20M5.2 4.8c3.3 3.2 3.3 11.2 0 14.4M18.8 4.8c-3.3 3.2-3.3 11.2 0 14.4"/>',
+  football:'<circle cx="12" cy="12" r="10"/><path d="m12 7.2 4.3 3.1-1.6 5H9.3l-1.6-5z"/><path d="M12 7.2V2.3M16.3 10.3l4.6-1.5M14.7 15.3l2.9 4M9.3 15.3l-2.9 4M7.7 10.3 3.1 8.8"/>'
+};
+const ico=n=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[n]}</svg>`;
+const FLAG='<svg class="flag" viewBox="0 0 33 21" aria-label="Eesti" role="img"><rect width="33" height="7" fill="#0072ce"/><rect y="7" width="33" height="7" fill="#000"/><rect y="14" width="33" height="7" fill="#fff"/></svg>';
+const SPORT={bcp:"basket",vap:"football",ejk:"football",ekk:"basket"};
+const NATIONAL={ejk:true,ekk:true};
+const tIco=k=>`<span class="tico" style="--c:${COLORS[k]}" title="${SPORT[k]==="basket"?"Korvpall":"Jalgpall"}${NATIONAL[k]?" · koondis":""}">${ico(SPORT[k])}${NATIONAL[k]?FLAG:""}</span>`;
 let DATA=null, sel="bcp";
 try{const s=localStorage.getItem("sk-team"); if(s) sel=s;}catch(_){}
 
@@ -245,7 +266,7 @@ function renderCards(){
     const nextV=n?`<b>${esc(n.title)}</b><small>${rel?rel+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""}</small>`:`<small>${esc(s.nextText||"Uut mängu pole veel kalendris")}</small>`;
     const lastV=l?`<span class="pill ${l.result}">${RL[l.result]}</span><b class="tn">${esc(l.score)}</b> ${esc(l.title)}`:"–";
     return `<button class="card" role="tab" aria-selected="${k===sel}" data-k="${k}" style="--c:${COLORS[k]}">
-      <h3>${esc(t.name)}</h3>
+      <h3>${tIco(k)}${esc(t.name)}</h3>
       <div class="status">${esc(s.headline)}${s.sub?" · "+esc(s.sub):""}<small>${esc(s.competition)}</small></div>
       <div class="row"><span class="k">Järgmine</span><span class="v">${nextV}</span></div>
       <div class="row"><span class="k">Viimane</span><span class="v">${lastV}</span></div>
@@ -258,7 +279,7 @@ function renderUpcoming(){
     return `<div class="ev" style="--c:${COLORS[e.team]}">
       <div class="when">${rel?rel[0].toUpperCase()+rel.slice(1):dateTxt(e,false)}<small>${e.time?"kell "+e.time:(rel?dateTxt(e,false):"")}</small></div>
       <div class="what">${esc(e.title)}<small>${esc(e.comp)}${e.place?" · "+esc(e.place):""}</small></div>
-      <span class="tag" style="--c:${COLORS[e.team]}">${SHORT[e.team]}</span></div>`;}).join("")
+      <span class="tag" style="--c:${COLORS[e.team]}">${tIco(e.team)}${SHORT[e.team]}</span></div>`;}).join("")
     :'<div class="ev"><div></div><div class="what">Kalendris pole praegu tulevaid mänge.</div></div>';
 }
 function panelHtml(p,k){
@@ -283,7 +304,7 @@ function select(k){
   if(!DATA.teams[k]) k=Object.keys(DATA.teams)[0];
   sel=k; try{localStorage.setItem("sk-team",k)}catch(_){}
   const t=DATA.teams[k];
-  document.getElementById("tabs").innerHTML=Object.keys(DATA.teams).map(x=>`<button class="tab" role="tab" aria-selected="${x===k}" data-k="${x}" style="--c:${COLORS[x]}"><span class="dot"></span>${esc(DATA.teams[x].name)}</button>`).join("");
+  document.getElementById("tabs").innerHTML=Object.keys(DATA.teams).map(x=>`<button class="tab" role="tab" aria-selected="${x===k}" data-k="${x}" style="--c:${COLORS[x]}">${tIco(x)}${esc(DATA.teams[x].name)}</button>`).join("");
   document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>select(b.dataset.k)));
   document.querySelectorAll(".card").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.k===k)));
   document.getElementById("teamDetail").innerHTML=`<div style="--c:${COLORS[k]}">

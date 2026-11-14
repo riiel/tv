@@ -2423,7 +2423,7 @@
           if (sunAlt > -6) continue;                      // valge aeg, ei loe
           const cloud = cloudAt(ms);
           const r = auroraChance({ kp: blk.kp, bz: 0, speed: 400, lat, lon, cloud: cloud ?? 50, sunAlt });
-          if (!best || r.chance > best.chance) best = { chance: Math.round(r.chance), cloud, kp: blk.kp, start: blk.t, end };
+          if (!best || r.chance > best.chance) best = { chance: Math.round(r.chance), act: r.space * r.darkF, cloud, kp: blk.kp, start: blk.t, end };
         }
         if (!best) continue;
         // Öö = kella 12-st järgmise päeva kella 12-ni; nimi tuleb õhtu kuupäevast
@@ -2450,7 +2450,8 @@
         const lv = c >= 60 ? 'lv3' : c >= 30 ? 'lv2' : c >= 10 ? 'lv1' : '';
         const cl = n.best.cloud;
         const why = cl !== null && cl >= 60 ? 'pilves' : `Kp ${fmt(n.best.kp, 1)}`;
-        const detail = c >= 5 ? ` ${n.range} · ${why}` : (cl !== null && cl >= 60 ? ' pilves' : ' vaikne');
+        // Põhjus näha: liiga vaikne (Kp väike) või pilved katavad
+        const detail = c >= 5 ? ` ${n.range} · ${why}` : (n.best.act >= 10 && cl !== null && cl >= 60 ? ' pilves' : ' vaikne');
         return `<span class="aur-night ${lv}"><b>${n.label}</b><span class="pct">${c}%</span>${detail}</span>`;
       }).join('');
       return `<span class="aur-nights"><span class="aur-nights-title">Prognoos:</span>${chips}</span>`;

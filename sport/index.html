@@ -36,8 +36,8 @@ h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
 header{padding:0 0 8px}
 /* Ülemine riba: täpselt sama koht ja suurus nagu koduvaate päises, et lehtede lüliti ei hüppaks */
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:2.6vh 3.4vw 0}
-@media (max-aspect-ratio:1/1){.topbar{padding:16px 16px 0}}
-.brand{display:flex;align-items:center;gap:12px;font-size:clamp(16px,1.55vw,24px);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+@media (max-aspect-ratio:1/1){.topbar{padding:16px calc(16px + .2vw) 0}}
+.brand{display:flex;align-items:center;gap:12px;line-height:1.2;font-size:clamp(16px,1.55vw,24px);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
 .brand-mark{width:14px;height:14px;border-radius:50%;background:var(--accent);flex:none}
 .pagesw{display:flex;gap:.9em}
 .pagesw a{color:var(--muted);text-decoration:none;font:inherit;letter-spacing:inherit}

@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T22:32:31+02:00",
+ "updated": "2026-11-14T22:41:36+02:00",
  "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
  "teams": {
   "bcp": {
@@ -1026,6 +1026,13 @@
      "width": 6,
      "items": [
       {
+       "date": "01.03",
+       "title": "Eesti – Rootsi",
+       "note": "1. ring, Tallinn",
+       "score": "69:79",
+       "result": "L"
+      },
+      {
        "date": "03.07",
        "title": "Eesti – Sloveenia",
        "note": "1. ring, Tallinn",
@@ -1035,8 +1042,8 @@
       {
        "date": "06.07",
        "title": "Tšehhi – Eesti",
-       "note": "1. ring · Eesti pääses sellegipoolest edasi",
-       "score": "K",
+       "note": "1. ring, Brno · Vaaks ja Kotsar 19 p · Eesti pääses edasi",
+       "score": "75:73",
        "result": "L"
       },
       {
@@ -1553,6 +1560,24 @@
    "title": "BC Pärnu – Nitra Blue Wings",
    "comp": "FIBA Europe Cup, 9. voor (15. või 16.12)",
    "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-07-06",
+   "time": null,
+   "title": "Tšehhi – Eesti",
+   "comp": "MM 2027 valiksari",
+   "score": "75:73",
+   "result": "L"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-03-01",
+   "time": "19:00",
+   "title": "Eesti – Rootsi",
+   "comp": "MM 2027 valiksari",
+   "score": "69:79",
+   "result": "L"
   }
  ],
  "sources": [

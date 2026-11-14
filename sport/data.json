@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T22:48:16+02:00",
+ "updated": "2026-11-14T22:50:54+02:00",
  "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
  "teams": {
   "bcp": {
@@ -171,69 +171,139 @@
      "note": "Järjestus võiduprotsendi järgi, arvutatud basket.ee ametlikest tulemustest. Ametlik tabel võib võrdse seisu korral erineda. 8 paremat pääsevad play-offi."
     },
     {
-     "type": "table",
-     "title": "KML · Eesti klubide seis",
+     "type": "stack",
      "width": 4,
-     "columns": [
-      "#",
-      "Meeskond",
-      "V",
-      "K",
-      "%"
-     ],
-     "rows": [
-      [
-       1,
-       "Tartu Ülikool Maks & Moorits",
-       5,
-       3,
-       ".625"
-      ],
-      [
-       2,
-       "TalTech/ALEXELA",
-       6,
-       4,
-       ".600"
-      ],
-      [
-       3,
-       "BC Pärnu",
-       4,
-       3,
-       ".571"
-      ],
-      [
-       4,
-       "Bigbank/Kalev",
-       5,
-       4,
-       ".556"
-      ],
-      [
-       5,
-       "Keila KK",
-       5,
-       5,
-       ".500"
-      ],
-      [
-       6,
-       "Viimsi",
-       2,
-       9,
-       ".182"
-      ],
-      [
-       7,
-       "Keila Basket",
-       0,
-       9,
-       ".000"
-      ]
-     ],
-     "highlight": "BC Pärnu",
-     "note": "Ühisliiga põhiturniiri mängud lähevad arvesse ka KML-i tabelisse. Eesti meister selgub kevadel KML-i play-offis."
+     "panels": [
+      {
+       "type": "table",
+       "title": "Europe Cup · D-alagrupp",
+       "columns": [
+        "#",
+        "Meeskond",
+        "M",
+        "V",
+        "K",
+        "P"
+       ],
+       "rows": [
+        [
+         1,
+         "SLUC Nancy (FRA)",
+         6,
+         5,
+         1,
+         11
+        ],
+        [
+         2,
+         "King Szczecin (POL)",
+         6,
+         4,
+         2,
+         10
+        ],
+        [
+         3,
+         "Keravnos (CYP)",
+         6,
+         4,
+         2,
+         10
+        ],
+        [
+         4,
+         "BC Vienna (AUT)",
+         6,
+         2,
+         4,
+         8
+        ],
+        [
+         5,
+         "Nitra Blue Wings (SVK)",
+         6,
+         2,
+         4,
+         8
+        ],
+        [
+         6,
+         "BC Pärnu (EST)",
+         6,
+         1,
+         5,
+         7
+        ]
+       ],
+       "highlight": "BC Pärnu (EST)",
+       "cutAfter": 2,
+       "note": "Kaks parimat pääsevad edasi. Jäänud on 4 vooru."
+      },
+      {
+       "type": "table",
+       "title": "KML · Eesti klubide seis",
+       "columns": [
+        "#",
+        "Meeskond",
+        "V",
+        "K",
+        "%"
+       ],
+       "rows": [
+        [
+         1,
+         "Tartu Ülikool Maks & Moorits",
+         5,
+         3,
+         ".625"
+        ],
+        [
+         2,
+         "TalTech/ALEXELA",
+         6,
+         4,
+         ".600"
+        ],
+        [
+         3,
+         "BC Pärnu",
+         4,
+         3,
+         ".571"
+        ],
+        [
+         4,
+         "Bigbank/Kalev",
+         5,
+         4,
+         ".556"
+        ],
+        [
+         5,
+         "Keila KK",
+         5,
+         5,
+         ".500"
+        ],
+        [
+         6,
+         "Viimsi",
+         2,
+         9,
+         ".182"
+        ],
+        [
+         7,
+         "Keila Basket",
+         0,
+         9,
+         ".000"
+        ]
+       ],
+       "highlight": "BC Pärnu",
+       "note": "Ühisliiga põhiturniiri mängud lähevad arvesse ka KML-i tabelisse. Eesti meister selgub kevadel KML-i play-offis."
+      }
+     ]
     },
     {
      "type": "list",
@@ -324,75 +394,9 @@
      ]
     },
     {
-     "type": "table",
-     "title": "FIBA Europe Cup · D-alagrupi tabel",
-     "width": 6,
-     "columns": [
-      "#",
-      "Meeskond",
-      "M",
-      "V",
-      "K",
-      "P"
-     ],
-     "rows": [
-      [
-       1,
-       "SLUC Nancy (FRA)",
-       6,
-       5,
-       1,
-       11
-      ],
-      [
-       2,
-       "King Szczecin (POL)",
-       6,
-       4,
-       2,
-       10
-      ],
-      [
-       3,
-       "Keravnos (CYP)",
-       6,
-       4,
-       2,
-       10
-      ],
-      [
-       4,
-       "BC Vienna (AUT)",
-       6,
-       2,
-       4,
-       8
-      ],
-      [
-       5,
-       "Nitra Blue Wings (SVK)",
-       6,
-       2,
-       4,
-       8
-      ],
-      [
-       6,
-       "BC Pärnu (EST)",
-       6,
-       1,
-       5,
-       7
-      ]
-     ],
-     "highlight": "BC Pärnu (EST)",
-     "cutAfter": 2,
-     "note": "Kaks parimat pääsevad edasi teise ringi. Jäänud on 4 vooru."
-    },
-    {
      "type": "list",
      "title": "Europe Cup tulemused",
-     "width": 6,
+     "width": 12,
      "items": [
       {
        "date": "23.09",

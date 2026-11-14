@@ -180,6 +180,10 @@ td{padding:4px 6px}
 .list .dt{font-size:12px}.list .note{font-size:12px}.list .sc{font-size:16px}
 .stats{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
 .stat{padding:8px 10px}.stat b{font-size:22px}.stat span{font-size:11px}
+.stack{grid-column:span 4;display:flex;flex-direction:column;gap:12px;min-width:0}
+.stack.w6{grid-column:span 6}.stack.w8{grid-column:span 8}
+.stack>.box{grid-column:auto}
+@media (max-width:900px){.stack,.stack.w6,.stack.w8{grid-column:span 12}}
 .ldgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 24px}
 .ldg{margin:4px 0 2px}
 .ld{grid-template-columns:120px 1fr 40px;font-size:13px;margin:3px 0}
@@ -283,6 +287,7 @@ function renderUpcoming(){
     :'<div class="ev"><div></div><div class="what">Kalendris pole praegu tulevaid mänge.</div></div>';
 }
 function panelHtml(p,k){
+  if(p.type==="stack") return `<div class="stack w${p.width||4}">${(p.panels||[]).map(q=>panelHtml(Object.assign({},q,{width:0}),k)).join("")}</div>`;
   const w=p.width===12?"w12":p.width===8?"w8":p.width===4?"w4":"";
   let b=p.text?`<p style="margin-top:0">${esc(p.text)}</p>`:"";
   if(p.type==="table"){

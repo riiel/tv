@@ -1,0 +1,1216 @@
+{
+ "updated": "2026-11-14T20:45:00+02:00",
+ "note": "Andmed kogutud avalikest allikatest. Igapäevane uuendus muudab seda faili.",
+ "teams": {
+  "bcp": {
+   "name": "BC Pärnu",
+   "color": "bcp",
+   "summary": {
+    "competition": "FIBA Europe Cup · D-alagrupp",
+    "headline": "6. koht",
+    "sub": "1 V · 5 K"
+   },
+   "facts": [
+    [
+     "Peatreener",
+     "Kristjan Evart"
+    ],
+    [
+     "Kodusaal",
+     "Pärnu Spordihall (1820 kohta)"
+    ],
+    [
+     "Sarjad",
+     "Eesti-Läti liiga, KML, FIBA Europe Cup"
+    ]
+   ],
+   "panels": [
+    {
+     "type": "table",
+     "title": "FIBA Europe Cup · D-alagrupi tabel",
+     "width": 6,
+     "columns": [
+      "#",
+      "Meeskond",
+      "M",
+      "V",
+      "K",
+      "P"
+     ],
+     "rows": [
+      [
+       1,
+       "SLUC Nancy (FRA)",
+       6,
+       5,
+       1,
+       11
+      ],
+      [
+       2,
+       "King Szczecin (POL)",
+       6,
+       4,
+       2,
+       10
+      ],
+      [
+       3,
+       "Keravnos (CYP)",
+       6,
+       4,
+       2,
+       10
+      ],
+      [
+       4,
+       "BC Vienna (AUT)",
+       6,
+       2,
+       4,
+       8
+      ],
+      [
+       5,
+       "Nitra Blue Wings (SVK)",
+       6,
+       2,
+       4,
+       8
+      ],
+      [
+       6,
+       "BC Pärnu (EST)",
+       6,
+       1,
+       5,
+       7
+      ]
+     ],
+     "highlight": "BC Pärnu",
+     "cutAfter": 2,
+     "note": "Kaks parimat pääsevad edasi teise ringi. Jäänud on 4 vooru."
+    },
+    {
+     "type": "leaders",
+     "title": "Statistika liidrid · Europe Cup (keskmiselt mängus)",
+     "width": 6,
+     "groups": [
+      {
+       "label": "Punktid",
+       "rows": [
+        [
+         "Klāvs Dubults",
+         15.6
+        ],
+        [
+         "Mihkel Kirves",
+         13.4
+        ],
+        [
+         "Hendrik Eelmäe",
+         9.4
+        ]
+       ]
+      },
+      {
+       "label": "Lauapallid",
+       "rows": [
+        [
+         "Mihkel Kirves",
+         7.8
+        ],
+        [
+         "Klāvs Dubults",
+         6.1
+        ],
+        [
+         "Tsotne Tsartsidze",
+         5.1
+        ]
+       ]
+      },
+      {
+       "label": "Resultatiivsed söödud",
+       "rows": [
+        [
+         "Renārs Birkāns",
+         7.3
+        ],
+        [
+         "Illja Sidorov",
+         5.2
+        ],
+        [
+         "Javeon Jones",
+         3.0
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "list",
+     "title": "Europe Cup tulemused",
+     "width": 6,
+     "items": [
+      {
+       "date": "23.09",
+       "title": "Neftçi – BC Pärnu",
+       "note": "Eelringi 1. mäng, Bakuu",
+       "score": "K",
+       "result": "L"
+      },
+      {
+       "date": "30.09",
+       "title": "BC Pärnu – Neftçi",
+       "note": "Eelringi 2. mäng · mõlemad pääsesid põhiturniirile",
+       "score": "73:61",
+       "result": "W"
+      },
+      {
+       "date": "07.10",
+       "title": "Keravnos – BC Pärnu",
+       "note": "1. voor, Nikosia",
+       "score": "88:70",
+       "result": "L"
+      },
+      {
+       "date": "13.10",
+       "title": "BC Pärnu vs SLUC Nancy",
+       "note": "2. voor",
+       "score": "61:84",
+       "result": "L"
+      },
+      {
+       "date": "20.–28.10",
+       "title": "BC Vienna ja Nitra Blue Wings",
+       "note": "3. ja 4. voor: üks võit, üks kaotus",
+       "score": "1–1"
+      },
+      {
+       "date": "04.11",
+       "title": "BC Pärnu – King Szczecin",
+       "note": "5. voor, Pärnu",
+       "score": "69:82",
+       "result": "L"
+      },
+      {
+       "date": "11.11",
+       "title": "BC Pärnu – Keravnos",
+       "note": "6. voor, Pärnu",
+       "score": "65:86",
+       "result": "L"
+      }
+     ]
+    },
+    {
+     "type": "list",
+     "title": "Eesti-Läti liiga 2026/27",
+     "width": 6,
+     "items": [
+      {
+       "date": "03.10",
+       "title": "Kalev/Cramo vs BC Pärnu",
+       "note": "kaotus ühe punktiga",
+       "score": "K",
+       "result": "L"
+      },
+      {
+       "date": "17.10",
+       "title": "VEF Riga vs BC Pärnu",
+       "note": "Riia meeskonna võit",
+       "score": "K",
+       "result": "L"
+      }
+     ],
+     "text": "Hooaeg algas 23. septembril. 2. novembri seisuga jagas Pärnu liigatabelis 8. kohta.",
+     "callout": "Liiga täielik tabel: estlatbl.com. Mängukellaajad lisab igapäevane uuendus, kui need kinnitatakse."
+    }
+   ]
+  },
+  "vap": {
+   "name": "Pärnu JK Vaprus",
+   "color": "vap",
+   "summary": {
+    "competition": "Premium liiga 2026 · hooaeg lõppenud",
+    "headline": "7. koht",
+    "sub": "40 punkti",
+    "nextText": "Uus hooaeg algab 2027. aasta kevadel"
+   },
+   "facts": [
+    [
+     "Peatreener",
+     "Igor Prins"
+    ],
+    [
+     "Kodustaadion",
+     "Pärnu Rannastaadion (1501 kohta)"
+    ],
+    [
+     "Sari",
+     "A. Le Coq Premium liiga"
+    ]
+   ],
+   "panels": [
+    {
+     "type": "table",
+     "title": "Premium liiga 2026 · lõplik tabel",
+     "width": 8,
+     "columns": [
+      "#",
+      "Meeskond",
+      "M",
+      "V",
+      "Vi",
+      "K",
+      "Väravad",
+      "+/−",
+      "P"
+     ],
+     "rows": [
+      [
+       1,
+       "FCI Levadia",
+       36,
+       28,
+       7,
+       1,
+       "97:29",
+       "+68",
+       91
+      ],
+      [
+       2,
+       "Paide Linnameeskond",
+       36,
+       19,
+       7,
+       10,
+       "56:43",
+       "+13",
+       64
+      ],
+      [
+       3,
+       "FC Flora",
+       36,
+       20,
+       2,
+       14,
+       "68:51",
+       "+17",
+       62
+      ],
+      [
+       4,
+       "Nõmme Kalju",
+       36,
+       18,
+       7,
+       11,
+       "61:36",
+       "+25",
+       61
+      ],
+      [
+       5,
+       "Tartu Tammeka",
+       36,
+       17,
+       2,
+       17,
+       "50:60",
+       "−10",
+       53
+      ],
+      [
+       6,
+       "Harju JK Laagri",
+       36,
+       15,
+       2,
+       19,
+       "51:55",
+       "−4",
+       47
+      ],
+      [
+       7,
+       "Pärnu JK Vaprus",
+       36,
+       11,
+       7,
+       18,
+       "51:69",
+       "−18",
+       40
+      ],
+      [
+       8,
+       "Nõmme United",
+       36,
+       12,
+       2,
+       22,
+       "59:81",
+       "−22",
+       38
+      ],
+      [
+       9,
+       "FC Kuressaare",
+       36,
+       10,
+       7,
+       19,
+       "36:55",
+       "−19",
+       37
+      ],
+      [
+       10,
+       "Narva Trans",
+       36,
+       6,
+       5,
+       25,
+       "29:79",
+       "−50",
+       23
+      ]
+     ],
+     "highlight": "Pärnu JK Vaprus",
+     "cutAfter": 8,
+     "note": "9. koht läheb üleminekumängudele, 10. koht langeb Esiliigasse."
+    },
+    {
+     "type": "stats",
+     "title": "Hooaeg numbrites",
+     "width": 4,
+     "items": [
+      [
+       "11",
+       "võitu"
+      ],
+      [
+       "7",
+       "viiki"
+      ],
+      [
+       "18",
+       "kaotust"
+      ],
+      [
+       "1,42",
+       "lööduid väravaid mängus"
+      ],
+      [
+       "1,92",
+       "lastud väravaid mängus"
+      ],
+      [
+       "1,11",
+       "punkti mängus"
+      ]
+     ],
+     "callout": "Vaprus lõpetas hooaja 5:0 võiduga Tammeka üle ja tõusis viimases voorus 8. kohalt 7. kohale."
+    },
+    {
+     "type": "list",
+     "title": "Hooaja olulisemad mängud",
+     "width": 12,
+     "items": [
+      {
+       "date": "07.03",
+       "title": "Vaprus – Paide",
+       "note": "1. voor, hooaja avamäng",
+       "score": "3:2",
+       "result": "W"
+      },
+      {
+       "date": "14.03",
+       "title": "Nõmme United – Vaprus",
+       "note": "2. voor",
+       "score": "7:1",
+       "result": "L"
+      },
+      {
+       "date": "08.04",
+       "title": "Levadia – Vaprus",
+       "note": "5. voor · värav: Välja",
+       "score": "2:1",
+       "result": "L"
+      },
+      {
+       "date": "8. voor",
+       "title": "Kuressaare – Vaprus",
+       "note": "värav: Limberg",
+       "score": "0:1",
+       "result": "W"
+      },
+      {
+       "date": "11. voor",
+       "title": "Vaprus – Narva Trans",
+       "note": "väravad: Välja (pen), Aloe",
+       "score": "2:0",
+       "result": "W"
+      },
+      {
+       "date": "24.05",
+       "title": "Vaprus – Levadia",
+       "note": "13. voor · värav: Lepik",
+       "score": "1:6",
+       "result": "L"
+      },
+      {
+       "date": "02.08",
+       "title": "Vaprus – Levadia",
+       "note": "21. voor · värav: Orm",
+       "score": "1:1",
+       "result": "D"
+      },
+      {
+       "date": "26. voor",
+       "title": "Vaprus – Nõmme United",
+       "note": "värav: Pajo",
+       "score": "1:0",
+       "result": "W"
+      },
+      {
+       "date": "27. voor",
+       "title": "Vaprus – Harju",
+       "note": "väravad: Orm, Sild, omavärav",
+       "score": "3:2",
+       "result": "W"
+      },
+      {
+       "date": "36. voor",
+       "title": "Vaprus vs Tammeka",
+       "note": "hooaja viimane mäng",
+       "score": "5:0",
+       "result": "W"
+      }
+     ]
+    }
+   ]
+  },
+  "ejk": {
+   "name": "Eesti jalgpallikoondis",
+   "color": "ejk",
+   "summary": {
+    "competition": "Rahvuste liiga C · 4. alagrupp",
+    "headline": "2. koht",
+    "sub": "9 punkti",
+    "form": [
+     "D",
+     "D",
+     "W",
+     "D",
+     "W"
+    ]
+   },
+   "facts": [
+    [
+     "Peatreener",
+     "Jürgen Henn"
+    ],
+    [
+     "Kodustaadion",
+     "A. Le Coq Arena, Tallinn"
+    ],
+    [
+     "Sari",
+     "UEFA Rahvuste liiga 2026/27, C-liiga"
+    ]
+   ],
+   "panels": [
+    {
+     "type": "table",
+     "title": "Rahvuste liiga C · 4. alagrupp",
+     "width": 6,
+     "columns": [
+      "#",
+      "Koondis",
+      "M",
+      "V",
+      "Vi",
+      "K",
+      "+/−",
+      "P"
+     ],
+     "rows": [
+      [
+       1,
+       "Island",
+       5,
+       3,
+       2,
+       0,
+       "+11",
+       11
+      ],
+      [
+       2,
+       "Eesti",
+       5,
+       2,
+       3,
+       0,
+       "+2",
+       9
+      ],
+      [
+       3,
+       "Bulgaaria",
+       5,
+       1,
+       1,
+       3,
+       "−7",
+       4
+      ],
+      [
+       4,
+       "Luksemburg",
+       5,
+       1,
+       0,
+       4,
+       "−6",
+       3
+      ]
+     ],
+     "highlight": "Eesti",
+     "cutAfter": 2,
+     "callout": "Eesti on 2. koha kindlustanud ja mängib vähemalt üleminekumänge B-liigasse pääsemiseks."
+    },
+    {
+     "type": "list",
+     "title": "Tulemused 2026",
+     "width": 6,
+     "items": [
+      {
+       "date": "09.06",
+       "title": "Eesti – Leedu",
+       "note": "Maavõistlus",
+       "score": "1:0",
+       "result": "W"
+      },
+      {
+       "date": "26.09",
+       "title": "Island – Eesti",
+       "note": "RL · värav: Paskotši",
+       "score": "1:1",
+       "result": "D"
+      },
+      {
+       "date": "29.09",
+       "title": "Bulgaaria – Eesti",
+       "note": "RL",
+       "score": "0:0",
+       "result": "D"
+      },
+      {
+       "date": "03.10",
+       "title": "Eesti – Luksemburg",
+       "note": "RL · värav: Peetson 5'",
+       "score": "1:0",
+       "result": "W"
+      },
+      {
+       "date": "06.10",
+       "title": "Eesti – Island",
+       "note": "RL",
+       "score": "0:0",
+       "result": "D"
+      },
+      {
+       "date": "13.11",
+       "title": "Luksemburg – Eesti",
+       "note": "RL · värav: Paskotši 42'",
+       "score": "0:1",
+       "result": "W"
+      }
+     ]
+    },
+    {
+     "type": "stats",
+     "title": "Rahvuste liiga statistika",
+     "width": 12,
+     "items": [
+      [
+       "0",
+       "kaotust 5 mängus"
+      ],
+      [
+       "4",
+       "kuiva mängu"
+      ],
+      [
+       "3:1",
+       "väravate vahe"
+      ],
+      [
+       "2",
+       "väravat: Maksim Paskotši"
+      ],
+      [
+       "1",
+       "värav: Rasmus Peetson"
+      ]
+     ]
+    }
+   ]
+  },
+  "ekk": {
+   "name": "Eesti korvpallikoondis",
+   "color": "ekk",
+   "summary": {
+    "competition": "MM 2027 valiksari · L-alagrupp",
+    "headline": "3 V · 5 K",
+    "sub": "kokku"
+   },
+   "facts": [
+    [
+     "Peatreener",
+     "Heiko Rannula"
+    ],
+    [
+     "Kodusaal",
+     "Unibet Arena, Tallinn"
+    ],
+    [
+     "Sari",
+     "2027. aasta MM-i valiksari, 2. ring"
+    ]
+   ],
+   "panels": [
+    {
+     "type": "table",
+     "title": "L-alagrupp · seis enne 2. ringi",
+     "width": 6,
+     "columns": [
+      "#",
+      "Koondis",
+      "V",
+      "K"
+     ],
+     "rows": [
+      [
+       1,
+       "Prantsusmaa",
+       5,
+       1
+      ],
+      [
+       2,
+       "Soome",
+       4,
+       2
+      ],
+      [
+       3,
+       "Eesti",
+       3,
+       3
+      ],
+      [
+       3,
+       "Rootsi",
+       3,
+       3
+      ],
+      [
+       3,
+       "Sloveenia",
+       3,
+       3
+      ],
+      [
+       3,
+       "Ungari",
+       3,
+       3
+      ]
+     ],
+     "highlight": "Eesti",
+     "note": "1. ringi tulemused tulid kaasa. Pärast augustikuu kahte kaotust on Eesti bilanss 3 võitu, 5 kaotust. Kolm paremat pääsevad 2027. aasta MM-finaalturniirile Kataris."
+    },
+    {
+     "type": "list",
+     "title": "Tulemused 2026",
+     "width": 6,
+     "items": [
+      {
+       "date": "03.07",
+       "title": "Eesti – Sloveenia",
+       "note": "1. ring, Tallinn",
+       "score": "93:62",
+       "result": "W"
+      },
+      {
+       "date": "06.07",
+       "title": "Tšehhi – Eesti",
+       "note": "1. ring · Eesti pääses sellegipoolest edasi",
+       "score": "K",
+       "result": "L"
+      },
+      {
+       "date": "27.08",
+       "title": "Ungari – Eesti",
+       "note": "2. ring, Miskolc",
+       "score": "85:67",
+       "result": "L"
+      },
+      {
+       "date": "30.08",
+       "title": "Eesti – Soome",
+       "note": "2. ring, Tallinn",
+       "score": "67:96",
+       "result": "L"
+      }
+     ],
+     "callout": "Järgmine aken: 27.11 kodus Prantsusmaaga ja 30.11 võõrsil Soomega."
+    }
+   ]
+  }
+ },
+ "events": [
+  {
+   "team": "bcp",
+   "date": "2026-11-15",
+   "time": null,
+   "title": "Pärnu – Tartu Ülikool Maks & Moorits",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-11-22",
+   "time": null,
+   "title": "Keila Coolbet – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-02",
+   "time": null,
+   "title": "Rīgas Zeļļi – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-06",
+   "time": null,
+   "title": "TalTech/ALEXELA – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-13",
+   "time": null,
+   "title": "Pärnu – BK Ogre",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-18",
+   "time": null,
+   "title": "Pärnu – Rīgas Ekselences Juniori",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-27",
+   "time": null,
+   "title": "Pärnu – Kalev/Cramo",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-30",
+   "time": null,
+   "title": "Pärnu – Viimsi",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-01-09",
+   "time": null,
+   "title": "Keila Korvpallikool – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-01-16",
+   "time": null,
+   "title": "Pärnu – TalTech/ALEXELA",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-01-20",
+   "time": null,
+   "title": "BK Liepāja – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-01-25",
+   "time": null,
+   "title": "Latvijas Universitāte – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-01-30",
+   "time": null,
+   "title": "Tartu Ülikool Maks & Moorits – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-02-02",
+   "time": null,
+   "title": "BK Ventspils – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-02-07",
+   "time": null,
+   "title": "Pärnu – Keila Coolbet",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-02-10",
+   "time": null,
+   "title": "Pärnu – Rīgas Zeļļi",
+   "comp": "Eesti-Läti liiga",
+   "place": "Pärnu Spordihall"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-03-03",
+   "time": null,
+   "title": "Valmiera Glass VIA – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-03-07",
+   "time": null,
+   "title": "Viimsi – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "bcp",
+   "date": "2027-03-10",
+   "time": null,
+   "title": "BK Ogre – Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "place": "võõrsil"
+  },
+  {
+   "team": "ejk",
+   "date": "2026-11-16",
+   "time": "19:00",
+   "title": "Eesti – Bulgaaria",
+   "comp": "Rahvuste liiga C, 6. voor",
+   "place": "A. Le Coq Arena, Tallinn"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-11-18",
+   "time": null,
+   "title": "SLUC Nancy – BC Pärnu",
+   "comp": "FIBA Europe Cup, 7. voor",
+   "place": "Nancy, Prantsusmaa"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-11-27",
+   "time": null,
+   "title": "Eesti – Prantsusmaa",
+   "comp": "MM 2027 valiksari, L-alagrupp",
+   "place": "Tallinn"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-11-30",
+   "time": null,
+   "title": "Soome – Eesti",
+   "comp": "MM 2027 valiksari, L-alagrupp",
+   "place": "Soome"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-09",
+   "time": null,
+   "title": "BC Pärnu vs BC Vienna",
+   "comp": "FIBA Europe Cup, 8. voor",
+   "place": "koht täpsustamisel"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-15",
+   "time": null,
+   "title": "BC Pärnu vs Nitra Blue Wings",
+   "comp": "FIBA Europe Cup, 9. voor (15. või 16.12)",
+   "place": "koht täpsustamisel"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-12-22",
+   "time": null,
+   "title": "King Szczecin – BC Pärnu",
+   "comp": "FIBA Europe Cup, 10. voor (22. või 23.12)",
+   "place": "Szczecin, Poola"
+  },
+  {
+   "team": "ekk",
+   "date": "2027-02-25",
+   "time": null,
+   "title": "Eesti – Ungari",
+   "comp": "MM 2027 valiksari, L-alagrupp",
+   "place": "Eesti"
+  },
+  {
+   "team": "ekk",
+   "date": "2027-02-28",
+   "time": null,
+   "title": "Prantsusmaa – Eesti",
+   "comp": "MM 2027 valiksari, L-alagrupp",
+   "place": "Prantsusmaa"
+  },
+  {
+   "team": "ejk",
+   "date": "2026-11-13",
+   "time": "21:45",
+   "title": "Luksemburg – Eesti",
+   "comp": "Rahvuste liiga C",
+   "score": "0:1",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-11-11",
+   "time": null,
+   "title": "BC Pärnu – Keravnos",
+   "comp": "FIBA Europe Cup",
+   "score": "65:86",
+   "result": "L"
+  },
+  {
+   "team": "vap",
+   "date": "2026-11-07",
+   "dateLabel": "nov",
+   "time": null,
+   "title": "Vaprus vs Tammeka",
+   "comp": "Premium liiga, 36. voor",
+   "score": "5:0",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-11-04",
+   "time": null,
+   "title": "BC Pärnu – King Szczecin",
+   "comp": "FIBA Europe Cup",
+   "score": "69:82",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-10-17",
+   "time": null,
+   "title": "VEF Riga vs BC Pärnu",
+   "comp": "Eesti-Läti liiga",
+   "score": "K",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-10-13",
+   "time": null,
+   "title": "BC Pärnu vs SLUC Nancy",
+   "comp": "FIBA Europe Cup",
+   "score": "61:84",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-10-07",
+   "time": null,
+   "title": "Keravnos – BC Pärnu",
+   "comp": "FIBA Europe Cup",
+   "score": "88:70",
+   "result": "L"
+  },
+  {
+   "team": "ejk",
+   "date": "2026-10-06",
+   "time": null,
+   "title": "Eesti – Island",
+   "comp": "Rahvuste liiga C",
+   "score": "0:0",
+   "result": "D"
+  },
+  {
+   "team": "ejk",
+   "date": "2026-10-03",
+   "time": null,
+   "title": "Eesti – Luksemburg",
+   "comp": "Rahvuste liiga C",
+   "score": "1:0",
+   "result": "W"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-10-03",
+   "time": null,
+   "title": "Kalev/Cramo vs BC Pärnu",
+   "comp": "Eesti-Läti liiga · 1 punkt",
+   "score": "K",
+   "result": "L"
+  },
+  {
+   "team": "bcp",
+   "date": "2026-09-30",
+   "time": null,
+   "title": "BC Pärnu – Neftçi",
+   "comp": "Europe Cup eelring",
+   "score": "73:61",
+   "result": "W"
+  },
+  {
+   "team": "ejk",
+   "date": "2026-09-29",
+   "time": null,
+   "title": "Bulgaaria – Eesti",
+   "comp": "Rahvuste liiga C",
+   "score": "0:0",
+   "result": "D"
+  },
+  {
+   "team": "ejk",
+   "date": "2026-09-26",
+   "time": null,
+   "title": "Island – Eesti",
+   "comp": "Rahvuste liiga C",
+   "score": "1:1",
+   "result": "D"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-08-30",
+   "time": null,
+   "title": "Eesti – Soome",
+   "comp": "MM 2027 valiksari",
+   "score": "67:96",
+   "result": "L"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-08-27",
+   "time": null,
+   "title": "Ungari – Eesti",
+   "comp": "MM 2027 valiksari",
+   "score": "85:67",
+   "result": "L"
+  },
+  {
+   "team": "vap",
+   "date": "2026-08-02",
+   "time": null,
+   "title": "Vaprus – Levadia",
+   "comp": "Premium liiga, 21. voor",
+   "score": "1:1",
+   "result": "D"
+  },
+  {
+   "team": "ekk",
+   "date": "2026-07-03",
+   "time": null,
+   "title": "Eesti – Sloveenia",
+   "comp": "MM 2027 valiksari",
+   "score": "93:62",
+   "result": "W"
+  },
+  {
+   "team": "vap",
+   "date": "2026-05-24",
+   "time": null,
+   "title": "Vaprus – Levadia",
+   "comp": "Premium liiga, 13. voor",
+   "score": "1:6",
+   "result": "L"
+  },
+  {
+   "team": "vap",
+   "date": "2026-04-08",
+   "time": null,
+   "title": "Levadia – Vaprus",
+   "comp": "Premium liiga, 5. voor",
+   "score": "2:1",
+   "result": "L"
+  },
+  {
+   "team": "vap",
+   "date": "2026-03-07",
+   "time": null,
+   "title": "Vaprus – Paide",
+   "comp": "Premium liiga, 1. voor",
+   "score": "3:2",
+   "result": "W"
+  }
+ ],
+ "sources": [
+  [
+   "FIBA Europe Cup: BC Pärnu",
+   "https://www.fiba.basketball/en/events/fiba-europe-cup-26-27/teams/bc-parnu"
+  ],
+  [
+   "Eesti-Läti korvpalliliiga",
+   "https://www.estlatbl.com/en/standings-regular-season"
+  ],
+  [
+   "Premium liiga tabel",
+   "https://www.thestatsapi.com/football/league/premium-liiga/standings"
+  ],
+  [
+   "UEFA: Eesti Rahvuste liigas",
+   "https://www.uefa.com/uefanationsleague/teams/56556--estonia/matches/"
+  ],
+  [
+   "FIBA: MM 2027 valiksari",
+   "https://www.fiba.basketball/en/events/fiba-basketball-world-cup-2027-european-qualifiers"
+  ],
+  [
+   "jalgpall.ee",
+   "https://www.jalgpall.ee/"
+  ],
+  [
+   "basket.ee",
+   "https://www.basket.ee/"
+  ]
+ ]
+}

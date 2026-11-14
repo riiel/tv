@@ -559,20 +559,19 @@
     .alert-pill {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 7px;
       max-width: 100%;
-      padding: 0.8vh 1.4vw;
+      padding: 0.45vh 0.9vw;
       border-radius: 999px;
-      font-size: clamp(13px, 1.15vw, 19px);
-      font-weight: 700;
+      font-size: clamp(11px, 0.85vw, 14px);
+      font-weight: 650;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       border: 1px solid var(--alert-c, #22d3ee);
       color: #f8fafc;
       background: color-mix(in srgb, var(--alert-c, #22d3ee) 22%, rgba(11, 15, 36, 0.85));
-      box-shadow: 0 0 22px color-mix(in srgb, var(--alert-c, #22d3ee) 45%, transparent);
-      animation: alertPulse 2.4s ease-in-out infinite;
+      box-shadow: none;
       transition: opacity 0.6s ease;
     }
     .alert-pill.fade { opacity: 0; }
@@ -1637,10 +1636,13 @@
       if (bz < 0) kpEff += Math.min(0.7, -bz * 0.07); else kpEff -= Math.min(0.4, bz * 0.05);
       if (speed > 500) kpEff += Math.min(0.3, (speed - 500) / 500);
 
-      const space = 100 / (1 + Math.exp(-1.6 * (kpEff - kpNeeded)));
+      // Kui vööndi serv on täpselt sinu kohal, paistab virmalisi vaid nõrgalt silmapiiril (~20%).
+      // 50% võimalus tuleb siis, kui Kp on piirist 1 võrra suurem. Nii klapib tulemus NOAA OVATION mudeliga.
+      const kpGood = kpNeeded + 1;
+      const space = 100 / (1 + Math.exp(-1.6 * (kpEff - kpGood)));
       const darkF = clamp((-6 - sunAlt) / 6, 0, 1);          // päike −12° või madalamal = täiesti pime
       const cloudF = clamp(1 - (cloud - 20) / 70, 0.05, 1);  // 20% pilvi ei sega, 90% varjab peaaegu kõik
-      return { mlat, kpNeeded, space, darkF, cloudF, chance: Math.min(95, space * darkF * cloudF) };
+      return { mlat, kpNeeded: kpGood, space, darkF, cloudF, chance: Math.min(95, space * darkF * cloudF) };
     }
 
     // Proovib väiksemat 5-minutilist faili enne, siis 2-tunnist; aeglase võrgu jaoks pikem ooteaeg
@@ -2446,7 +2448,9 @@
       const chips = auroraNights.map(n => {
         const c = n.best.chance;
         const lv = c >= 60 ? 'lv3' : c >= 30 ? 'lv2' : c >= 10 ? 'lv1' : '';
-        const detail = c >= 5 ? ` kl ${n.range} • Kp ${fmt(n.best.kp, 1)}${n.best.cloud === null ? ' • pilved ?' : ''}` : '';
+        const cl = n.best.cloud;
+        const why = cl !== null && cl >= 60 ? 'pilves' : `Kp ${fmt(n.best.kp, 1)}`;
+        const detail = c >= 5 ? ` ${n.range} · ${why}` : (cl !== null && cl >= 60 ? ' pilves' : ' vaikne');
         return `<span class="aur-night ${lv}"><b>${n.label}</b><span class="pct">${c}%</span>${detail}</span>`;
       }).join('');
       return `<span class="aur-nights"><span class="aur-nights-title">Prognoos:</span>${chips}</span>`;
@@ -2604,12 +2608,12 @@
 
     function auroraAlerts() {
       if (kpLoaded && currentAuroraProb >= 30) {
-        return [{ prio: 95, color: '#34d399', icon: 'sparkles', text: `Virmalised! ${currentAuroraProb}% võimalus • vaata põhja poole` }];
+        return [{ prio: 95, color: '#34d399', icon: 'sparkles', text: `Virmalised praegu ${currentAuroraProb}% • vaata põhja poole` }];
       }
       // Hoiatus ette: lähima 24 h öö, kus prognoos on vähemalt 30%
       const soon = auroraNights.find(n => n.best && n.best.chance >= 30 && n.best.start - Date.now() < 24 * 3600000);
       if (soon) {
-        return [{ prio: 50, color: '#a855f7', icon: 'sparkles', text: `Virmaliste võimalus ${soon.label.toLowerCase()} kl ${soon.range} • ${soon.best.chance}%` }];
+        return [{ prio: 50, color: '#a855f7', icon: 'sparkles', text: `Virmalised ${soon.label.toLowerCase()} ${soon.range} • ${soon.best.chance}%` }];
       }
       return [];
     }

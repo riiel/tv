@@ -136,7 +136,11 @@ header{padding:14px 0 4px}
 .cd{gap:6px}.cd div{min-width:60px;padding:6px 8px;border-radius:10px}.cd b{font-size:26px}.cd span{font-size:10px}
 main{gap:18px;padding:14px 0 28px}
 h2{margin-bottom:8px}
-.topgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+.topgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:stretch}
+.topgrid>section{display:flex;flex-direction:column;min-height:0}
+.topgrid .cards{flex:1;grid-auto-rows:1fr}
+.topgrid #upcoming{flex:1;display:flex;flex-direction:column;justify-content:space-around}
+.topgrid #upcoming .ev{flex:1}
 @media (max-width:1050px){.topgrid{grid-template-columns:1fr}}
 .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 @media (max-width:560px){.cards{grid-template-columns:1fr}}

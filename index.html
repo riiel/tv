@@ -491,6 +491,8 @@
     .aur-nights-title { color: var(--muted); white-space: nowrap; }
     .aur-night { display: inline-flex; align-items: baseline; gap: 5px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-soft); background: rgba(255,255,255,0.03); white-space: nowrap; color: var(--muted); }
     .aur-night b { color: #e2e8f0; font-weight: 700; }
+    .aur-night .ico { width: 1.1em; height: 1.1em; align-self: center; opacity: .8; }
+    .aur-night.long { border-style: dashed; }
     .aur-night .pct { font-weight: 800; }
     .aur-night.lv1 { border-color: rgba(56,189,248,0.45); } .aur-night.lv1 .pct { color: #38bdf8; }
     .aur-night.lv2 { border-color: rgba(168,85,247,0.6); background: rgba(168,85,247,0.12); } .aur-night.lv2 .pct { color: #c084fc; }
@@ -966,7 +968,7 @@
 
         <div class="multi-footer">
           <span id="multi-footer-advice">Vajuta "Kaart", et näha virmaliste reaalajas asukohta 3D maakeral</span>
-          <span id="multi-footer-source" style="white-space:nowrap"><strong>NOAA & Yr.no</strong></span>
+          <span id="multi-footer-source" style="white-space:nowrap"></span>
         </div>
       </section>
 
@@ -1586,7 +1588,7 @@
       if (mode === 'aurora') {
         $('multi-card-title').innerHTML = `Virmaliste Radar • <span class="location-badge">${locName}</span>`;
         $('multi-footer-advice').innerHTML = auroraForecastHtml || auroraAdviceText;
-        $('multi-footer-source').innerHTML = `<strong>NOAA & Yr.no</strong>`;
+        $('multi-footer-source').innerHTML = '';
       } else {
         $('multi-card-title').innerHTML = `Lähim rand • <span class="location-badge">${beachLabel(currentBeach())}</span>`;
         $('multi-footer-advice').textContent = beachAdviceText;
@@ -1665,6 +1667,7 @@
       ]);
       const parsedFc = parseKpForecast(kpFc);
       if (parsedFc.length) kpForecast = parsedFc;
+      loadKpOutlook();
       let magData = null, plasmaData = null;
       if (!wind || wind.bz === null || wind.speed === null) {
         [magData, plasmaData] = await Promise.all([
@@ -2385,6 +2388,24 @@
     let auroraNights = [];
     let auroraForecastHtml = '';
 
+    // NOAA 27 päeva ettevaade: iga päeva suurim oodatav Kp. Kasutame seda öödel, mida 3 päeva prognoos ei kata.
+    let kpOutlook = [], kpOutlookAt = 0;
+    async function loadKpOutlook() {
+      if (Date.now() - kpOutlookAt < 6 * 3600000) return;
+      try {
+        const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 8000);
+        const txt = await (await fetch('https://services.swpc.noaa.gov/text/27-day-outlook.txt', { signal: ctl.signal })).text();
+        clearTimeout(tm);
+        const M = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+        const rows = [];
+        for (const line of txt.split('\n')) {
+          const m = line.match(/^(\d{4})\s+([A-Z][a-z]{2})\s+(\d{1,2})\s+\d+\s+\d+\s+(\d+(?:\.\d+)?)/);
+          if (m && M[m[2]] !== undefined) rows.push({ t: Date.UTC(+m[1], M[m[2]], +m[3]), kp: parseFloat(m[4]) });
+        }
+        if (rows.length) { kpOutlook = rows; kpOutlookAt = Date.now(); auroraForecastHtml = renderAuroraNights(); if (activeMode === 'aurora') $('multi-footer-advice').innerHTML = auroraForecastHtml; }
+      } catch (e) { /* jääb 3 päeva prognoos */ }
+    }
+
     function parseKpForecast(data) {
       if (!Array.isArray(data) || !data.length) return [];
       const rows = [];
@@ -2415,7 +2436,14 @@
       const lat = Number(weatherPlace.lat) || 58.38, lon = Number(weatherPlace.lon) || 24.5;
       const now = Date.now();
       const nights = new Map();
-      for (const blk of kpForecast) {
+      // Pärast 3 päeva prognoosi lõppu: 27 päeva ettevaate päeva suurim Kp, jagatud 3 h plokkideks
+      const lastEnd = kpForecast.length ? kpForecast[kpForecast.length - 1].t + 3 * 3600000 : now;
+      const blocks = kpForecast.map(b => ({ ...b, long: false }));
+      for (const d of kpOutlook) for (let h = 0; h < 24; h += 3) {
+        const t = d.t + h * 3600000;
+        if (t >= lastEnd && t < now + 8 * 86400000) blocks.push({ t, kp: d.kp, long: true });
+      }
+      for (const blk of blocks) {
         const end = blk.t + 3 * 3600000;
         if (end <= now) continue;
         let best = null;
@@ -2426,7 +2454,7 @@
           if (sunAlt > -6) continue;                      // valge aeg, ei loe
           const cloud = cloudAt(ms);
           const r = auroraChance({ kp: blk.kp, bz: 0, speed: 400, lat, lon, cloud: cloud ?? 50, sunAlt });
-          if (!best || r.chance > best.chance) best = { chance: Math.round(r.chance), act: r.space * r.darkF, cloud, kp: blk.kp, start: blk.t, end };
+          if (!best || r.chance > best.chance) best = { chance: Math.round(r.chance), act: r.space * r.darkF, cloud, kp: blk.kp, start: blk.t, end, long: blk.long };
         }
         if (!best) continue;
         // Öö = kella 12-st järgmise päeva kella 12-ni; nimi tuleb õhtu kuupäevast
@@ -2436,12 +2464,13 @@
         if (!cur || best.chance > cur.best.chance || (best.chance === cur.best.chance && best.kp > cur.best.kp)) nights.set(key, { key, best });
       }
       const today = new Date(now - 12 * 3600000); today.setHours(0, 0, 0, 0);
-      return [...nights.values()].sort((a, b) => a.key - b.key).slice(0, 3).map(n => {
+      return [...nights.values()].sort((a, b) => a.key - b.key).slice(0, 7).map(n => {
         const days = Math.round((n.key - today.getTime()) / 86400000);
-        const label = days <= 0 ? 'Täna öösel' : days === 1 ? 'Homme öösel'
-          : new Date(n.key).toLocaleDateString('et-EE', { weekday: 'short' }).replace('.', '').toUpperCase() + ' öösel';
+        const wd = new Date(n.key).toLocaleDateString('et-EE', { weekday: 'short' }).replace('.', '').toUpperCase();
+        const label = days <= 0 ? 'Täna' : days === 1 ? 'Homme' : wd;
+        const longLabel = days <= 0 ? 'täna öösel' : days === 1 ? 'homme öösel' : `${wd} öösel`;
         const hh = ms => String(new Date(ms).getHours()).padStart(2, '0');
-        return { ...n, label, range: `${hh(n.best.start)}–${hh(n.best.end)}` };
+        return { ...n, label, longLabel, range: `${hh(n.best.start)}–${hh(n.best.end)}` };
       });
     }
 
@@ -2449,13 +2478,13 @@
       auroraNights = buildAuroraNights();
       if (!auroraNights.length) return '';
       const chips = auroraNights.map(n => {
-        const c = n.best.chance;
+        const c = n.best.chance, cl = n.best.cloud, long = n.best.long;
         const lv = c >= 60 ? 'lv3' : c >= 30 ? 'lv2' : c >= 10 ? 'lv1' : '';
-        const cl = n.best.cloud;
-        const why = cl !== null && cl >= 60 ? 'pilves' : `Kp ${fmt(n.best.kp, 1)}`;
-        // Põhjus näha: liiga vaikne (Kp väike) või pilved katavad
-        const detail = c >= 5 ? ` ${n.range} · ${why}` : (n.best.act >= 10 && cl !== null && cl >= 60 ? ' pilves' : ' vaikne');
-        return `<span class="aur-night ${lv}"><b>${n.label}</b><span class="pct">${c}%</span>${detail}</span>`;
+        const cloudy = cl !== null && cl >= 60;
+        // Kellaaeg ainult täpse (3 päeva) prognoosi puhul; pilve ikoon, kui pilved varjavad
+        const extra = (c >= 5 && !long ? ` ${n.range}` : '') + (cloudy && n.best.act >= 10 ? ` ${ico('cloud')}` : '');
+        const tip = `${n.longLabel}: ${c}% • Kp ${fmt(n.best.kp, 1)}` + (cl === null ? ' • pilvisus teadmata' : ` • pilvi ${Math.round(cl)}%`) + (long ? ' • NOAA pikaajaline ettevaade, ebatäpsem' : '');
+        return `<span class="aur-night ${lv}${long ? ' long' : ''}" title="${tip}"><b>${n.label}</b><span class="pct">${long ? '≈' : ''}${c}%</span>${extra}</span>`;
       }).join('');
       return `<span class="aur-nights"><span class="aur-nights-title">Prognoos:</span>${chips}</span>`;
     }
@@ -2617,7 +2646,7 @@
       // Hoiatus ette: lähima 24 h öö, kus prognoos on vähemalt 30%
       const soon = auroraNights.find(n => n.best && n.best.chance >= 30 && n.best.start - Date.now() < 24 * 3600000);
       if (soon) {
-        return [{ prio: 50, color: '#a855f7', icon: 'sparkles', text: `Virmalised ${soon.label.toLowerCase()} ${soon.range} • ${soon.best.chance}%` }];
+        return [{ prio: 50, color: '#a855f7', icon: 'sparkles', text: `Virmalised ${soon.longLabel} ${soon.range} • ${soon.best.chance}%` }];
       }
       return [];
     }

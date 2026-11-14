@@ -929,7 +929,7 @@
           <button id="btn-station-slam" class="station-btn" data-name="SLAM! WKNDMX" data-url="https://22613.live.streamtheworld.com/WEB11_AAC.aac">WKNDMX</button>
           <button id="btn-station-qdance" class="station-btn" data-name="Q-DANCE RADIO" data-url="https://25233.live.streamtheworld.com/Q_DANCE.mp3?tdsdk=js-2.9&swm=false&pname=TDSdk&pversion=2.9&banners=none&burst-time=15&sbmid=11f91eb3-e5bf-4482-9a32-e9d715bf8ec5">Q-Dance</button>
           <button id="btn-station-hardcore" class="station-btn" data-name="SUNSHINE HARDCORE" data-url="https://stream.sunshine-live.de/Hardcore/mp3-192/stream.sunshine-live.de/">Hardcore</button>
-          <button id="btn-station-dnb" class="station-btn" data-name="DIFFERENT DRUMZ DNB" data-url="https://differentdrumz.radioca.st/electronic.mp3">DnB</button>
+          <button id="btn-station-dnb" class="station-btn" data-name="SUNSHINE LIVE DNB" data-url="https://stream.sunshine-live.de/dnb/mp3-192/stream.sunshine-live.de/">DnB</button>
         </div>
 
         <audio id="radio" preload="none" src="https://stream.skymedia.ee/live/SKYPLUS"></audio>
@@ -2109,21 +2109,27 @@
     const svgPlay = '<path d="M8 5.14v14l11-7-11-7z"/>';
     const svgPause = '<path d="M6 5h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1zm8 0h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1z"/>';
 
+    // Mõni jaam (Sunshine Live, SLAM! WKNDMX) saadab loo asemel ainult oma nime, nt "SUNSHINE LIVE - Hardcore"
+    function isStationNameOnly(title) {
+      const norm = t => t.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const t = norm(title);
+      return /^sunshinelive/.test(t) || /^slamwkndm[i]?x/.test(t) || t === norm(currentStationName);
+    }
+
     async function updateNowPlaying() {
       if (radio.paused) return;
       try {
         const r = await fetch(`/api/radio?url=${encodeURIComponent(currentStreamUrl)}`);
         if (r.ok) {
           const data = await r.json();
-          if (data.title && data.title.trim()) {
-            $('radio-status').textContent = data.title.trim();
+          const title = (data.title || '').trim();
+          if (title && !isStationNameOnly(title)) {
+            $('radio-status').textContent = title;
             return;
           }
         }
       } catch(e) {}
-      if ($('radio-status').textContent === 'Ühendan striimiga…') {
-        $('radio-status').textContent = `${currentStationName} • Otse-eetris`;
-      }
+      $('radio-status').textContent = `${currentStationName} • Otse-eetris`;
     }
 
     function setStation(btn, name, url) {

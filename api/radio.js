@@ -82,6 +82,30 @@ function openStream(url, signal, redirects = 3) {
   });
 }
 
+// Sunshine Live kanalid saadavad striimis ainult kanali nime. Lood tulevad nende kodulehe API-st (loverad.io).
+// Võti = kanali nimi striimi aadressis (stream.sunshine-live.de/<NIMI>/...), väärtus = loverad station number.
+// Numbri leiad sunshine-live.de kanali lehelt: F12 → Network → flow.json?station=<NUMBER>
+const SUNSHINE_STATIONS = {
+  hardcore: 91,     // Sunshine Live Hardcore
+  dnb: 71           // Sunshine Live Drum 'n' Bass
+};
+
+async function sunshineTitle(streamUrl, signal) {
+  const m = streamUrl.match(/stream\.sunshine-live\.de\/([^/]+)\//i);
+  if (!m) return '';
+  const id = SUNSHINE_STATIONS[m[1].toLowerCase()];
+  if (!id) return '';
+  const r = await fetch(`https://iris-sunshinelive.loverad.io/flow.json?station=${id}&offset=1&count=1`, {
+    signal, headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' }
+  });
+  if (!r.ok) return '';
+  const d = await r.json();
+  const song = d?.result?.entry?.[0]?.song?.entry?.[0];
+  const title = String(song?.title || '').trim();
+  const artists = (song?.artist?.entry || []).map(a => a?.name).filter(Boolean).join(', ');
+  return title ? (artists ? `${artists} - ${title}` : title) : '';
+}
+
 const TRITON_MOUNT = /^https?:\/\/[^/]*streamtheworld\.com\/([A-Za-z0-9_]+?)(?:_SC)?(?:\.(?:aac|mp3))?(?:[?#]|$)/i;
 
 function decodeXml(s) {
@@ -170,6 +194,9 @@ export default async function handler(req, res) {
 
   try {
     let title = '';
+    if (/sunshine-live\.de/i.test(streamUrl)) {
+      try { title = await sunshineTitle(streamUrl, controller.signal); } catch (e) {}
+    }
     const tw = streamUrl.match(TRITON_MOUNT);
     if (tw) {
       try { title = await tritonTitle(tw[1], controller.signal); } catch (e) {}

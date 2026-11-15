@@ -44,6 +44,14 @@ header{padding:0 0 8px}
 .pagesw a{color:var(--muted);text-decoration:none;font:inherit;letter-spacing:inherit}
 .pagesw a[aria-current="page"]{color:var(--ink)}
 .pagesw a:hover,.pagesw a:focus-visible{color:var(--ink)}
+/* Raadio väike juhtpult (ainult siis, kui spordileht on avatud koduvaate kaudu ja raadio on seal) */
+.miniradio{display:none;align-items:center;gap:10px;min-width:0;flex:0 1 auto;margin:0 auto 0 2vw;font-size:clamp(13px,1vw,17px);color:var(--muted)}
+.miniradio.on{display:flex}
+.miniradio button{flex:none;width:2.2em;height:2.2em;border-radius:50%;border:1.5px solid rgba(240,246,252,.28);background:rgba(240,246,252,.04);display:grid;place-items:center;cursor:pointer;padding:0}
+.miniradio button svg{width:1em;height:1em;fill:currentColor}
+.miniradio.playing button{border-color:var(--accent);color:var(--accent)}
+.miniradio .mr-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
+.miniradio b{color:var(--ink);font-weight:700;margin-right:.4em}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .stamp{color:var(--muted)}
 .now{display:flex;align-items:baseline;gap:10px;font-size:clamp(14px,1.3vw,21px);font-weight:600;color:var(--ink)}
@@ -230,6 +238,7 @@ footer{padding:14px 0 24px;font-size:12px}
 <header>
   <div class="topbar">
     <div class="brand"><span class="brand-mark"></span><nav class="pagesw" aria-label="Lehed"><a href="/">Koduvaade</a><a href="/sport/" aria-current="page">Sport</a></nav></div>
+    <div class="miniradio" id="miniradio" aria-label="Raadio"><button id="mr-btn" type="button" aria-label="Raadio mängi või paus"><svg viewBox="0 0 24 24" id="mr-icon"><path d="M8 5.14v14l11-7-11-7z"/></svg></button><span class="mr-txt"><b id="mr-station"></b><span id="mr-title"></span></span></div>
     <div class="now"><span id="clock">--:--</span><span class="sep">•</span><span id="date"></span></div>
   </div>
   <div class="wrap">
@@ -265,6 +274,30 @@ footer{padding:14px 0 24px;font-size:12px}
 </div></footer>
 
 <script>
+// Kui spordileht on avatud koduvaate sees: "Koduvaade" viib tagasi ilma laadimiseta ja raadio jääb mängima.
+(function(){
+  let host = null;
+  try { if (window.parent !== window && window.parent.koduRadio) host = window.parent; } catch (e) {}
+  if (!host) return;
+  const homeLink = document.querySelector('.pagesw a[href="/"]');
+  if (homeLink) homeLink.addEventListener('click', e => { e.preventDefault(); host.closeSport(); });
+  // Puldi tagasi-nupp / Backspace / Escape viib samuti koduvaatesse
+  addEventListener('keydown', e => { if (e.key === 'Escape' || e.key === 'BrowserBack' || e.key === 'GoBack') { e.preventDefault(); host.closeSport(); } });
+
+  const box = document.getElementById('miniradio'), icon = document.getElementById('mr-icon');
+  const PLAY = '<path d="M8 5.14v14l11-7-11-7z"/>', PAUSE = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
+  box.classList.add('on');
+  function sync(){
+    let st; try { st = host.koduRadio.state(); } catch (e) { return; }
+    box.classList.toggle('playing', st.playing);
+    icon.innerHTML = st.playing ? PAUSE : PLAY;
+    document.getElementById('mr-station').textContent = st.station;
+    document.getElementById('mr-title').textContent = st.playing ? st.title : 'pausil';
+  }
+  document.getElementById('mr-btn').addEventListener('click', () => { try { host.koduRadio.toggle(); } catch (e) {} setTimeout(sync, 400); setTimeout(sync, 2500); });
+  sync(); setInterval(sync, 2000);
+})();
+
 const COLORS={bcp:"var(--t-bcp)",vap:"var(--t-vap)",ejk:"var(--t-ejk)",ekk:"var(--t-ekk)"};
 const SHORT={bcp:"BC Pärnu",vap:"Vaprus",ejk:"Jalgpallikoondis",ekk:"Korvpallikoondis"};
 const OWN={bcp:["BC Pärnu"],vap:["Vaprus","Pärnu JK Vaprus"],ejk:["Eesti"],ekk:["Eesti"]};

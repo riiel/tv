@@ -171,6 +171,11 @@
       background: var(--cyan);
       box-shadow: 0 0 16px var(--cyan), 0 0 6px #fff;
     }
+    /* Spordileht avaneb koduvaate kohal (raadio mängib taustal edasi) */
+    #sport-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 9000; background: #0d1117; display: none; }
+    #sport-frame.open { display: block; }
+    body.sport-open { overflow: hidden; }
+
     /* Lehtede lüliti: sama koht ja suurus ka spordilehel (/sport/) */
     .pagesw { display: flex; gap: 0.9em; }
     .pagesw a { color: var(--muted); text-decoration: none; font: inherit; letter-spacing: inherit; }
@@ -2172,6 +2177,7 @@
     let aPhase = 0;
 
     function animateAuroraBg() {
+      if (pageCovered) { requestAnimationFrame(animateAuroraBg); return; }
       const rect = aCanvas.getBoundingClientRect();
       const dpr = devicePixelRatio || 1;
       if (aCanvas.width !== Math.floor(rect.width * dpr) || aCanvas.height !== Math.floor(rect.height * dpr)) {
@@ -2217,6 +2223,9 @@
       requestAnimationFrame(animateAuroraBg);
     }
     requestAnimationFrame(animateAuroraBg);
+
+    // Kas spordileht on koduvaate peal (siis koduvaate animatsioonid puhkavad)
+    var pageCovered = false;
 
     // --- 4. RAADIO + TÄISKAARDI TAUSTA-EKVALAISER ---
     const radio = $('radio'), play = $('play-button'), playIcon = $('play-icon'), radioCard = $('radio-card');
@@ -2309,6 +2318,7 @@
     let phase = 0;
 
     function animateVisualizer() {
+      if (pageCovered) { requestAnimationFrame(animateVisualizer); return; }
       const rect = vCanvas.getBoundingClientRect();
       const dpr = devicePixelRatio || 1;
       if (vCanvas.width !== Math.floor(rect.width * dpr) || vCanvas.height !== Math.floor(rect.height * dpr)) {
@@ -2702,7 +2712,7 @@
 
     function drawWeatherFx(ts) {
       requestAnimationFrame(drawWeatherFx);
-      if (document.hidden || ts - fxLast < 32) return;   // ~30 kaadrit sekundis on piisav
+      if (document.hidden || pageCovered || ts - fxLast < 32) return;   // ~30 kaadrit sekundis on piisav
       fxLast = ts;
       const rect = fxCanvas.getBoundingClientRect();
       const dpr = devicePixelRatio || 1;
@@ -2817,6 +2827,69 @@
         if ($('ticker-track').textContent.includes('Laen')) $('ticker-track').innerHTML = '<span class="tk"><span class="tk-name">Turuinfo pole hetkel saadaval</span></span>';
       }
     }
+
+    // --- 10. LEHTEDE VAHETUS: SPORT KODUVAATE PEAL ---
+    // "Sport" ei lae uut lehte, vaid avab /sport/ täisekraani raamis. Koduvaade jääb taustal lahti,
+    // nii et raadio mängib edasi. Tagasi saab spordilehe "Koduvaade" lingi või puldi tagasi-nupuga.
+    let sportFrame = null;
+
+    function ensureSportFrame() {
+      if (sportFrame) return sportFrame;
+      sportFrame = document.createElement('iframe');
+      sportFrame.id = 'sport-frame';
+      sportFrame.title = 'Sport';
+      sportFrame.src = '/sport/';
+      document.body.appendChild(sportFrame);
+      return sportFrame;
+    }
+
+    function showSport(push) {
+      const fresh = !sportFrame;
+      ensureSportFrame().classList.add('open');
+      document.body.classList.add('sport-open');
+      pageCovered = true;
+      if (push) {
+        // Kui raam alles laeb, lisa ajaloo kirje alles pärast laadimist (muidu läheb brauseri ajalugu sassi)
+        const doPush = () => history.pushState({ page: 'sport' }, '', '/sport/');
+        if (fresh) sportFrame.addEventListener('load', doPush, { once: true }); else doPush();
+      }
+      setTimeout(() => { try { sportFrame.contentWindow.focus(); } catch (e) {} }, 60);
+    }
+
+    function hideSport(push) {
+      if (sportFrame) sportFrame.classList.remove('open');
+      document.body.classList.remove('sport-open');
+      pageCovered = false;
+      if (push) history.pushState({ page: 'home' }, '', '/');
+      try { document.querySelector('.pagesw a[href="/sport/"]').focus({ preventScroll: true }); } catch (e) {}
+    }
+
+    // Spordileht kutsub seda oma "Koduvaade" lingi kaudu
+    window.closeSport = () => {
+      if (history.state && history.state.page === 'sport') history.back();
+      else hideSport(true);
+    };
+
+    // Raadio juhtimine spordilehelt (sama päritolu, seega otse ligipääs)
+    window.koduRadio = {
+      state: () => ({ playing: !radio.paused, station: currentStationName, title: $('radio-status').textContent }),
+      toggle: () => play.click()
+    };
+
+    try { history.replaceState({ page: 'home' }, '', location.href); } catch (e) {}
+    addEventListener('popstate', e => {
+      if (e.state && e.state.page === 'sport') showSport(false);
+      else hideSport(false);
+    });
+
+    const sportLink = document.querySelector('.pagesw a[href="/sport/"]');
+    if (sportLink) sportLink.addEventListener('click', e => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;   // uues aknas avamine töötab tavaliselt
+      e.preventDefault();
+      showSport(true);
+    });
+    // Laadi spordileht varakult taustal ette, et vahetus oleks kohene
+    setTimeout(ensureSportFrame, 4000);
 
     // --- KÄIVITUS ---
     updateClock();

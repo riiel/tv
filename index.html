@@ -1177,7 +1177,7 @@
         const color = point.price <= average * 0.8 ? colCyan : point.price <= average * 1.25 ? colPurple : colPink;
 
         ctx.shadowColor = color;
-        ctx.shadowBlur = point.price > average * 1.25 ? 8 : 0;
+        ctx.shadowBlur = 0;   // kallid tulbad ei helenda enam: kõik tulbad on ühtviisi teravad
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.roundRect(x, y, barWidth, barHeight, 3);

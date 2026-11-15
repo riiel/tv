@@ -369,7 +369,7 @@ function panelHtml(p,k){
     const li=i=>`<li><span class="dt">${esc(i.date)}</span><span>${teamsTitle(i.title)}<span class="note">${esc(i.note)}</span></span><span class="sc ${i.result||""}">${esc(i.score)}</span></li>`;
     if((p.width===12||p.width===8)&&p.items.length>3){const h=Math.ceil(p.items.length/2);
       b+=`<div class="cols2"><ul class="list">${p.items.slice(0,h).map(li).join("")}</ul><ul class="list">${p.items.slice(h).map(li).join("")}</ul></div>`;}
-    else if(!p.items.length) b+=`<p class="note2" style="margin-top:0">Mänge pole veel.</p>`;
+    else if(!p.items.length) b+=`<p class="note2" style="margin-top:0">${p.title==="Tulevad mängud"?"Tulevaid mänge pole veel teada.":"Mänge pole veel."}</p>`;
     else b+=`<ul class="list">${p.items.map(li).join("")}</ul>`;
   }else if(p.type==="stats"){
     b+=`<div class="stats">${p.items.map(([v,l])=>`<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
@@ -380,6 +380,14 @@ function panelHtml(p,k){
   if(p.note) b+=`<p class="note2">${esc(p.note)}</p>`;
   if(p.callout) b+=`<div class="callout">${esc(p.callout)}</div>`;
   return `<div class="box ${w}"><h3>${esc(p.title)}</h3>${b}</div>`;
+}
+// Meeskonna enda kalender: kuni 12 järgmist mängu
+function teamCalendar(k){
+  const WD=["P","E","T","K","N","R","L"];
+  const up=upcoming(new Date()).filter(e=>e.team===k).slice(0,12);
+  return {type:"list",width:12,title:"Tulevad mängud",items:up.map(e=>{const [y,m,d]=e.date.split("-").map(Number);
+    return {date:WD[new Date(Date.UTC(y,m-1,d)).getUTCDay()]+" "+d+"."+String(m).padStart(2,"0"),title:e.title,
+      note:[e.comp,e.place,e.tv?"Ülekanne: "+e.tv:""].filter(Boolean).join(" · "),score:e.time||"",result:""};})};
 }
 function select(k){
   if(!DATA.teams[k]) k=Object.keys(DATA.teams)[0];
@@ -392,7 +400,7 @@ function select(k){
   document.querySelectorAll(".card").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.k===k)));
   document.getElementById("teamDetail").innerHTML=`<div style="--c:${COLORS[k]}">
     <p class="facts">${(t.facts||[]).map(([a,v])=>`<span>${esc(a)}: <b>${esc(v)}</b></span>`).join("")}</p>
-    <div class="grid">${(t.panels||[]).map(p=>panelHtml(p,k)).join("")}</div></div>`;
+    <div class="grid">${panelHtml(teamCalendar(k),k)}${(t.panels||[]).map(p=>panelHtml(p,k)).join("")}</div></div>`;
 }
 function step(dir){const ks=Object.keys(DATA.teams);select(ks[(ks.indexOf(sel)+dir+ks.length)%ks.length]);}
 function setAuto(on){

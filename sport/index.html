@@ -95,6 +95,8 @@ h2{color:var(--label);font-weight:700;font-size:clamp(12px,1vw,16px);text-transf
 .card-bg.flagbg{height:auto;aspect-ratio:auto;width:58%;right:-4%;opacity:.13;border-radius:8px;
   -webkit-mask-image:radial-gradient(ellipse 75% 70% at 70% 50%,#000 35%,transparent 72%);mask-image:radial-gradient(ellipse 75% 70% at 70% 50%,#000 35%,transparent 72%)}
 .card>:not(.card-bg){position:relative;z-index:1}
+/* Tänaku kaart: Toyota logo sulandub Eesti lipu peale */
+.card-bg.brandbg{height:58%;aspect-ratio:auto;width:auto;right:13%;opacity:.2;filter:drop-shadow(0 0 10px rgba(0,0,0,.6))}
 .card[aria-selected="true"]{border-color:var(--accent-strong);box-shadow:0 0 0 1px var(--accent-strong),0 8px 24px rgba(0,0,0,.35)}
 .card h3{font-size:clamp(18px,1.5vw,24px);font-weight:800;letter-spacing:-.02em}
 .card .status{font-size:clamp(20px,1.7vw,28px);font-weight:800;letter-spacing:-.03em}
@@ -461,11 +463,14 @@ function formHtml(k){
   return `<span class="form" title="Viimased ${f.length} ${k==="wrc"?"rallit":"mängu"}, uusim paremal">${f.map(e=>`<i class="${e.result}">${pillTxt(e)}</i>`).join("")}</span>`;
 }
 // Kaartide järjekord (2 veergu): BC Pärnu | korvpallikoondis, Vaprus | jalgpallikoondis
+const BRAND={wrc:"https://cdn.simpleicons.org/toyota/FFFFFF"};
 const CARD_ORDER=["bcp","ekk","vap","ejk","wrc"];
 function cardBg(k,t){
   const l=logoUrl(OWN[k]&&NATIONAL[k]?"Eesti":t.name)||logoUrl((OWN[k]||[])[0]||"");
   if(!l) return "";
-  if(l.f) return `<img class="card-bg flagbg" src="https://flagcdn.com/w640/${l.u.split("/").pop()}" alt="" aria-hidden="true" onerror="this.remove()">`;
+  // Tiimi logo lipu peal (praegu Tänak: Toyota)
+  const brand=BRAND[k]?`<img class="card-bg brandbg" src="${BRAND[k]}" alt="" aria-hidden="true" onerror="this.remove()">`:"";
+  if(l.f) return `<img class="card-bg flagbg" src="https://flagcdn.com/w640/${l.u.split("/").pop()}" alt="" aria-hidden="true" onerror="this.remove()">`+brand;
   // basket.ee annab logo 100x100; proovi suuremat, muidu algne
   const big=l.u.replace("_100x100x0","_400x400x0");
   return `<img class="card-bg" src="${big}" data-fb="${l.u}" alt="" aria-hidden="true" onerror="if(this.dataset.fb&&this.src!==this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb='';}else this.remove()">`;

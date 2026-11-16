@@ -77,6 +77,11 @@ h2{color:var(--label);font-weight:700;font-size:clamp(12px,1vw,16px);text-transf
   display:grid;gap:12px;align-content:start;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 8px 24px rgba(0,0,0,.35)}
 .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
 .card:hover{border-color:rgba(240,246,252,.22)}
+/* Kaardi taustal suur klubilogo / Eesti lipp (nagu kuu koduvaate ilmakaardil): poolläbipaistev, sisu jääb peale */
+.card-bg{position:absolute;right:-3%;top:50%;transform:translateY(-50%);height:112%;aspect-ratio:1;object-fit:contain;opacity:.1;pointer-events:none;z-index:0;filter:saturate(.75)}
+.card-bg.flagbg{height:auto;aspect-ratio:auto;width:58%;right:-4%;opacity:.13;border-radius:8px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 55%);mask-image:linear-gradient(90deg,transparent,#000 55%)}
+.card>:not(.card-bg){position:relative;z-index:1}
 .card[aria-selected="true"]{border-color:var(--accent-strong);box-shadow:0 0 0 1px var(--accent-strong),0 8px 24px rgba(0,0,0,.35)}
 .card h3{font-size:clamp(18px,1.5vw,24px);font-weight:800;letter-spacing:-.02em}
 .card .status{font-size:clamp(20px,1.7vw,28px);font-weight:800;letter-spacing:-.03em}
@@ -368,16 +373,27 @@ function formHtml(k){
   const f=played(k).slice(0,5).reverse(); if(!f.length) return "";
   return `<span class="form" title="Viimased ${f.length} mängu, uusim paremal">${f.map(e=>`<i class="${e.result}">${RL[e.result]||""}</i>`).join("")}</span>`;
 }
+// Kaartide järjekord (2 veergu): BC Pärnu | korvpallikoondis, Vaprus | jalgpallikoondis
+const CARD_ORDER=["bcp","ekk","vap","ejk"];
+function cardBg(k,t){
+  const l=logoUrl(OWN[k]&&NATIONAL[k]?"Eesti":t.name)||logoUrl((OWN[k]||[])[0]||"");
+  if(!l) return "";
+  if(l.f) return `<img class="card-bg flagbg" src="https://flagcdn.com/w640/${l.u.split("/").pop()}" alt="" aria-hidden="true" onerror="this.remove()">`;
+  // basket.ee annab logo 100x100; proovi suuremat, muidu algne
+  const big=l.u.replace("_100x100x0","_400x400x0");
+  return `<img class="card-bg" src="${big}" data-fb="${l.u}" alt="" aria-hidden="true" onerror="if(this.dataset.fb&&this.src!==this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb='';}else this.remove()">`;
+}
 function renderCards(){
   const now=new Date();
-  document.getElementById("cards").innerHTML=Object.entries(DATA.teams).map(([k,t])=>{
+  const keys=CARD_ORDER.filter(k=>DATA.teams[k]).concat(Object.keys(DATA.teams).filter(k=>!CARD_ORDER.includes(k)));
+  document.getElementById("cards").innerHTML=keys.map(k=>[k,DATA.teams[k]]).map(([k,t])=>{
     const s=t.summary||{};
     const n=DATA.events.filter(e=>e.team===k&&isUp(e,now)).sort((a,b)=>startOf(a)-startOf(b))[0];
     const l=played(k)[0];
     const rel=n?relDay(n):"";
     const nextV=n?`<b>${teamsTitle(n.title)}</b><small>${isLive(n,now)?"käib praegu · ":""}${rel?rel+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""}</small>`:`<small>${esc(s.nextText||"Uut mängu pole veel kalendris")}</small>`;
     const lastV=l?`<span class="pill ${l.result}">${RL[l.result]}</span><b class="tn">${esc(l.score)}</b> ${teamsTitle(l.title)}`:"–";
-    return `<button class="card" role="tab" aria-selected="${k===sel}" data-k="${k}" style="--c:${COLORS[k]}">
+    return `<button class="card" role="tab" aria-selected="${k===sel}" data-k="${k}" style="--c:${COLORS[k]}">${cardBg(k,t)}
       <h3>${tIco(k)}${esc(t.name)}${formHtml(k)}</h3>
       <div class="status">${esc(s.headline)}${s.sub?" · "+esc(s.sub):""}<small>${esc(s.competition)}</small></div>
       <div class="row"><span class="k">Järgmine</span><span class="v">${nextV}</span></div>

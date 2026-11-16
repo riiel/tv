@@ -1243,17 +1243,23 @@
           ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
         } else {
           // Püstine number: tulba sees alt üles; kui tulp on liiga madal, siis tulba kohal
+          // Number tumedas "kastis", et oleks igal värvil hästi loetav
           ctx.save();
-          ctx.font = '700 9.5px system-ui';
+          const fs = barWidth >= 14 ? 10 : 9;
+          ctx.font = `800 ${fs}px system-ui`;
           const tw = ctx.measureText(priceLabel).width;
-          const inside = barHeight >= tw + 8;
-          ctx.translate(x + barWidth / 2, inside ? y + barHeight - 4 : y - 3);
+          const padX = 4, boxH = Math.min(barWidth - 2, fs + 5), boxW = tw + padX * 2;
+          const inside = barHeight >= boxW + 6;
+          ctx.translate(x + barWidth / 2, inside ? y + barHeight - 3 : y - 3);
           ctx.rotate(-Math.PI / 2);
+          ctx.fillStyle = 'rgba(11, 15, 21, 0.72)';
+          ctx.beginPath();
+          ctx.roundRect(0, -boxH / 2, boxW, boxH, 3);
+          ctx.fill();
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
           ctx.fillStyle = '#ffffff';
-          if (inside) { ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'; ctx.shadowBlur = 2; }
-          ctx.fillText(priceLabel, 0, 0.5);
+          ctx.fillText(priceLabel, padX, 0.5);
           ctx.restore();
         }
 

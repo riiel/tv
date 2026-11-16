@@ -52,6 +52,9 @@ header{padding:0 0 8px}
 .miniradio.playing button{border-color:var(--accent);color:var(--accent)}
 .miniradio .mr-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
 .miniradio b{color:var(--ink);font-weight:700;margin-right:.4em}
+/* Puldiga juhtimine: valitud nupp on selgelt näha */
+.kbd-nav :focus { outline: 3px solid #58a6ff !important; outline-offset: 3px !important; box-shadow: 0 0 0 7px rgba(88, 166, 255, 0.28) !important; border-radius: 999px; }
+.kbd-nav .card:focus, .kbd-nav .play:focus { border-radius: inherit; }
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .stamp{color:var(--muted)}
 .now{display:flex;align-items:baseline;gap:10px;font-size:clamp(14px,1.3vw,21px);font-weight:600;color:var(--ink)}
@@ -282,6 +285,75 @@ footer{padding:14px 0 24px;font-size:12px}
 </div></footer>
 
 <script>
+// --- PULDIGA JUHTIMINE (nooleklahvid liiguvad nuppude vahel, OK/Enter vajutab) ---
+(function () {
+  const SEL = 'a[href], button:not([disabled]), select, [tabindex]:not([tabindex="-1"])';
+  const usable = el => {
+    if (el.closest('[hidden], [aria-hidden="true"]')) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return false;
+    const cs = getComputedStyle(el);
+    return cs.visibility !== 'hidden' && cs.display !== 'none' && (el.offsetParent !== null || cs.position === 'fixed');
+  };
+  function list() {
+    let all = [...document.querySelectorAll(SEL)].filter(usable);
+    const modal = document.querySelector('.globe-modal-backdrop.open');   // avatud aknas liigu ainult selle sees
+    if (modal) all = all.filter(el => modal.contains(el));
+    return all;
+  }
+  function pick(dir) {
+    const all = list();
+    if (!all.length) return null;
+    const cur = document.activeElement;
+    if (!cur || cur === document.body || !all.includes(cur)) {
+      return all.find(el => el.matches('.play, .card[aria-selected="true"]')) || all[0];
+    }
+    const a = cur.getBoundingClientRect();
+    let best = null, bestScore = Infinity;
+    for (const el of all) {
+      if (el === cur) continue;
+      const b = el.getBoundingClientRect();
+      let main, cross;
+      if (dir === 'right' || dir === 'left') {
+        main = dir === 'right' ? b.left - a.right : a.left - b.right;
+        if ((dir === 'right' ? b.left + b.width / 2 - (a.left + a.width / 2) : (a.left + a.width / 2) - (b.left + b.width / 2)) <= 2) continue;
+        const overlap = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+        cross = overlap > 0 ? 0 : Math.abs((b.top + b.height / 2) - (a.top + a.height / 2));
+      } else {
+        main = dir === 'down' ? b.top - a.bottom : a.top - b.bottom;
+        if ((dir === 'down' ? b.top + b.height / 2 - (a.top + a.height / 2) : (a.top + a.height / 2) - (b.top + b.height / 2)) <= 2) continue;
+        const overlap = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+        cross = overlap > 0 ? 0 : Math.abs((b.left + b.width / 2) - (a.left + a.width / 2));
+      }
+      const score = Math.max(0, main) + cross * 2.5;
+      if (score < bestScore) { bestScore = score; best = el; }
+    }
+    return best;
+  }
+  const DIRS = { ArrowRight: 'right', ArrowLeft: 'left', ArrowDown: 'down', ArrowUp: 'up' };
+  document.addEventListener('keydown', e => {
+    const dir = DIRS[e.key];
+    if (!dir || e.ctrlKey || e.altKey || e.metaKey || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (typeof window.__beforeRemoteNav === 'function' && window.__beforeRemoteNav() === false) return;
+    document.documentElement.classList.add('kbd-nav');
+    const el = pick(dir);
+    e.preventDefault();
+    if (el) {
+      el.focus({ preventScroll: true });
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    } else if (dir === 'down' || dir === 'up') {
+      window.scrollBy({ top: (dir === 'down' ? 1 : -1) * innerHeight * 0.6 });   // lehe lõpus/alguses keri edasi
+    }
+  }, true);
+  // Elemendid, mis pole nupud, aga käituvad nagu nupud: OK/Enter klõpsab
+  document.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[role="button"][tabindex]')) { e.preventDefault(); e.target.click(); }
+  });
+  // Hiirega liikudes peida suur fookusraam
+  document.addEventListener('pointermove', () => document.documentElement.classList.remove('kbd-nav'), { passive: true });
+})();
+
+
 // Kui spordileht on avatud koduvaate sees: "Koduvaade" viib tagasi ilma laadimiseta ja raadio jääb mängima.
 (function(){
   let host = null;
@@ -462,6 +534,7 @@ function setAuto(on){
 }
 document.addEventListener("keydown",e=>{
   if(!DATA||e.ctrlKey||e.altKey||e.metaKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if(document.activeElement&&document.activeElement!==document.body) return;   // puldiga liikumine on aktiivne
   if(e.key==="ArrowRight"){step(1);e.preventDefault();}
   else if(e.key==="ArrowLeft"){step(-1);e.preventDefault();}
 });

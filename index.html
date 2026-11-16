@@ -171,6 +171,13 @@
       background: var(--cyan);
       box-shadow: 0 0 16px var(--cyan), 0 0 6px #fff;
     }
+    /* Puldiga juhtimine: valitud nupp on selgelt näha */
+    .kbd-nav :focus { outline: 3px solid #58a6ff !important; outline-offset: 3px !important; box-shadow: 0 0 0 7px rgba(88, 166, 255, 0.28) !important; border-radius: 999px; }
+    .kbd-nav .card:focus, .kbd-nav .play:focus { border-radius: inherit; }
+    .cheap-window { margin-top: 0.5vh; color: var(--muted); font-size: clamp(11px, 0.9vw, 14px); font-weight: 600; }
+    .cheap-window b { color: var(--cyan); font-weight: 800; }
+    .alert-pill.clickable { cursor: pointer; }
+
     /* Spordileht avaneb koduvaate kohal (raadio mängib taustal edasi) */
     #sport-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 9000; background: #0d1117; display: none; }
     #sport-frame.open { display: block; }
@@ -787,6 +794,7 @@
               <span class="unit">s/kWh</span>
             </div>
             <div id="price-caption" class="price-caption">Laen elektrihinda…</div>
+            <div id="cheap-window" class="cheap-window"></div>
           </div>
 
           <div class="chart-wrap">
@@ -1100,6 +1108,7 @@
       x: '<path d="M18 6 6 18M6 6l12 12"/>',
       music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
       sunset: '<path d="M12 10V2M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M16 6l-4 4-4-4M16 18a4 4 0 0 0-8 0"/>',
+      trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
       alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>'
     };
     function ico(name) {
@@ -1257,12 +1266,36 @@
         $('lowest').textContent = `${fmt(high.price)} s`;
         $('price-status').textContent = 'VÄRSKE';
         $('price-status').className = 'status-pill';
+        showCheapWindow(prices, current);
 
         drawChart(prices.filter(p => p.time >= current.time).slice(0, 18));
       } catch(e) {
         $('price-status').textContent = 'TÕRGE';
         $('price-status').className = 'status-pill error';
       }
+    }
+
+    // Odavaim 3 järjestikust tundi alates praegusest tunnist (andmed ulatuvad homse lõpuni)
+    function cheapestWindow(list, fromTime, hours = 3) {
+      const h = list.filter(p => p.time >= fromTime).sort((a, b) => a.time - b.time);
+      let best = null;
+      for (let i = 0; i + hours <= h.length; i++) {
+        const win = h.slice(i, i + hours);
+        if (win[hours - 1].time - win[0].time !== (hours - 1) * 3600000) continue;   // peab olema järjest
+        const avg = win.reduce((s, p) => s + p.price, 0) / hours;
+        if (!best || avg < best.avg) best = { start: win[0].time, end: win[hours - 1].time + 3600000, avg };
+      }
+      return best;
+    }
+
+    function showCheapWindow(list, current) {
+      const w = cheapestWindow(list, current.time);
+      if (!w) { $('cheap-window').textContent = ''; return; }
+      const hh = t => new Date(t).toLocaleTimeString('et-EE', { hour: '2-digit', minute: '2-digit' }).slice(0, 2);
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const day = Math.floor((w.start - today.getTime()) / 86400000);
+      const when = w.start <= Date.now() ? 'praegu' : day >= 1 ? 'homme ' : '';
+      $('cheap-window').innerHTML = `Odavaim 3 h: <b>${when === 'praegu' ? 'praegu' : when + 'kl ' + hh(w.start) + '–' + hh(w.end)}</b> • ${fmt(w.avg, 1)} s/kWh`;
     }
 
     // --- 2. AUTOMAATNE ASUKOHT + YR.NO ILM ---
@@ -2669,10 +2702,64 @@
       $('alert-pill').style.setProperty('--alert-c', a.color);
       $('alert-text').innerHTML = `<span class="btn-ico">${ico(a.icon || 'alert')}${a.text.replace(/[<>&]/g, '')}</span>`;
       $('alert-count').textContent = alertList.length > 1 ? `${alertIndex + 1}/${alertList.length}` : '';
+      // Spordihoiatusele saab vajutada (ka puldiga): avab spordilehe
+      const pill = $('alert-pill');
+      pill.classList.toggle('clickable', a.action === 'sport');
+      if (a.action === 'sport') { pill.setAttribute('role', 'button'); pill.tabIndex = 0; }
+      else { pill.removeAttribute('role'); pill.removeAttribute('tabindex'); }
     }
+    $('alert-pill').addEventListener('click', () => {
+      const a = alertList[alertIndex % Math.max(1, alertList.length)];
+      if (a && a.action === 'sport' && typeof showSport === 'function') showSport(true);
+    });
+
+    // --- MÄNGUPÄEVA MEELDETULETUS (andmed spordilehelt) ---
+    let sportEvents = [];
+    const SPORT_COLOR = { bcp: '#d29922', vap: '#3fb950', ejk: '#58a6ff', ekk: '#a5b4c3' };
+    const SPORT_DUR = { bcp: 135, ekk: 135, vap: 120, ejk: 120 };   // mängu ligikaudne kestus minutites
+    function tallinnOffset(d) {
+      const [y, m, day] = d.split('-').map(Number);
+      const lastSun = mo => { const x = new Date(Date.UTC(y, mo, 0)); return x.getUTCDate() - x.getUTCDay(); };
+      return ((m > 3 && m < 10) || (m === 3 && day >= lastSun(3)) || (m === 10 && day < lastSun(10))) ? '+03:00' : '+02:00';
+    }
+    async function loadSportEvents() {
+      try {
+        const [data, live] = await Promise.all([
+          fetchJson('/sport/data.json', 10000),
+          fetchJson('/api/sport', 20000).catch(() => null)
+        ]);
+        let ev = Array.isArray(data?.events) ? data.events : [];
+        // otseandmed kirjutavad varuandmete peale (sama loogika mis spordilehel)
+        if (live && live.ok) for (const g of live.eventSets || []) {
+          if (!g.events || !g.events.length) continue;
+          const re = g.re ? new RegExp(g.re) : null, dates = new Set(g.events.map(e => e.date));
+          ev = ev.filter(e => !(e.team === g.team && (re ? re.test(e.comp || '') : dates.has(e.date)))).concat(g.events);
+        }
+        sportEvents = ev;
+        updateAlerts();
+      } catch (e) {}
+    }
+    function sportAlerts() {
+      const now = Date.now();
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Tallinn' });
+      const out = [];
+      for (const e of sportEvents) {
+        if (e.date !== today || !e.title) continue;
+        const color = SPORT_COLOR[e.team] || '#58a6ff';
+        const start = e.time ? Date.parse(`${e.date}T${e.time}:00${tallinnOffset(e.date)}`) : NaN;
+        const end = start + (SPORT_DUR[e.team] || 120) * 60000;
+        if (e.score) out.push({ prio: 34, color, icon: 'trophy', action: 'sport', text: `Tulemus: ${e.title} ${e.score}` });
+        else if (Number.isFinite(start) && now >= start && now < end) out.push({ prio: 88, color, icon: 'trophy', action: 'sport', text: `Käib praegu: ${e.title}` });
+        else if (!Number.isFinite(start) || now < start) out.push({ prio: 46, color, icon: 'trophy', action: 'sport', text: `Täna${e.time ? ' kell ' + e.time : ''}: ${e.title}` });
+      }
+      return out;
+    }
+    loadSportEvents();
+    setInterval(loadSportEvents, 10 * 60 * 1000);
+    setInterval(updateAlerts, 60 * 1000);   // "täna" -> "käib praegu" õigel minutil
 
     function updateAlerts() {
-      alertList = [...auroraAlerts(), ...weatherAlerts, ...electricityAlerts()].sort((a, b) => b.prio - a.prio);
+      alertList = [...sportAlerts(), ...auroraAlerts(), ...weatherAlerts, ...electricityAlerts()].sort((a, b) => b.prio - a.prio);
       showAlert();
     }
 
@@ -2903,6 +2990,80 @@
     });
     // Laadi spordileht varakult taustal ette, et vahetus oleks kohene
     setTimeout(ensureSportFrame, 4000);
+
+    // --- PULDIGA JUHTIMINE (nooleklahvid liiguvad nuppude vahel, OK/Enter vajutab) ---
+    (function () {
+      const SEL = 'a[href], button:not([disabled]), select, [tabindex]:not([tabindex="-1"])';
+      const usable = el => {
+        if (el.closest('[hidden], [aria-hidden="true"]')) return false;
+        const r = el.getBoundingClientRect();
+        if (r.width < 2 || r.height < 2) return false;
+        const cs = getComputedStyle(el);
+        return cs.visibility !== 'hidden' && cs.display !== 'none' && (el.offsetParent !== null || cs.position === 'fixed');
+      };
+      function list() {
+        let all = [...document.querySelectorAll(SEL)].filter(usable);
+        const modal = document.querySelector('.globe-modal-backdrop.open');   // avatud aknas liigu ainult selle sees
+        if (modal) all = all.filter(el => modal.contains(el));
+        return all;
+      }
+      function pick(dir) {
+        const all = list();
+        if (!all.length) return null;
+        const cur = document.activeElement;
+        if (!cur || cur === document.body || !all.includes(cur)) {
+          return all.find(el => el.matches('.play, .card[aria-selected="true"]')) || all[0];
+        }
+        const a = cur.getBoundingClientRect();
+        let best = null, bestScore = Infinity;
+        for (const el of all) {
+          if (el === cur) continue;
+          const b = el.getBoundingClientRect();
+          let main, cross;
+          if (dir === 'right' || dir === 'left') {
+            main = dir === 'right' ? b.left - a.right : a.left - b.right;
+            if ((dir === 'right' ? b.left + b.width / 2 - (a.left + a.width / 2) : (a.left + a.width / 2) - (b.left + b.width / 2)) <= 2) continue;
+            const overlap = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+            cross = overlap > 0 ? 0 : Math.abs((b.top + b.height / 2) - (a.top + a.height / 2));
+          } else {
+            main = dir === 'down' ? b.top - a.bottom : a.top - b.bottom;
+            if ((dir === 'down' ? b.top + b.height / 2 - (a.top + a.height / 2) : (a.top + a.height / 2) - (b.top + b.height / 2)) <= 2) continue;
+            const overlap = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+            cross = overlap > 0 ? 0 : Math.abs((b.left + b.width / 2) - (a.left + a.width / 2));
+          }
+          const score = Math.max(0, main) + cross * 2.5;
+          if (score < bestScore) { bestScore = score; best = el; }
+        }
+        return best;
+      }
+      const DIRS = { ArrowRight: 'right', ArrowLeft: 'left', ArrowDown: 'down', ArrowUp: 'up' };
+      document.addEventListener('keydown', e => {
+        const dir = DIRS[e.key];
+        if (!dir || e.ctrlKey || e.altKey || e.metaKey || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+        if (typeof window.__beforeRemoteNav === 'function' && window.__beforeRemoteNav() === false) return;
+        document.documentElement.classList.add('kbd-nav');
+        const el = pick(dir);
+        e.preventDefault();
+        if (el) {
+          el.focus({ preventScroll: true });
+          el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        } else if (dir === 'down' || dir === 'up') {
+          window.scrollBy({ top: (dir === 'down' ? 1 : -1) * innerHeight * 0.6 });   // lehe lõpus/alguses keri edasi
+        }
+      }, true);
+      // Elemendid, mis pole nupud, aga käituvad nagu nupud: OK/Enter klõpsab
+      document.addEventListener('keydown', e => {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[role="button"][tabindex]')) { e.preventDefault(); e.target.click(); }
+      });
+      // Hiirega liikudes peida suur fookusraam
+      document.addEventListener('pointermove', () => document.documentElement.classList.remove('kbd-nav'), { passive: true });
+    })();
+    // Kui spordileht on peal, käivad nooled seal (koduvaade on all peidus)
+    window.__beforeRemoteNav = () => {
+      if (!pageCovered || !sportFrame) return true;
+      try { sportFrame.contentWindow.focus(); } catch (e) {}
+      return false;
+    };
 
     // --- KÄIVITUS ---
     updateClock();

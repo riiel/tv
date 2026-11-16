@@ -762,6 +762,32 @@
       body { overflow: auto; min-width: 0; }
       .screen { height: auto; min-height: 100vh; padding: 16px; }
       main { grid-template-columns: 1fr; grid-template-rows: auto; }
+
+      /* Telefon püsti: päis kahel real (logo + kell, all hoiatus täislaiuses) */
+      header { flex-wrap: wrap; row-gap: 10px; }
+      .brand { font-size: 17px; letter-spacing: 0.12em; }
+      .pagesw { gap: 0.9em; }
+      .now { font-size: 15px; white-space: nowrap; }
+      .now-sep, #date { display: none; }
+      .alert-banner { order: 3; flex: 1 0 100%; margin: 0; justify-content: flex-start; }
+      .alert-pill { font-size: 13px; padding: 6px 12px; max-width: 100%; }
+
+      /* Kaartide päised murduvad, mitte ei lõika teksti */
+      .card-head { flex-wrap: wrap; row-gap: 8px; }
+      .weather-card .card-head .label { white-space: normal; flex-shrink: 1; }
+      .moon-label { order: 3; flex: 1 0 100%; margin: 0; white-space: normal; }
+      .loc-controls { margin-left: auto; }
+      .place-select { max-width: 40vw; }
+
+      /* Elektri hind graafiku kohal, graafik täislaiuses */
+      .elec-body { grid-template-columns: 1fr; }
+      .cheap-window b { white-space: nowrap; }
+      .chart-wrap { min-height: 150px; }
+
+      /* Ilm: temperatuur üleval, andmeruudud kahes veerus */
+      .weather-middle { grid-template-columns: 1fr; }
+      .weather-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .moon-bg { width: 70%; opacity: 0.08; }
     }
   </style>
 </head>
@@ -1183,6 +1209,14 @@
       const left = 4, right = 4, top = 20, bottom = 18, chartHeight = h - top - bottom;
       const slot = (w - left - right) / data.length, barWidth = Math.max(4, slot - 5), now = Date.now();
 
+      // Kitsal ekraanil (telefon) ei mahu kõik numbrid ära: näita iga N-ndat + praegust, odavaimat ja kalleimat
+      const labelEvery = Math.max(1, Math.ceil(26 / slot));
+      const minIdx = values.indexOf(Math.min(...values)), maxIdx = values.indexOf(Math.max(...values));
+      const nowIdx = data.findIndex(p => p.time <= now && now < p.time + 3600000);
+      const showLabel = i => labelEvery === 1 || i === minIdx || i === maxIdx || i === nowIdx ||
+        (i % labelEvery === 0 && Math.abs(i - minIdx) >= labelEvery && Math.abs(i - maxIdx) >= labelEvery && Math.abs(i - nowIdx) >= labelEvery);
+      const hourEvery = Math.max(1, Math.ceil(20 / slot));
+
       data.forEach((point, index) => {
         const x = left + index * slot + (slot - barWidth) / 2;
         const barHeight = Math.max(4, (Math.max(0, point.price) / max) * chartHeight);
@@ -1208,11 +1242,11 @@
         ctx.font = '700 9.5px system-ui';
         ctx.textAlign = 'center';
         const priceLabel = point.price >= 100 ? Math.round(point.price).toString() : point.price.toFixed(1);
-        ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
+        if (showLabel(index)) ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
 
         ctx.fillStyle = '#94a3b8';
         ctx.font = '600 9px system-ui';
-        ctx.fillText(new Date(point.time).toLocaleTimeString('et-EE', {hour:'2-digit'}), x + barWidth / 2, h - 3);
+        if (index % hourEvery === 0 || index === nowIdx) ctx.fillText(new Date(point.time).toLocaleTimeString('et-EE', {hour:'2-digit'}), x + barWidth / 2, h - 3);
       });
     }
 

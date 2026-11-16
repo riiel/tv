@@ -1,6 +1,8 @@
 package ee.riiel.koduvaade;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,8 +28,18 @@ public class MainActivity extends Activity {
     private static final String HOME_URL = "https://tv-riiel.vercel.app/";
     private static final String HOST = "tv-riiel.vercel.app";
 
+    private static final int REQ_LOCATION = 1;
+
     private WebView web;
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private String pendingGeoOrigin;
+    private GeolocationPermissions.Callback pendingGeoCallback;
+
+    private boolean hasLocationPermission() {
+        if (android.os.Build.VERSION.SDK_INT < 23) return true;
+        return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +67,18 @@ public class MainActivity extends Activity {
         web.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
-                // Shieldil pole GPS-i; leht kasutab siis IP-põhist või salvestatud asukohta
-                callback.invoke(origin, true, false);
+                // Telefonis küsi Androidilt asukohaluba; Shieldil pole GPS-i ja leht kasutab siis IP-d
+                if (hasLocationPermission()) {
+                    callback.invoke(origin, true, false);
+                } else if (android.os.Build.VERSION.SDK_INT >= 23) {
+                    pendingGeoOrigin = origin;
+                    pendingGeoCallback = callback;
+                    requestPermissions(new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
+                } else {
+                    callback.invoke(origin, false, false);
+                }
             }
         });
 
@@ -105,6 +127,17 @@ public class MainActivity extends Activity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQ_LOCATION || pendingGeoCallback == null) return;
+        boolean granted = false;
+        for (int r : grantResults) if (r == PackageManager.PERMISSION_GRANTED) granted = true;
+        pendingGeoCallback.invoke(pendingGeoOrigin, granted, false);
+        pendingGeoCallback = null;
+        pendingGeoOrigin = null;
     }
 
     @Override

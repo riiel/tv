@@ -14,11 +14,21 @@ android {
         versionName "1.0." + (System.getenv('VERSION_CODE') ?: '1')
     }
 
+    // Isiklik rakendus: püsiv allkirjavõti repos, et uus versioon paigalduks vana peale.
+    // (Ainult oma seadmetesse paigaldamiseks, mitte Play poodi.)
+    signingConfigs {
+        koduvaade {
+            storeFile file('../koduvaade.keystore')
+            storePassword 'koduvaade'
+            keyAlias 'koduvaade'
+            keyPassword 'koduvaade'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            // Isiklik rakendus: allkirjastatakse debug-võtmega, et seda saaks Shieldile otse paigaldada
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.koduvaade
         }
     }
 

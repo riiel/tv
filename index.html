@@ -1209,13 +1209,10 @@
       const left = 4, right = 4, top = 20, bottom = 18, chartHeight = h - top - bottom;
       const slot = (w - left - right) / data.length, barWidth = Math.max(4, slot - 5), now = Date.now();
 
-      // Kitsal ekraanil (telefon) ei mahu kõik numbrid ära: näita iga N-ndat + praegust, odavaimat ja kalleimat
-      const labelEvery = Math.max(1, Math.ceil(26 / slot));
-      const minIdx = values.indexOf(Math.min(...values)), maxIdx = values.indexOf(Math.max(...values));
+      // Kitsal ekraanil (telefon) ei mahu numbrid rõhtsalt: siis kirjutatakse need püsti tulba sisse
+      const verticalLabels = slot < 26;
       const nowIdx = data.findIndex(p => p.time <= now && now < p.time + 3600000);
-      const showLabel = i => labelEvery === 1 || i === minIdx || i === maxIdx || i === nowIdx ||
-        (i % labelEvery === 0 && Math.abs(i - minIdx) >= labelEvery && Math.abs(i - maxIdx) >= labelEvery && Math.abs(i - nowIdx) >= labelEvery);
-      const hourEvery = Math.max(1, Math.ceil(20 / slot));
+      const hourEvery = Math.max(1, Math.ceil(14 / slot));
 
       data.forEach((point, index) => {
         const x = left + index * slot + (slot - barWidth) / 2;
@@ -1242,7 +1239,23 @@
         ctx.font = '700 9.5px system-ui';
         ctx.textAlign = 'center';
         const priceLabel = point.price >= 100 ? Math.round(point.price).toString() : point.price.toFixed(1);
-        if (showLabel(index)) ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
+        if (!verticalLabels) {
+          ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
+        } else {
+          // Püstine number: tulba sees alt üles; kui tulp on liiga madal, siis tulba kohal
+          ctx.save();
+          ctx.font = '700 9.5px system-ui';
+          const tw = ctx.measureText(priceLabel).width;
+          const inside = barHeight >= tw + 8;
+          ctx.translate(x + barWidth / 2, inside ? y + barHeight - 4 : y - 3);
+          ctx.rotate(-Math.PI / 2);
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ffffff';
+          if (inside) { ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'; ctx.shadowBlur = 2; }
+          ctx.fillText(priceLabel, 0, 0.5);
+          ctx.restore();
+        }
 
         ctx.fillStyle = '#94a3b8';
         ctx.font = '600 9px system-ui';

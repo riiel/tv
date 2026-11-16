@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Koduvaade">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f2733"/>
+      <stop offset="1" stop-color="#0d1117"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#58a6ff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#58a6ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8cc4ff"/>
+      <stop offset="1" stop-color="#3b8eea"/>
+    </linearGradient>
+    <clipPath id="inside"><path d="M176 236 L256 166 L336 236 V364 H176 Z"/></clipPath>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="509" height="509" rx="110.5" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="3"/>
+  <!-- vaade maja sees: päike loojub mere taha -->
+  <g clip-path="url(#inside)">
+    <circle cx="256" cy="300" r="78" fill="url(#halo)"/>
+    <circle cx="256" cy="300" r="40" fill="url(#sun)"/>
+    <path d="M150 318 C190 300 222 336 256 318 S322 300 362 318 V380 H150 Z" fill="#0f141b"/>
+    <path d="M150 318 C190 300 222 336 256 318 S322 300 362 318" fill="none" stroke="#58a6ff" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+    <path d="M162 346 C196 334 224 358 256 346 S318 334 350 346" fill="none" stroke="#58a6ff" stroke-width="7" stroke-linecap="round" opacity="0.4"/>
+  </g>
+  <!-- maja -->
+  <path d="M116 258 L256 136 L396 258" fill="none" stroke="#e6edf3" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M164 232 V362 C164 378 176 390 192 390 H320 C336 390 348 378 348 362 V232" fill="none" stroke="#e6edf3" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

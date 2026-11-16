@@ -2778,10 +2778,22 @@
     // --- 8. PÕLEMISKAITSE ---
     // Iga 3 minuti järel liigub kogu sisu väga aeglaselt (40 s) uude kohta max 6 px kaugusel,
     // et samad pikslid ei põleks teleri ekraanile sisse. Silmaga seda liikumist ei märka.
+    let screenShift = 'translate(0px, 0px)';
     function shiftScreen() {
       const dx = Math.round((Math.random() * 2 - 1) * 6);
       const dy = Math.round((Math.random() * 2 - 1) * 4);
-      document.querySelector('.screen').style.transform = `translate(${dx}px, ${dy}px)`;
+      screenShift = `translate(${dx}px, ${dy}px)`;
+      document.querySelector('.screen').style.transform = screenShift;
+      applyShiftToSport();
+    }
+    // Spordileht nihkub koos koduvaatega, et kell ja päis oleksid mõlemal täpselt samas kohas
+    function applyShiftToSport() {
+      try {
+        const doc = sportFrame && sportFrame.contentDocument;
+        if (!doc || !doc.body) return;
+        doc.body.style.transition = 'transform 40s ease-in-out';
+        doc.body.style.transform = screenShift;
+      } catch (e) {}
     }
     setInterval(shiftScreen, 3 * 60 * 1000);
 
@@ -2839,6 +2851,7 @@
       sportFrame.id = 'sport-frame';
       sportFrame.title = 'Sport';
       sportFrame.src = '/sport/';
+      sportFrame.addEventListener('load', () => applyShiftToSport());
       document.body.appendChild(sportFrame);
       return sportFrame;
     }

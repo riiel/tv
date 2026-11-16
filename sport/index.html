@@ -143,6 +143,9 @@ tr.cut td{border-bottom:1px dashed rgba(240,246,252,.25)}
 footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);font-size:14px}
 footer a{margin-right:14px;display:inline-block}
 html,body{overflow-x:hidden}
+/* Kerimisriba peidus (kerimine töötab), et leht oleks sama lai kui koduvaade ja kell püsiks samas kohas */
+html{scrollbar-width:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}
 
 /* Ikoonid: koduvaatega sama joonistiil (ühevärvilised, teksti värvi) */
 .ico{width:1em;height:1em;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-0.14em}

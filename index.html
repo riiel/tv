@@ -1212,8 +1212,19 @@
       const left = 4, right = 4, top = 20, bottom = 18, chartHeight = h - top - bottom;
       const slot = (w - left - right) / data.length, barWidth = Math.max(4, slot - 5), now = Date.now();
 
-      // Kitsal ekraanil (telefon) ei mahu kümnendkohaga numbrid ära: siis täisarvud tulba kohal
-      const compactLabels = slot < 26;
+      // Kümnendkohaga numbrid: proovi järjest väiksema/tihedama kirjaga; täisarvud ainult siis, kui ükski ei mahu (telefon)
+      let labelFont = null, labelSpacing = '0px';
+      for (const size of [9.5, 9, 8.5, 8]) {
+        for (const spacing of ['0px', '-0.6px']) {
+          ctx.font = `700 ${size}px system-ui`;
+          if ('letterSpacing' in ctx) ctx.letterSpacing = spacing;
+          const widest = Math.max(...values.map(v => ctx.measureText(v >= 100 ? String(Math.round(v)) : v.toFixed(1)).width));
+          if (widest + 1 <= slot) { labelFont = ctx.font; labelSpacing = spacing; break; }
+        }
+        if (labelFont) break;
+      }
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+      const compactLabels = !labelFont;
       const nowIdx = data.findIndex(p => p.time <= now && now < p.time + 3600000);
       const hourEvery = Math.max(1, Math.ceil(14 / slot));
 
@@ -1239,11 +1250,13 @@
         }
 
         ctx.fillStyle = '#f8fafc';
-        ctx.font = '700 9.5px system-ui';
+        ctx.font = labelFont || '700 9.5px system-ui';
         ctx.textAlign = 'center';
         const priceLabel = point.price >= 100 ? Math.round(point.price).toString() : point.price.toFixed(1);
         if (!compactLabels) {
+          if ('letterSpacing' in ctx) ctx.letterSpacing = labelSpacing;
           ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
+          if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
         } else {
           ctx.font = '800 10px system-ui';
           ctx.fillText(String(Math.round(point.price)).replace('-0', '0'), x + barWidth / 2, Math.max(11, y - 5));

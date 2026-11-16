@@ -779,8 +779,11 @@
       .loc-controls { margin-left: auto; }
       .place-select { max-width: 40vw; }
 
-      /* Elektri hind graafiku kohal, graafik täislaiuses */
+      /* Elektri hind graafiku kohal: hind vasakul, info paremal, graafik täislaiuses all */
       .elec-body { grid-template-columns: 1fr; }
+      .elec-left { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: center; }
+      .elec-left .price-line { grid-row: span 2; }
+      .elec-left .price-caption, .elec-left .cheap-window { text-align: right; margin: 0; }
       .cheap-window b { white-space: nowrap; }
       .chart-wrap { min-height: 150px; }
 
@@ -1209,8 +1212,8 @@
       const left = 4, right = 4, top = 20, bottom = 18, chartHeight = h - top - bottom;
       const slot = (w - left - right) / data.length, barWidth = Math.max(4, slot - 5), now = Date.now();
 
-      // Kitsal ekraanil (telefon) ei mahu numbrid rõhtsalt: siis kirjutatakse need püsti tulba sisse
-      const verticalLabels = slot < 26;
+      // Kitsal ekraanil (telefon) ei mahu kümnendkohaga numbrid ära: siis täisarvud tulba kohal
+      const compactLabels = slot < 26;
       const nowIdx = data.findIndex(p => p.time <= now && now < p.time + 3600000);
       const hourEvery = Math.max(1, Math.ceil(14 / slot));
 
@@ -1239,28 +1242,11 @@
         ctx.font = '700 9.5px system-ui';
         ctx.textAlign = 'center';
         const priceLabel = point.price >= 100 ? Math.round(point.price).toString() : point.price.toFixed(1);
-        if (!verticalLabels) {
+        if (!compactLabels) {
           ctx.fillText(priceLabel, x + barWidth / 2, Math.max(11, y - 5));
         } else {
-          // Püstine number: tulba sees alt üles; kui tulp on liiga madal, siis tulba kohal
-          // Number tumedas "kastis", et oleks igal värvil hästi loetav
-          ctx.save();
-          const fs = barWidth >= 14 ? 10 : 9;
-          ctx.font = `800 ${fs}px system-ui`;
-          const tw = ctx.measureText(priceLabel).width;
-          const padX = 4, boxH = Math.min(barWidth - 2, fs + 5), boxW = tw + padX * 2;
-          const inside = barHeight >= boxW + 6;
-          ctx.translate(x + barWidth / 2, inside ? y + barHeight - 3 : y - 3);
-          ctx.rotate(-Math.PI / 2);
-          ctx.fillStyle = 'rgba(11, 15, 21, 0.72)';
-          ctx.beginPath();
-          ctx.roundRect(0, -boxH / 2, boxW, boxH, 3);
-          ctx.fill();
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = '#ffffff';
-          ctx.fillText(priceLabel, padX, 0.5);
-          ctx.restore();
+          ctx.font = '800 10px system-ui';
+          ctx.fillText(String(Math.round(point.price)).replace('-0', '0'), x + barWidth / 2, Math.max(11, y - 5));
         }
 
         ctx.fillStyle = '#94a3b8';

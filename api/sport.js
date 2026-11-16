@@ -3,6 +3,7 @@
 //   - basket.ee        BC Pärnu Eesti-Läti liiga (tabel, tulemused, kava, ülekanded) ja korvpallikoondise kava
 //   - fiba.basketball  FIBA Europe Cup (BC Pärnu) ja MM-valiksari (Eesti koondis)
 //   - jalgpall.ee      Pärnu JK Vaprus (Premium liiga, karikas) ja Eesti jalgpallikoondis
+//   - wikipedia.org    Ralli MM (WRC): sõitjate ja tootjate tabel, Ott Tänaku kohad ja etappide võitjad
 // Iga allikas on eraldi: kui üks ei vasta, tulevad teised ikka ja leht kasutab puuduva osa jaoks faili sport/data.json.
 
 const UA = {
@@ -14,8 +15,8 @@ const ME = 'BC Pärnu';
 
 export default async function handler(req, res) {
   const t = tallinnToday();
-  const names = ['league', 'ec', 'ekk', 'vap', 'ejk'];
-  const settled = await Promise.allSettled([league(t), fibaEC(t), natBasket(t), vaprus(t), koondis(t)]);
+  const names = ['league', 'ec', 'ekk', 'vap', 'ejk', 'wrc'];
+  const settled = await Promise.allSettled([league(t), fibaEC(t), natBasket(t), vaprus(t), koondis(t), wrc(t)]);
   const out = { ok: false, updated: new Date().toISOString(), src: {}, panels: {}, summaries: {}, eventSets: [], logos: {} };
   settled.forEach((r, i) => {
     if (r.status === 'fulfilled' && r.value) {
@@ -40,6 +41,11 @@ function cacheSeconds(out) {
   let s = 900;
   for (const set of out.eventSets) for (const e of set.events) {
     if (e.score) continue;
+    if (e.end) {   // ralli: rallinädalal kontrolli tihedamini
+      const a = Date.parse(`${e.date}T00:00:00${tzOff(e.date)}`), b = Date.parse(`${e.end}T23:59:00${tzOff(e.end)}`);
+      if (now > a && now < b + 6 * 3600e3) s = 600;
+      continue;
+    }
     const start = Date.parse(`${e.date}T${e.time || '12:00'}:00${tzOff(e.date)}`);
     if (now > start - 15 * 60e3 && now < start + 4 * 3600e3) return 120;
     if (Math.abs(start - now) < 12 * 3600e3) s = 300;
@@ -580,6 +586,126 @@ async function koondis() {
     }
   }
   return { panels, summaries, logos, eventSets: [{ team: 'ejk', re: '.', events }] };
+}
+
+// ───────────────────────── Ralli MM (WRC): Ott Tänak (Wikipedia) ─────────────────────────
+// Kalender on teada (FIA, oktoober 2026). Tulemused ja tabelid loetakse Wikipedia hooajalehe tabelist
+// "Drivers' championship": iga etapi veerus on sõitja koht. Sealt tulevad ka etappide võitjad (koht 1).
+
+const TANAK = 'Ott Tänak';
+const WRC_CAL = {
+  2027: [
+    ['Rallye Monte-Carlo', '2027-01-21', '2027-01-24', 'Monaco', 'Segakate'],
+    ['Rally Sweden', '2027-02-18', '2027-02-21', 'Rootsi', 'Lumi'],
+    ['Safari Rally Kenya', '2027-03-18', '2027-03-21', 'Keenia', 'Kruus'],
+    ['Croatia Rally', '2027-04-08', '2027-04-11', 'Horvaatia', 'Asfalt'],
+    ['Rally Islas Canarias', '2027-05-06', '2027-05-09', 'Kanaari saared, Hispaania', 'Asfalt'],
+    ['Rally Japan', '2027-06-03', '2027-06-06', 'Jaapan', 'Asfalt'],
+    ['Acropolis Rally Greece', '2027-06-24', '2027-06-27', 'Kreeka', 'Kruus'],
+    ["Rally d'Italia", '2027-07-08', '2027-07-11', 'Rooma, Itaalia', 'Asfalt'],
+    ['Rally Estonia', '2027-07-22', '2027-07-25', 'Tartu, Eesti', 'Kruus'],
+    ['Rally Finland', '2027-07-29', '2027-08-01', 'Jyväskylä, Soome', 'Kruus'],
+    ['Rally USA', '2027-08-26', '2027-08-29', 'USA', 'Kruus'],
+    ['Rally Scotland', '2027-09-30', '2027-10-03', 'Aberdeen, Šotimaa', 'Kruus'],
+    ['Rally del Paraguay', '2027-10-21', '2027-10-24', 'Paraguay', 'Kruus'],
+    ['Rally Chile Biobío', '2027-11-04', '2027-11-07', 'Tšiili', 'Kruus'],
+    ['Rally Saudi Arabia', '2027-11-25', '2027-11-28', 'Saudi Araabia', 'Kruus'],
+  ],
+};
+const WRC_FLAG = { Estonia: 'ee', Finland: 'fi', France: 'fr', Belgium: 'be', 'United Kingdom': 'gb', 'Great Britain': 'gb', Ireland: 'ie', Japan: 'jp', Spain: 'es', Sweden: 'se', Norway: 'no', 'New Zealand': 'nz', Greece: 'gr', Italy: 'it', Germany: 'de', Poland: 'pl', 'Czech Republic': 'cz', Czechia: 'cz', Latvia: 'lv', Lithuania: 'lt', Paraguay: 'py', Chile: 'cl', Bolivia: 'bo', Kenya: 'ke', Croatia: 'hr', Austria: 'at', Portugal: 'pt', 'United States': 'us', Mexico: 'mx', Brazil: 'br', Argentina: 'ar', Monaco: 'mc', Luxembourg: 'lu', Slovakia: 'sk', Ukraine: 'ua', Australia: 'au', Netherlands: 'nl', Denmark: 'dk', Switzerland: 'ch', Hungary: 'hu', Romania: 'ro', Bulgaria: 'bg', Turkey: 'tr', 'Saudi Arabia': 'sa', 'South Africa': 'za' };
+const MAKER = n => /toyota/i.test(n) ? 'Toyota' : /hyundai/i.test(n) ? 'Hyundai' : /ford|m-sport/i.test(n) ? 'M-Sport Ford' : /skoda|škoda/i.test(n) ? 'Škoda' : /citro/i.test(n) ? 'Citroën' : n.replace(/\s+(World Rally Team|WRT|Rally Team)$/i, '');
+const MON3 = ['jaan', 'veebr', 'märts', 'apr', 'mai', 'juuni', 'juuli', 'aug', 'sept', 'okt', 'nov', 'dets'];
+function wrcRange(a, b) {
+  const [, ma, da] = a.split('-').map(Number), [, mb, db] = b.split('-').map(Number);
+  return ma === mb ? `${da}.–${db}. ${MON3[mb - 1]}` : `${da}. ${MON3[ma - 1]} – ${db}. ${MON3[mb - 1]}`;
+}
+
+// HTML-tabel ruudustikuks (arvestab rowspan/colspan); iga lahter: { t: tekst, h: html }
+function tableGrid(html) {
+  const grid = [], hold = [];
+  for (const tr of html.split(/<tr[\s>]/).slice(1)) {
+    const row = [], body = tr.split('</tr>')[0];
+    let col = 0;
+    const take = () => { while (hold[col] && hold[col].n > 0) { row[col] = hold[col].c; hold[col].n--; col++; } };
+    for (const m of body.matchAll(/<(t[hd])([^>]*)>([\s\S]*?)<\/\1>/g)) {
+      take();
+      const attrs = m[2], h = m[3];
+      const c = { t: strip(h.replace(/<sup[\s\S]*?<\/sup>/g, '').replace(/<style[\s\S]*?<\/style>/g, '')), h, th: m[1] === 'th' };
+      const rs = +(attrs.match(/rowspan="?(\d+)/) || [])[1] || 1, cs = +(attrs.match(/colspan="?(\d+)/) || [])[1] || 1;
+      for (let k = 0; k < cs; k++) { row[col] = c; if (rs > 1) hold[col] = { c, n: rs - 1 }; col++; }
+    }
+    take();
+    if (row.length) grid.push(row);
+  }
+  return grid;
+}
+function findStanding(tables, who) {
+  for (const t of tables) {
+    const g = tableGrid(t);
+    const hi = g.findIndex(r => r.some(c => /^Pos\.?$/.test(c.t)) && r.some(c => c.t === who) && r.some(c => /^(Points|Pts\.?)$/.test(c.t)));
+    if (hi < 0) continue;
+    const head = g[hi].map(c => c.t);
+    const rows = g.slice(hi + 1).filter(r => r[0] && /^\d+$/.test(r[0].t));
+    if (rows.length) return { head, rows, nameCol: head.indexOf(who), ptsCol: head.findIndex(x => /^(Points|Pts\.?)$/.test(x)) };
+  }
+  return null;
+}
+const placeOf = s => { const m = String(s).match(/^(\d+)/); return m ? +m[1] : null; };
+
+export function parseWrc(html, year) {
+  const cal = WRC_CAL[year];
+  const tables = html.split(/<table[\s>]/).slice(1).map(x => x.split('</table>')[0]);
+  const dr = findStanding(tables, 'Driver');
+  if (!dr) throw new Error('wikipedia: sõitjate tabelit ei leitud');
+  const firstRound = dr.nameCol + 1, nRounds = Math.min(cal.length, dr.ptsCol - firstRound);
+  const logos = {};
+  const drivers = dr.rows.map(r => {
+    const name = r[dr.nameCol].t;
+    const country = (r[dr.nameCol].h.match(/Flag_of_([^.\/"]+?)\.svg/) || [])[1];
+    if (country) { const c = WRC_FLAG[decodeURIComponent(country).replace(/_/g, ' ').replace(/^the /, '').replace(/\s*\(.*\)$/, '')]; if (c) logos[name] = `flag:${c}`; }
+    return { pos: +r[0].t, name, pts: +(r[dr.ptsCol].t.replace(/[^\d.]/g, '')) || 0, res: Array.from({ length: nRounds }, (_, i) => (r[firstRound + i] || { t: '' }).t) };
+  });
+  const me = drivers.find(d => d.name === TANAK);
+  const winners = Array.from({ length: nRounds }, (_, i) => (drivers.find(d => placeOf(d.res[i]) === 1) || {}).name || '');
+
+  const mk = findStanding(tables, 'Manufacturer');
+  const makers = [];
+  if (mk) for (const r of mk.rows) { const n = MAKER(r[mk.nameCol].t); if (!makers.some(m => m[1] === n)) makers.push([+r[0].t, n, +(r[mk.ptsCol].t.replace(/[^\d.]/g, '')) || 0]); }
+
+  const events = [], calRows = [];
+  cal.forEach(([name, a, b, place, surface], i) => {
+    const raw = me && i < nRounds ? me.res[i] : '', p = placeOf(raw), done = !!winners[i];
+    const score = p ? `${p}.` : /^Ret/i.test(raw) ? 'Katk.' : /^(WD|DNS|EX|DSQ)/i.test(raw) ? 'Ei lõpetanud' : '';
+    const e = { team: 'wrc', date: a, end: b, title: name, comp: `WRC ${year}, ${i + 1}. etapp`, place };
+    if (done && score) Object.assign(e, { score, result: p && p <= 3 ? 'W' : p && p <= 10 ? 'D' : 'L', note: winners[i] && winners[i] !== TANAK ? `Võitis ${winners[i]}` : '' });
+    events.push(e);
+    calRows.push([i + 1, name, wrcRange(a, b), surface, winners[i] || '', done ? (score || '–') : '']);
+  });
+
+  const panels = {
+    'wrc-cal': { rows: calRows },
+    'wrc-drivers': { rows: drivers.slice(0, 10).map(d => [d.pos, d.name, d.pts]), note: me && me.pos > 10 ? `Ott Tänak: ${me.pos}. koht, ${me.pts} p` : '' },
+  };
+  if (makers.length) panels['wrc-makers'] = { rows: makers };
+  const summaries = {};
+  if (me) {
+    const places = me.res.map(placeOf).filter(Boolean);
+    panels['wrc-stats'] = { items: [[`${me.pos}.`, 'koht'], [String(me.pts), 'punkti'], [String(places.filter(x => x === 1).length), 'võitu'], [String(places.filter(x => x <= 3).length), 'poodiumit']] };
+    summaries.wrc = { headline: `${me.pos}. koht`, sub: `${me.pts} punkti`, competition: `Ralli MM ${year} · Toyota` };
+  }
+  return { panels, summaries, logos, eventSets: [{ team: 'wrc', re: '^WRC', events }] };
+}
+
+async function wrc(t) {
+  const year = Math.max(2027, t.y);
+  if (!WRC_CAL[year]) throw new Error(`WRC ${year} kalender puudub`);
+  // Enne hooaja algust pole tabelit veel olemas: siis jääb data.json
+  if (`${t.y}-${pad(t.m)}-${pad(t.d)}` < WRC_CAL[year][0][2]) return { panels: {}, summaries: {}, logos: {}, eventSets: [] };
+  const url = `https://en.wikipedia.org/w/api.php?action=parse&page=${year}_World_Rally_Championship&prop=text&format=json&formatversion=2&redirects=1`;
+  const r = await fetch(url, { headers: { 'User-Agent': 'tv-riiel/1.0 (https://tv-riiel.vercel.app; koduvaade)', 'Accept': 'application/json' }, signal: AbortSignal.timeout(8000) });
+  if (!r.ok) throw new Error(`wikipedia vastas ${r.status}`);
+  const j = await r.json();
+  return parseWrc((j.parse && j.parse.text) || '', year);
 }
 
 // ───────────────────────── Abifunktsioonid ─────────────────────────

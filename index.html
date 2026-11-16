@@ -2767,7 +2767,7 @@
 
     // --- MÄNGUPÄEVA MEELDETULETUS (andmed spordilehelt) ---
     let sportEvents = [];
-    const SPORT_COLOR = { bcp: '#d29922', vap: '#3fb950', ejk: '#58a6ff', ekk: '#a5b4c3' };
+    const SPORT_COLOR = { bcp: '#d29922', vap: '#3fb950', ejk: '#58a6ff', ekk: '#a5b4c3', wrc: '#ff6b5b' };
     const SPORT_DUR = { bcp: 135, ekk: 135, vap: 120, ejk: 120 };   // mängu ligikaudne kestus minutites
     function tallinnOffset(d) {
       const [y, m, day] = d.split('-').map(Number);
@@ -2796,6 +2796,14 @@
       const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Tallinn' });
       const out = [];
       for (const e of sportEvents) {
+        // Ralli kestab mitu päeva: meeldetuletus kogu rallinädalavahetuse, tulemus viimasel päeval
+        if (e.end && e.title) {
+          if (today < e.date || today > e.end) continue;
+          const color = SPORT_COLOR[e.team] || '#58a6ff';
+          if (e.score) out.push({ prio: 34, color, icon: 'trophy', action: 'sport', text: `${e.title}: Tänak ${e.score}` });
+          else out.push({ prio: 60, color, icon: 'trophy', action: 'sport', text: today === e.date ? `Täna algab ${e.title} (WRC)` : `WRC: ${e.title} käib` });
+          continue;
+        }
         if (e.date !== today || !e.title) continue;
         const color = SPORT_COLOR[e.team] || '#58a6ff';
         const start = e.time ? Date.parse(`${e.date}T${e.time}:00${tallinnOffset(e.date)}`) : NaN;

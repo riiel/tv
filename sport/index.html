@@ -17,7 +17,7 @@
   --accent:#58a6ff; --accent-strong:#1f6feb; --hi:rgba(56,139,253,.12);
   --win:#3fb950; --draw:#8b949e; --loss:#f85149;
   /* meeskonnamärgid teema enda toonidest */
-  --t-bcp:#d29922; --t-vap:#3fb950; --t-ejk:#58a6ff; --t-ekk:#a5b4c3;
+  --t-bcp:#d29922; --t-vap:#3fb950; --t-ejk:#58a6ff; --t-ekk:#a5b4c3; --t-wrc:#ff6b5b;
   --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 *{box-sizing:border-box}
@@ -388,9 +388,9 @@ footer{padding:14px 0 24px;font-size:12px}
   sync(); setInterval(sync, 2000);
 })();
 
-const COLORS={bcp:"var(--t-bcp)",vap:"var(--t-vap)",ejk:"var(--t-ejk)",ekk:"var(--t-ekk)"};
-const SHORT={bcp:"BC Pärnu",vap:"Vaprus",ejk:"Jalgpallikoondis",ekk:"Korvpallikoondis"};
-const OWN={bcp:["BC Pärnu"],vap:["Vaprus","Pärnu JK Vaprus"],ejk:["Eesti"],ekk:["Eesti"]};
+const COLORS={bcp:"var(--t-bcp)",vap:"var(--t-vap)",ejk:"var(--t-ejk)",ekk:"var(--t-ekk)",wrc:"var(--t-wrc)"};
+const SHORT={bcp:"BC Pärnu",vap:"Vaprus",ejk:"Jalgpallikoondis",ekk:"Korvpallikoondis",wrc:"Tänak · WRC"};
+const OWN={bcp:["BC Pärnu"],vap:["Vaprus","Pärnu JK Vaprus"],ejk:["Eesti"],ekk:["Eesti"],wrc:["Ott Tänak"]};
 const DUR={bcp:135,ekk:135,vap:120,ejk:120}; // mängu ligikaudne kestus minutites
 const MONTHS=["jaanuar","veebruar","märts","aprill","mai","juuni","juuli","august","september","oktoober","november","detsember"];
 const WDL=["pühapäev","esmaspäev","teisipäev","kolmapäev","neljapäev","reede","laupäev"];
@@ -398,13 +398,14 @@ const WD=["P","E","T","K","N","R","L"];
 const RL={W:"V",D:"Vi",L:"K"};
 const ICON_PATHS={
   basket:'<circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20M5.2 4.8c3.3 3.2 3.3 11.2 0 14.4M18.8 4.8c-3.3 3.2-3.3 11.2 0 14.4"/>',
+  rally:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2.6"/><path d="M2.6 10.5c3-1.4 6-2 9.4-2s6.4.6 9.4 2M10 14.3 6.2 21M14 14.3l3.8 6.7"/>',
   football:'<circle cx="12" cy="12" r="10"/><path d="m12 7.2 4.3 3.1-1.6 5H9.3l-1.6-5z"/><path d="M12 7.2V2.3M16.3 10.3l4.6-1.5M14.7 15.3l2.9 4M9.3 15.3l-2.9 4M7.7 10.3 3.1 8.8"/>'
 };
 const ico=n=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[n]}</svg>`;
 const FLAG='<svg class="flag" viewBox="0 0 33 21" aria-label="Eesti" role="img"><rect width="33" height="7" fill="#0072ce"/><rect y="7" width="33" height="7" fill="#000"/><rect y="14" width="33" height="7" fill="#fff"/></svg>';
-const SPORT={bcp:"basket",vap:"football",ejk:"football",ekk:"basket"};
+const SPORT={bcp:"basket",vap:"football",ejk:"football",ekk:"basket",wrc:"rally"};
 const NATIONAL={ejk:true,ekk:true};
-const tIco=k=>`<span class="tico" style="--c:${COLORS[k]}" title="${SPORT[k]==="basket"?"Korvpall":"Jalgpall"}${NATIONAL[k]?" · koondis":""}">${ico(SPORT[k])}${NATIONAL[k]?FLAG:""}</span>`;
+const tIco=k=>`<span class="tico" style="--c:${COLORS[k]}" title="${{basket:"Korvpall",football:"Jalgpall",rally:"Ralli"}[SPORT[k]]}${NATIONAL[k]?" · koondis":""}">${ico(SPORT[k])}${NATIONAL[k]?FLAG:""}</span>`;
 let DATA=null, SIG="", LIVE=null, sel="bcp", auto=false, autoTimer=null;
 try{const s=localStorage.getItem("sk-team"); if(s) sel=s; auto=localStorage.getItem("sk-auto")==="1";}catch(_){}
 
@@ -422,16 +423,20 @@ function tzOff(d){const [y,m,day]=d.split("-").map(Number);
   return ((m>3&&m<10)||(m===3&&day>=lastSun(3))||(m===10&&day<lastSun(10)))?"+03:00":"+02:00";}
 const startOf=e=>new Date(e.date+"T"+(e.time||"23:59")+":00"+tzOff(e.date));
 const dayStart=e=>new Date(e.date+"T00:00:00"+tzOff(e.date));
-const endOf=e=>e.time?startOf(e).getTime()+(DUR[e.team]||120)*6e4:dayStart(e).getTime()+864e5;
+const endOf=e=>e.end?new Date(e.end+"T00:00:00"+tzOff(e.end)).getTime()+864e5:e.time?startOf(e).getTime()+(DUR[e.team]||120)*6e4:dayStart(e).getTime()+864e5;
 const wdOf=e=>new Date(e.date+"T12:00:00Z").getUTCDay();
 function dateTxt(e,long){const [y,m,d]=e.date.split("-").map(Number);
+  if(e.end){const [,m2,d2]=e.end.split("-").map(Number);
+    return long?(m2===m?`${d}.–${d2}. ${MONTHS[m-1]}`:`${d}. ${MONTHS[m-1]} – ${d2}. ${MONTHS[m2-1]}`):`${d}.${m2===m?"":String(m).padStart(2,"0")+"."}–${d2}.${String(m2).padStart(2,"0")}`;}
   return long?`${WDL[wdOf(e)]}, ${d}. ${MONTHS[m-1]}`:`${WD[wdOf(e)]} ${d}.${String(m).padStart(2,"0")}`;}
 const shortDate=e=>{const [y,m,d]=e.date.split("-");return `${d}.${m}.${y.slice(2)}`;};
 function relDay(e){const now=new Date(),t=new Date(now.toLocaleString("en-US",{timeZone:"Europe/Tallinn"}));
   const today=new Date(t.getFullYear(),t.getMonth(),t.getDate()); const [y,m,d]=e.date.split("-").map(Number);
   const diff=Math.round((new Date(y,m-1,d)-today)/864e5); return diff===0?"täna":diff===1?"homme":"";}
-const isUp=(e,now)=>!e.score&&startOf(e).getTime()+3*36e5>now.getTime();
-const isLive=(e,now)=>!e.score&&e.time&&startOf(e)<=now&&endOf(e)>now.getTime();
+const isUp=(e,now)=>!e.score&&(e.end?endOf(e):startOf(e).getTime()+3*36e5)>now.getTime();
+const isLive=(e,now)=>!e.score&&(e.end?dayStart(e)<=now:e.time&&startOf(e)<=now)&&endOf(e)>now.getTime();
+// Tulemuse märk: mängudel V/Vi/K, rallil koht (nt 2)
+const pillTxt=e=>e.team==="wrc"?String(e.score||"").replace(/\.$/,""):RL[e.result]||"";
 const upcoming=now=>DATA.events.filter(e=>isUp(e,now)).sort((a,b)=>startOf(a)-startOf(b));
 const played=k=>DATA.events.filter(e=>e.team===k&&e.score).sort((a,b)=>startOf(b)-startOf(a));
 function* walk(ps){for(const p of ps||[]){if(p.type==="stack") yield* walk(p.panels); else yield p;}}
@@ -453,10 +458,10 @@ function applyLive(d,L){
 
 function formHtml(k){
   const f=played(k).slice(0,5).reverse(); if(!f.length) return "";
-  return `<span class="form" title="Viimased ${f.length} mängu, uusim paremal">${f.map(e=>`<i class="${e.result}">${RL[e.result]||""}</i>`).join("")}</span>`;
+  return `<span class="form" title="Viimased ${f.length} ${k==="wrc"?"rallit":"mängu"}, uusim paremal">${f.map(e=>`<i class="${e.result}">${pillTxt(e)}</i>`).join("")}</span>`;
 }
 // Kaartide järjekord (2 veergu): BC Pärnu | korvpallikoondis, Vaprus | jalgpallikoondis
-const CARD_ORDER=["bcp","ekk","vap","ejk"];
+const CARD_ORDER=["bcp","ekk","vap","ejk","wrc"];
 function cardBg(k,t){
   const l=logoUrl(OWN[k]&&NATIONAL[k]?"Eesti":t.name)||logoUrl((OWN[k]||[])[0]||"");
   if(!l) return "";
@@ -474,7 +479,7 @@ function renderCards(){
     const l=played(k)[0];
     const rel=n?relDay(n):"";
     const nextV=n?`<b>${teamsTitle(n.title)}</b><small>${isLive(n,now)?"käib praegu · ":""}${rel?rel+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""}</small>`:`<small>${esc(s.nextText||"Uut mängu pole veel kalendris")}</small>`;
-    const lastV=l?`<span class="pill ${l.result}">${RL[l.result]}</span><b class="tn">${esc(l.score)}</b> ${teamsTitle(l.title)}`:"–";
+    const lastV=l?(k==="wrc"?`<span class="pill ${l.result}">${pillTxt(l)}</span> ${teamsTitle(l.title)}${l.note?` <small>${esc(l.note)}</small>`:""}`:`<span class="pill ${l.result}">${RL[l.result]}</span><b class="tn">${esc(l.score)}</b> ${teamsTitle(l.title)}`):"–";
     return `<button class="card" role="tab" aria-selected="${k===sel}" data-k="${k}" style="--c:${COLORS[k]}">${cardBg(k,t)}
       <h3>${tIco(k)}${esc(t.name)}${formHtml(k)}</h3>
       <div class="status">${esc(s.headline)}${s.sub?" · "+esc(s.sub):""}<small>${esc(s.competition)}</small></div>
@@ -534,7 +539,7 @@ function select(k){
   document.querySelectorAll(".card").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.k===k)));
   document.getElementById("teamDetail").innerHTML=`<div style="--c:${COLORS[k]}">
     <p class="facts">${(t.facts||[]).map(([a,v])=>`<span>${esc(a)}: <b>${esc(v)}</b></span>`).join("")}</p>
-    <div class="grid">${panelHtml(teamCalendar(k),k)}${(t.panels||[]).map(p=>panelHtml(p,k)).join("")}</div></div>`;
+    <div class="grid">${k==="wrc"?"":panelHtml(teamCalendar(k),k)}${(t.panels||[]).map(p=>panelHtml(p,k)).join("")}</div></div>`;
 }
 function step(dir){const ks=Object.keys(DATA.teams);select(ks[(ks.indexOf(sel)+dir+ks.length)%ks.length]);}
 function setAuto(on){
@@ -560,12 +565,13 @@ function tick(){
   if(!n){box.className="next";Lb.textContent="Järgmine mäng";T.textContent="Kalender on tühi";M.textContent="";H.innerHTML="";C.innerHTML="";return;}
   const rel=relDay(n), live=isLive(n,now);
   box.className="next"+(live?" live":rel==="täna"?" today":"");
-  Lb.textContent=live?"Käib praegu":rel==="täna"?"Täna mängib":"Järgmine mäng";
+  const rally=n.team==="wrc";
+  Lb.textContent=live?"Käib praegu":rel==="täna"?(rally?"Täna algab":"Täna mängib"):(rally?"Järgmine ralli":"Järgmine mäng");
   const key=n.team+n.date+n.title;
   if(T.dataset.k!==key){T.dataset.k=key;T.innerHTML=teamsTitle(n.title);H.innerHTML=h2hHtml(n);}
   M.textContent=`${rel?rel[0].toUpperCase()+rel.slice(1)+", ":""}${dateTxt(n,true)}${n.time?" kell "+n.time:""} · ${n.comp}${n.place?" · "+n.place:""}${n.tv?" · Ülekanne: "+n.tv:""}`;
-  if(live){C.innerHTML=`<div><b>Käib</b><span>tulemus pärast mängu</span></div>`;return;}
-  if(!n.time){C.innerHTML="";return;}
+  if(live){C.innerHTML=`<div><b>Käib</b><span>tulemus pärast ${rally?"rallit":"mängu"}</span></div>`;return;}
+  if(!n.time){const dd=Math.ceil((dayStart(n)-now)/864e5);C.innerHTML=n.end&&dd>1?`<div><b>${dd}</b><span>päeva</span></div>`:"";return;}
   const ms=Math.max(0,startOf(n)-now), d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60;
   C.innerHTML=`<div><b>${d}</b><span>päeva</span></div><div><b>${String(h).padStart(2,"0")}</b><span>tundi</span></div><div><b>${String(m).padStart(2,"0")}</b><span>minutit</span></div>`;
 }

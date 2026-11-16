@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-14T23:36:29+02:00",
- "note": "Andmed loetakse otse alaliitude lehtedelt: basket.ee, fiba.basketball ja jalgpall.ee.",
+ "note": "Andmed loetakse otse alaliitude lehtedelt: basket.ee, fiba.basketball ja jalgpall.ee; ralli MM Wikipediast.",
  "teams": {
   "bcp": {
    "name": "BC Pärnu",
@@ -1170,6 +1170,228 @@
       }
      ],
      "key": "ekk-results"
+    }
+   ]
+  },
+  "wrc": {
+   "name": "Ott Tänak · WRC",
+   "color": "wrc",
+   "summary": {
+    "competition": "Ralli MM 2027 · Toyota",
+    "headline": "Hooaeg algab",
+    "sub": "21. jaanuaril Monte-Carlos",
+    "form": []
+   },
+   "facts": [
+    [
+     "Kaardilugeja",
+     "Martin Järveoja"
+    ],
+    [
+     "Meeskond",
+     "Toyota Gazoo Racing"
+    ],
+    [
+     "Auto",
+     "Toyota GR Yaris Rally1"
+    ],
+    [
+     "Tiimikaaslane",
+     "Takamoto Katsuta"
+    ]
+   ],
+   "panels": [
+    {
+     "type": "table",
+     "key": "wrc-cal",
+     "title": "WRC 2027 · kalender",
+     "width": 8,
+     "highlight": "Rally Estonia",
+     "columns": [
+      "#",
+      "Ralli",
+      "Kuupäevad",
+      "Kate",
+      "Võitja",
+      "Tänak"
+     ],
+     "rows": [
+      [
+       1,
+       "Rallye Monte-Carlo",
+       "21.–24. jaan",
+       "Segakate",
+       "",
+       ""
+      ],
+      [
+       2,
+       "Rally Sweden",
+       "18.–21. veebr",
+       "Lumi",
+       "",
+       ""
+      ],
+      [
+       3,
+       "Safari Rally Kenya",
+       "18.–21. märts",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       4,
+       "Croatia Rally",
+       "8.–11. apr",
+       "Asfalt",
+       "",
+       ""
+      ],
+      [
+       5,
+       "Rally Islas Canarias",
+       "6.–9. mai",
+       "Asfalt",
+       "",
+       ""
+      ],
+      [
+       6,
+       "Rally Japan",
+       "3.–6. juuni",
+       "Asfalt",
+       "",
+       ""
+      ],
+      [
+       7,
+       "Acropolis Rally Greece",
+       "24.–27. juuni",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       8,
+       "Rally d'Italia",
+       "8.–11. juuli",
+       "Asfalt",
+       "",
+       ""
+      ],
+      [
+       9,
+       "Rally Estonia",
+       "22.–25. juuli",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       10,
+       "Rally Finland",
+       "29. juuli – 1. aug",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       11,
+       "Rally USA",
+       "26.–29. aug",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       12,
+       "Rally Scotland",
+       "30. sept – 3. okt",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       13,
+       "Rally del Paraguay",
+       "21.–24. okt",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       14,
+       "Rally Chile Biobío",
+       "4.–7. nov",
+       "Kruus",
+       "",
+       ""
+      ],
+      [
+       15,
+       "Rally Saudi Arabia",
+       "25.–28. nov",
+       "Kruus",
+       "",
+       ""
+      ]
+     ],
+     "note": "15 etappi. Rally Estonia (22.–25. juuli) on nädal enne Soome rallit."
+    },
+    {
+     "type": "stack",
+     "width": 4,
+     "panels": [
+      {
+       "type": "stats",
+       "key": "wrc-stats",
+       "title": "Tänaku hooaeg",
+       "items": [
+        [
+         "–",
+         "koht"
+        ],
+        [
+         "0",
+         "punkti"
+        ],
+        [
+         "0",
+         "võitu"
+        ],
+        [
+         "0",
+         "poodiumit"
+        ]
+       ]
+      },
+      {
+       "type": "table",
+       "key": "wrc-drivers",
+       "title": "Sõitjate MM",
+       "highlight": "Ott Tänak",
+       "columns": [
+        "#",
+        "Sõitja",
+        "P"
+       ],
+       "rows": [],
+       "note": "Tabel täitub pärast esimest rallit."
+      },
+      {
+       "type": "table",
+       "key": "wrc-makers",
+       "title": "Tootjad",
+       "highlight": "Toyota",
+       "columns": [
+        "#",
+        "Tootja",
+        "P"
+       ],
+       "rows": []
+      }
+     ]
     }
    ]
   }
@@ -2412,6 +2634,126 @@
    "comp": "KML play-off 2025/26",
    "score": "87:81",
    "result": "W"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-01-21",
+   "end": "2027-01-24",
+   "title": "Rallye Monte-Carlo",
+   "comp": "WRC 2027, 1. etapp",
+   "place": "Monaco"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-02-18",
+   "end": "2027-02-21",
+   "title": "Rally Sweden",
+   "comp": "WRC 2027, 2. etapp",
+   "place": "Rootsi"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-03-18",
+   "end": "2027-03-21",
+   "title": "Safari Rally Kenya",
+   "comp": "WRC 2027, 3. etapp",
+   "place": "Keenia"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-04-08",
+   "end": "2027-04-11",
+   "title": "Croatia Rally",
+   "comp": "WRC 2027, 4. etapp",
+   "place": "Horvaatia"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-05-06",
+   "end": "2027-05-09",
+   "title": "Rally Islas Canarias",
+   "comp": "WRC 2027, 5. etapp",
+   "place": "Kanaari saared, Hispaania"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-06-03",
+   "end": "2027-06-06",
+   "title": "Rally Japan",
+   "comp": "WRC 2027, 6. etapp",
+   "place": "Jaapan"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-06-24",
+   "end": "2027-06-27",
+   "title": "Acropolis Rally Greece",
+   "comp": "WRC 2027, 7. etapp",
+   "place": "Kreeka"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-07-08",
+   "end": "2027-07-11",
+   "title": "Rally d'Italia",
+   "comp": "WRC 2027, 8. etapp",
+   "place": "Rooma, Itaalia"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-07-22",
+   "end": "2027-07-25",
+   "title": "Rally Estonia",
+   "comp": "WRC 2027, 9. etapp",
+   "place": "Tartu, Eesti"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-07-29",
+   "end": "2027-08-01",
+   "title": "Rally Finland",
+   "comp": "WRC 2027, 10. etapp",
+   "place": "Jyväskylä, Soome"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-08-26",
+   "end": "2027-08-29",
+   "title": "Rally USA",
+   "comp": "WRC 2027, 11. etapp",
+   "place": "USA"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-09-30",
+   "end": "2027-10-03",
+   "title": "Rally Scotland",
+   "comp": "WRC 2027, 12. etapp",
+   "place": "Aberdeen, Šotimaa"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-10-21",
+   "end": "2027-10-24",
+   "title": "Rally del Paraguay",
+   "comp": "WRC 2027, 13. etapp",
+   "place": "Paraguay"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-11-04",
+   "end": "2027-11-07",
+   "title": "Rally Chile Biobío",
+   "comp": "WRC 2027, 14. etapp",
+   "place": "Tšiili"
+  },
+  {
+   "team": "wrc",
+   "date": "2027-11-25",
+   "end": "2027-11-28",
+   "title": "Rally Saudi Arabia",
+   "comp": "WRC 2027, 15. etapp",
+   "place": "Saudi Araabia"
   }
  ],
  "sources": [
@@ -2434,6 +2776,10 @@
   [
    "jalgpall.ee: koondis",
    "https://jalgpall.ee/koondis/1/mangud"
+  ],
+  [
+   "Wikipedia: WRC 2027",
+   "https://en.wikipedia.org/wiki/2027_World_Rally_Championship"
   ]
  ],
  "logos": {
@@ -2477,7 +2823,22 @@
   "Rootsi": "flag:se",
   "Sloveenia": "flag:si",
   "Ungari": "flag:hu",
-  "Tšehhi": "flag:cz"
+  "Tšehhi": "flag:cz",
+  "Rallye Monte-Carlo": "flag:mc",
+  "Rally Sweden": "flag:se",
+  "Safari Rally Kenya": "flag:ke",
+  "Croatia Rally": "flag:hr",
+  "Rally Islas Canarias": "flag:es",
+  "Rally Japan": "flag:jp",
+  "Acropolis Rally Greece": "flag:gr",
+  "Rally d'Italia": "flag:it",
+  "Rally Estonia": "flag:ee",
+  "Rally Finland": "flag:fi",
+  "Rally USA": "flag:us",
+  "Rally Scotland": "flag:gb-sct",
+  "Rally del Paraguay": "flag:py",
+  "Rally Chile Biobío": "flag:cl",
+  "Rally Saudi Arabia": "flag:sa"
  },
  "logoAliases": {
   "BK Liepaja": "BK Liepāja",
@@ -2495,6 +2856,7 @@
   "Keravnos (CYP)": "Keravnos",
   "BC Vienna (AUT)": "BC Vienna",
   "Nitra Blue Wings (SVK)": "Nitra Blue Wings",
-  "BC Pärnu (EST)": "BC Pärnu"
+  "BC Pärnu (EST)": "BC Pärnu",
+  "Ott Tänak": "Eesti"
  }
 }

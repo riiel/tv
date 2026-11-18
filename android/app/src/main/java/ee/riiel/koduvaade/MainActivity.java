@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -34,6 +35,30 @@ public class MainActivity extends Activity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private String pendingGeoOrigin;
     private GeolocationPermissions.Callback pendingGeoCallback;
+    /** Kas lehe raadio mängib (leht teatab ise KoduvaadeApp.radio kaudu). */
+    private volatile boolean radioPlaying;
+    private boolean inBackground;
+
+    /** Leht annab teada raadio olekust; teenus hoiab raadio taustal korralikult käimas. */
+    private class AppBridge {
+        @JavascriptInterface
+        public void radio(boolean playing, String station, String title) {
+            handler.post(() -> {
+                boolean was = radioPlaying;
+                radioPlaying = playing;
+                // Android 13+: küsi korra luba teatisele (sealt saab raadio peatada ja näeb lugu)
+                if (playing && !was && android.os.Build.VERSION.SDK_INT >= 33
+                        && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED
+                        && !getPreferences(MODE_PRIVATE).getBoolean("notifAsked", false)) {
+                    getPreferences(MODE_PRIVATE).edit().putBoolean("notifAsked", true).apply();
+                    requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 2);
+                }
+                RadioService.update(MainActivity.this, playing, station, title);
+                // Raadio peatati taustal (nt teatisest): nüüd võib lehe magama panna
+                if (was && !playing && inBackground) sleepPage();
+            });
+        }
+    }
 
     private boolean hasLocationPermission() {
         if (android.os.Build.VERSION.SDK_INT < 23) return true;
@@ -63,6 +88,10 @@ public class MainActivity extends Activity {
         s.setUseWideViewPort(true);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         s.setUserAgentString(s.getUserAgentString() + " KoduvaadeTV/1.0");
+
+        web.addJavascriptInterface(new AppBridge(), "KoduvaadeApp");
+        RadioService.onToggle = () -> handler.post(() ->
+                web.evaluateJavascript("window.koduRadio && koduRadio.state().playing && koduRadio.toggle()", null));
 
         web.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -149,21 +178,30 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        inBackground = false;
         web.onResume();
         web.resumeTimers();
     }
 
     @Override
     protected void onPause() {
-        // Avaekraanile minnes peatub leht (ka raadio), et teler ei mängiks taustal
+        inBackground = true;
+        // Kui raadio mängib, jääb leht ärkvel ja raadio mängib avaekraanil edasi (teenus hoiab seda).
+        // Muidu pannakse leht magama, et taustal midagi ei jookseks.
+        if (!radioPlaying) sleepPage();
+        super.onPause();
+    }
+
+    private void sleepPage() {
         web.onPause();
         web.pauseTimers();
-        super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         handler.removeCallbacksAndMessages(null);
+        RadioService.onToggle = null;
+        stopService(new android.content.Intent(this, RadioService.class));
         web.destroy();
         super.onDestroy();
     }

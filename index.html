@@ -3030,6 +3030,17 @@
       else hideSport(true);
     };
 
+    // Androidi rakendus (Shield/telefon): anna teada, kas raadio mängib, et see jätkuks korralikult taustal
+    // (rakendus hoiab siis lehe ärkvel ja näitab teatist/meediapaneeli koos jaama ja looga)
+    function notifyApp() {
+      try {
+        if (window.KoduvaadeApp) KoduvaadeApp.radio(!radio.paused, currentStationName || '', $('radio-status').textContent || '');
+      } catch (e) {}
+    }
+    radio.addEventListener('play', notifyApp);
+    radio.addEventListener('pause', notifyApp);
+    new MutationObserver(notifyApp).observe($('radio-status'), { childList: true, characterData: true, subtree: true });
+
     // Raadio juhtimine spordilehelt (sama päritolu, seega otse ligipääs)
     window.koduRadio = {
       state: () => ({ playing: !radio.paused, station: currentStationName, title: $('radio-status').textContent }),

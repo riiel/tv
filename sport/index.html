@@ -463,7 +463,7 @@ function formHtml(k){
   return `<span class="form" title="Viimased ${f.length} ${k==="wrc"?"rallit":"mängu"}, uusim paremal">${f.map(e=>`<i class="${e.result}">${pillTxt(e)}</i>`).join("")}</span>`;
 }
 // Kaartide järjekord (2 veergu): BC Pärnu | korvpallikoondis, Vaprus | jalgpallikoondis
-const BRAND={wrc:"https://cdn.simpleicons.org/toyota/FFFFFF"};
+const BRAND={};
 const CARD_ORDER=["bcp","ekk","vap","ejk","wrc"];
 function cardBg(k,t){
   const l=logoUrl(OWN[k]&&NATIONAL[k]?"Eesti":t.name)||logoUrl((OWN[k]||[])[0]||"");

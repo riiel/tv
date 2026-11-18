@@ -173,7 +173,9 @@
     }
     /* Puldiga juhtimine: valitud nupp on selgelt näha */
     .kbd-nav :focus { outline: 3px solid #58a6ff !important; outline-offset: 3px !important; box-shadow: 0 0 0 7px rgba(88, 166, 255, 0.28) !important; border-radius: 999px; }
-    .kbd-nav .card:focus, .kbd-nav .play:focus { border-radius: inherit; }
+    .kbd-nav .card:focus { border-radius: inherit; }
+    /* Play-nupp jääb puldiga valides ümmarguseks, fookusrõngas ümbritseb seda ringina */
+    .kbd-nav .play:focus { border-radius: 50%; outline: none !important; box-shadow: 0 0 0 4px #0d1117, 0 0 0 8px #58a6ff, 0 0 26px 8px rgba(88,166,255,.45) !important; }
     .cheap-window { margin-top: 0.5vh; color: var(--muted); font-size: clamp(11px, 0.9vw, 14px); font-weight: 600; }
     .cheap-window b { color: var(--cyan); font-weight: 800; }
     .alert-pill.clickable { cursor: pointer; }
